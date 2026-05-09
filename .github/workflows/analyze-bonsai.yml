@@ -1,0 +1,245 @@
+name: Analyze Bonsai Quantization
+
+# This workflow downloads the Bonsai 1-bit GGUF + the FP16 "unpacked" variant
+# + the corresponding base Qwen3 model, then runs metadata inspection,
+# Q1_0 sortedness/run-length analysis, and an unpacked-vs-base comparison.
+#
+# It exists because Claude Code's web sandbox blocks huggingface.co at the
+# egress proxy ("Host not in allowlist"), but GitHub-hosted runners have
+# unrestricted internet access. Trigger manually from the Actions tab
+# (workflow_dispatch) — pick model size + which steps to run.
+
+on:
+  workflow_dispatch:
+    inputs:
+      size:
+        description: "Model size"
+        required: true
+        default: "1.7B"
+        type: choice
+        options: ["1.7B", "4B", "8B"]
+      family:
+        description: "Bonsai family (binary first; ternary uses Q2_0)"
+        required: true
+        default: "bonsai"
+        type: choice
+        options: ["bonsai", "ternary"]
+      include_unpacked:
+        description: "Also download the FP16 'unpacked' Bonsai variant (large)"
+        required: true
+        default: true
+        type: boolean
+      include_base:
+        description: "Also download the corresponding base Qwen3 model (large)"
+        required: true
+        default: true
+        type: boolean
+      tensor_filter:
+        description: "Substring filter for per-tensor analysis (e.g. blk.0., attn_q, ffn_down)"
+        required: false
+        default: ""
+
+  push:
+    branches:
+      - claude/analyze-bonsai-quantization-mWMZB
+    paths:
+      - "src/**"
+      - ".github/workflows/analyze-bonsai.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Free disk
+        run: |
+          # GH runners ship with ~14 GB free; full-precision Qwen3-8B is
+          # ~16 GB so we trim toolchains we don't need before downloads.
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL || true
+          df -h /
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install deps
+        run: uv sync --no-dev
+
+      - name: Compute target paths
+        id: paths
+        run: |
+          SIZE="${{ inputs.size || '1.7B' }}"
+          FAMILY="${{ inputs.family || 'bonsai' }}"
+          if [ "$FAMILY" = "ternary" ]; then
+            GGUF_REPO="prism-ml/Ternary-Bonsai-${SIZE}-gguf"
+            QUANT_PATTERN="*Q2_0*.gguf"
+            UNPACKED_REPO="prism-ml/Ternary-Bonsai-${SIZE}-unpacked"
+          else
+            GGUF_REPO="prism-ml/Bonsai-${SIZE}-gguf"
+            QUANT_PATTERN="*Q1_0*.gguf"
+            UNPACKED_REPO="prism-ml/Bonsai-${SIZE}-unpacked"
+          fi
+          # Map size -> Qwen3 base repo
+          BASE_REPO="Qwen/Qwen3-${SIZE}"
+          {
+            echo "gguf_repo=$GGUF_REPO"
+            echo "quant_pattern=$QUANT_PATTERN"
+            echo "unpacked_repo=$UNPACKED_REPO"
+            echo "base_repo=$BASE_REPO"
+            echo "size=$SIZE"
+            echo "family=$FAMILY"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Download GGUF (small — quant only)
+        env:
+          HF_HUB_ENABLE_HF_TRANSFER: "1"
+        run: |
+          uv run python -c "
+          from huggingface_hub import snapshot_download
+          snapshot_download(
+              repo_id='${{ steps.paths.outputs.gguf_repo }}',
+              local_dir='models/gguf',
+              allow_patterns=['${{ steps.paths.outputs.quant_pattern }}',
+                              '*.json', 'README*'],
+          )
+          "
+          ls -lh models/gguf
+
+      - name: Download unpacked (FP16 Bonsai)
+        if: ${{ inputs.include_unpacked != false }}
+        env:
+          HF_HUB_ENABLE_HF_TRANSFER: "1"
+        run: |
+          uv run python -c "
+          from huggingface_hub import snapshot_download
+          try:
+              snapshot_download(
+                  repo_id='${{ steps.paths.outputs.unpacked_repo }}',
+                  local_dir='models/unpacked',
+                  allow_patterns=['*.safetensors', '*.json', 'README*'],
+              )
+          except Exception as e:
+              print('NOTE: unpacked repo not available:', e)
+          " || echo "unpacked repo skipped"
+          ls -lh models/unpacked || true
+
+      - name: Download base Qwen3
+        if: ${{ inputs.include_base != false }}
+        env:
+          HF_HUB_ENABLE_HF_TRANSFER: "1"
+        run: |
+          uv run python -c "
+          from huggingface_hub import snapshot_download
+          snapshot_download(
+              repo_id='${{ steps.paths.outputs.base_repo }}',
+              local_dir='models/base',
+              allow_patterns=['*.safetensors', '*.json', 'README*'],
+          )
+          "
+          ls -lh models/base
+
+      - name: Find GGUF file
+        id: ggufpath
+        run: |
+          gguf_file=$(find models/gguf -type f -name "${{ steps.paths.outputs.quant_pattern }}" | head -1)
+          echo "gguf_file=$gguf_file" >> "$GITHUB_OUTPUT"
+          echo "Found GGUF: $gguf_file"
+          ls -lh "$gguf_file"
+
+      - name: GGUF metadata inventory
+        run: |
+          mkdir -p reports
+          uv run python src/gguf_inspect.py \
+              "${{ steps.ggufpath.outputs.gguf_file }}" \
+              --tensors \
+              | tee "reports/01_metadata.txt"
+
+      - name: Q1_0 sortedness / sign-pattern analysis
+        run: |
+          uv run python src/analyze_q1_0.py \
+              "${{ steps.ggufpath.outputs.gguf_file }}" \
+              --top 0 \
+              ${{ inputs.tensor_filter && format('--filter "{0}"', inputs.tensor_filter) || '' }} \
+              | tee "reports/02_q1_0_analysis.txt"
+
+      - name: Compare Bonsai-unpacked vs Qwen3 base (FP, supports safetensors)
+        if: ${{ inputs.include_unpacked != false && inputs.include_base != false }}
+        run: |
+          set +e
+          unpacked=$(find models/unpacked -name "*.safetensors" | head -1)
+          [ -z "$unpacked" ] && unpacked=$(find models/unpacked -name "*.gguf" | head -1)
+          base=$(find models/base -name "*.safetensors" | head -1)
+          [ -z "$base" ] && base=$(find models/base -name "*.gguf" | head -1)
+          if [ -z "$unpacked" ] || [ -z "$base" ]; then
+            echo "Missing unpacked ($unpacked) or base ($base); skipping FP comparison." \
+              | tee "reports/03_unpacked_vs_qwen3.txt"
+            exit 0
+          fi
+          uv run python src/compare_unpacked_vs_qwen3.py \
+              "$unpacked" "$base" \
+              ${{ inputs.tensor_filter && format('--filter "{0}"', inputs.tensor_filter) || '' }} \
+              | tee "reports/03_unpacked_vs_qwen3.txt"
+
+      - name: 3-way Q1_0 vs Bonsai-unpacked-GGUF vs Qwen3-GGUF (if all GGUF)
+        if: ${{ inputs.include_unpacked != false }}
+        run: |
+          set +e
+          q1=$(find models/gguf -name "${{ steps.paths.outputs.quant_pattern }}" | head -1)
+          fp=$(find models/unpacked -name "*.gguf" | head -1)
+          # GGUFs of base Qwen3 aren't typically downloaded; skip the qwen arg
+          # unless the user separately stages a GGUF version of the base.
+          qw=""
+          if [ -z "$fp" ]; then
+            echo "No GGUF unpacked variant; skipping 3-way GGUF compare." \
+              | tee "reports/04_three_way_gguf.txt"
+            exit 0
+          fi
+          uv run python src/compare_unpacked.py \
+              --bonsai-q1 "$q1" --bonsai-fp "$fp" \
+              ${qw:+--qwen "$qw"} \
+              --limit 12 \
+              | tee "reports/04_three_way_gguf.txt"
+
+      - name: Lattice / sign-stats summary
+        run: |
+          # Quick top-line summary that's easy to skim from artifacts
+          {
+            echo "# Bonsai analysis summary"
+            echo "size=${{ steps.paths.outputs.size }}"
+            echo "family=${{ steps.paths.outputs.family }}"
+            echo "gguf=${{ steps.ggufpath.outputs.gguf_file }}"
+            echo
+            echo "## sha256"
+            sha256sum "${{ steps.ggufpath.outputs.gguf_file }}"
+            echo
+            echo "## sizes"
+            du -sh models/* 2>/dev/null || true
+          } | tee "reports/00_summary.txt"
+
+      - name: Upload reports artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}
+          path: reports/
+          if-no-files-found: error
+
+      - name: Upload smaller raw extracts (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: gguf-${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}
+          # Only the GGUF (~hundreds of MB). Useful for follow-up local work.
+          path: ${{ steps.ggufpath.outputs.gguf_file }}
+          if-no-files-found: warn
