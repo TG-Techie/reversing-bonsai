@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
 """Compare Bonsai-{size}-unpacked (FP16) against Qwen3-{size} base (FP16).
 
 The user's hypothesis: Bonsai's Q1_0 quant unpacks losslessly into the FP16
@@ -35,15 +37,84 @@ from pathlib import Path
 import numpy as np
 
 
+def _bf16_bytes_to_f32(buf: bytes, shape: tuple[int, ...]) -> np.ndarray:
+    """BF16 = upper 16 bits of an FP32. Promote without going through PyTorch."""
+    u16 = np.frombuffer(buf, dtype=np.uint16)
+    u32 = (u16.astype(np.uint32) << 16)
+    return u32.view(np.float32).reshape(shape)
+
+
+def _read_safetensors_raw(path: Path, name: str) -> np.ndarray | None:
+    import json, struct
+    with open(path, "rb") as fh:
+        hdr_len = struct.unpack("<Q", fh.read(8))[0]
+        hdr = json.loads(fh.read(hdr_len))
+        data_start = 8 + hdr_len
+        if name not in hdr:
+            return None
+        meta = hdr[name]
+        dtype = meta["dtype"]
+        shape = tuple(meta["shape"])
+        off_a, off_b = meta["data_offsets"]
+        fh.seek(data_start + off_a)
+        buf = fh.read(off_b - off_a)
+    if dtype == "BF16":
+        return _bf16_bytes_to_f32(buf, shape)
+    if dtype == "F16":
+        return np.frombuffer(buf, dtype=np.float16).reshape(shape).astype(np.float32)
+    if dtype == "F32":
+        return np.frombuffer(buf, dtype=np.float32).reshape(shape).copy()
+    raise ValueError(f"Unsupported safetensors dtype: {dtype}")
+
+
+# Cache of dir -> {key: shard_path} so we don't reparse headers per call.
+_SHARD_INDEX_CACHE: dict[str, dict[str, Path]] = {}
+
+
+def _build_shard_index(dir_path: Path) -> dict[str, Path]:
+    cache_key = str(dir_path.resolve())
+    if cache_key in _SHARD_INDEX_CACHE:
+        return _SHARD_INDEX_CACHE[cache_key]
+    import json, struct
+    weight_map: dict[str, Path] = {}
+    for sf in sorted(dir_path.glob("*.safetensors")):
+        with open(sf, "rb") as fh:
+            hdr_len = struct.unpack("<Q", fh.read(8))[0]
+            hdr = json.loads(fh.read(hdr_len))
+        for k in hdr:
+            if k != "__metadata__" and k not in weight_map:
+                weight_map[k] = sf
+    _SHARD_INDEX_CACHE[cache_key] = weight_map
+    return weight_map
+
+
 def load_tensor(path: Path, name: str) -> np.ndarray | None:
-    """Load a tensor from safetensors or GGUF, return float32 numpy array."""
+    """Load a tensor from safetensors / GGUF / a directory of shards.
+
+    safetensors framework='numpy' doesn't support BF16; for BF16 tensors we
+    read raw bytes via the file's offset table and bit-shift them to FP32.
+    Qwen3 base ships as BF16 so this branch matters.
+
+    A directory input is treated as a sharded model: every *.safetensors in
+    the directory is scanned (header only) and the union of keys is used.
+    """
+    if path.is_dir():
+        weight_map = _build_shard_index(path)
+        if name not in weight_map:
+            return None
+        return load_tensor(weight_map[name], name)
     sfx = path.suffix.lower()
     if sfx == ".safetensors":
         from safetensors import safe_open
         with safe_open(str(path), framework="numpy") as f:
             if name not in f.keys():
                 return None
-            return f.get_tensor(name).astype(np.float32)
+            try:
+                return f.get_tensor(name).astype(np.float32)
+            except TypeError:
+                # numpy can't open BF16 -> fall back to raw bytes.
+                pass
+        return _read_safetensors_raw(path, name)
     if sfx == ".gguf":
         from gguf import GGUFReader
         r = GGUFReader(str(path), "r")
@@ -58,6 +129,8 @@ def load_tensor(path: Path, name: str) -> np.ndarray | None:
 
 
 def list_tensor_names(path: Path) -> list[str]:
+    if path.is_dir():
+        return list(_build_shard_index(path).keys())
     sfx = path.suffix.lower()
     if sfx == ".safetensors":
         from safetensors import safe_open

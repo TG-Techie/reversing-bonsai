@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
 """Print GGUF metadata + tensor inventory.
 
 Usage: uv run python src/gguf_inspect.py <path.gguf> [--values KEY ...] [--tensors]

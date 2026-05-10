@@ -1,68 +1,17 @@
-name: Analyze Bonsai Quantization
+name: Analyze Bonsai Quantization (8B)
 
-# This workflow downloads the Bonsai 1-bit GGUF + the FP16 "unpacked" variant
-# + the corresponding base Qwen3 model, then runs metadata inspection,
-# Q1_0 sortedness/run-length analysis, and an unpacked-vs-base comparison.
-#
-# It exists because Claude Code's web sandbox blocks huggingface.co at the
-# egress proxy ("Host not in allowlist"), but GitHub-hosted runners have
-# unrestricted internet access. Trigger manually from the Actions tab
-# (workflow_dispatch) — pick model size + which steps to run.
+# Bonsai-8B variant (re-triggered after first run timed out at 60 min)
+# this file triggers exactly one 8B sweep + release; the inputs that the
+# main workflow exposes are baked in.
 
 on:
-  workflow_dispatch:
-    inputs:
-      size:
-        description: "Model size"
-        required: true
-        default: "1.7B"
-        type: choice
-        options: ["1.7B", "4B", "8B"]
-      family:
-        description: "Bonsai family (binary first; ternary uses Q2_0)"
-        required: true
-        default: "bonsai"
-        type: choice
-        options: ["bonsai", "ternary"]
-      include_unpacked:
-        description: "Also download the FP16 'unpacked' Bonsai variant (large)"
-        required: true
-        default: true
-        type: boolean
-      include_base:
-        description: "Also download the corresponding base Qwen3 model (large)"
-        required: true
-        default: true
-        type: boolean
-      tensor_filter:
-        description: "Substring filter for per-tensor analysis (e.g. blk.0., attn_q, ffn_down)"
-        required: false
-        default: ""
-      push_results:
-        description: "Push the analysis reports + models/MANIFEST.yaml back to the triggering branch"
-        required: true
-        default: true
-        type: boolean
-      store_models:
-        description: "Where to persist the downloaded model files (mobile-friendly: 'release')"
-        required: true
-        default: "release"
-        type: choice
-        options:
-          - "none"     # ephemeral on the runner only
-          - "release"  # upload all model files as a GH release (best for mobile)
-          - "lfs"      # commit small Q1_0 file into the repo via Git LFS
-          - "both"     # release for big files + LFS for the small Q1_0
-
+  workflow_dispatch: {}
   push:
     branches:
       - main
       - claude/**
     paths:
-      - ".github/workflows/analyze-bonsai.yml"
-      # NOT src/** — adding a script shouldn't burn 5-10 min downloading
-      # the model again. Trigger only when the workflow itself changes
-      # (e.g. when a fix lands on main).
+      - ".github/workflows/analyze-bonsai-8b.yml"
 
 permissions:
   contents: write    # needed for the optional 'commit reports back' step
@@ -110,8 +59,8 @@ jobs:
       - name: Compute target paths
         id: paths
         run: |
-          SIZE="${{ inputs.size || '1.7B' }}"
-          FAMILY="${{ inputs.family || 'bonsai' }}"
+          SIZE="8B"
+          FAMILY="bonsai"
           if [ "$FAMILY" = "ternary" ]; then
             GGUF_REPO="prism-ml/Ternary-Bonsai-${SIZE}-gguf"
             QUANT_PATTERN="*Q2_0*.gguf"

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
+#
 # Reproduce the prebuilt llama.cpp binaries.
 #
 # Defaults: CPU-only, no curl. Pass GGML_METAL=1 / GGML_CUDA=1 to override.

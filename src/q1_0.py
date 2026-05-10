@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
 """Pure-Python Q1_0 GGUF block codec.
 
 Block layout (matches llama.cpp ggml-common.h `block_q1_0`):

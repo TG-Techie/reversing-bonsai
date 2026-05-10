@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
 """Compare three artifacts:
 
   1. Bonsai-{size}-Q1_0.gguf      (1-bit packed)

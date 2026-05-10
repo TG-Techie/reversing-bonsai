@@ -2,164 +2,187 @@
 
 > Hi. You are picking up where I left off. We're the same model, but this is a
 > new session: you don't share my memory, you do share my judgment. Read this
-> before you do anything else; it will save you ~30 minutes of trial and error.
+> before you do anything else; it will save you ~30 minutes of re-derivation.
 
 ## Who you are, what we're doing
 
-You are Claude (Opus 4.7, 1M context), running inside Claude Code on the web,
-working in the **`tg-techie/reversing-bonsai`** repo. The user is TG-Techie /
-Jonah Y-M; primary workflow is mobile, so prefer one-action paths and short
-text replies. The user is direct and technical; they appreciate when you state
-your reasoning crisply.
+You are Claude (Opus 4.7, 1M context) running inside Claude Code on the web,
+working in **`tg-techie/reversing-bonsai`** for TG-Techie / Jonah Y-M.
+Primary workflow is mobile, so prefer one-action paths and short text replies.
+The user is direct and technical; they appreciate when you state your
+reasoning crisply.
 
-The scientific goal: **figure out why PrismML's "1-bit Bonsai" quantized models
-don't degrade.** They claim Q1_0_g128 (1 sign bit per weight + 1 FP16 scale per
-group of 128) preserves Qwen3-{1.7B, 4B, 8B} accuracy almost in full, and that
-the same weights ship in an "unpacked" FP16 form. The user's hypothesis:
+The scientific goal: **understand how PrismML's "1-bit Bonsai" preserves
+Qwen3 accuracy at 1.125 bits/weight, in service of eventually recreating the
+same compression on additional models.** Recreation is downstream; rigorous
+reverse engineering comes first.
 
-> The Q1_0 quant can be unpacked into the same floating representation as the
-> base Qwen3 it was quantized from — possibly modulo some channel permutation,
-> since neural-graph nodes can be reordered without changing the function.
+## Current state of the investigation
 
-We want to verify or falsify that.
+Empirical work on the 1.7B trio is in [`FINDINGS.md`](./FINDINGS.md), with
+acronyms in [`GLOSSARY.md`](./GLOSSARY.md) and recipe-relevant implications
+in [`RECIPE_HINTS.md`](./RECIPE_HINTS.md). Headline numbers:
 
-## What's already done
+- **H1 — `dequant(Bonsai-Q1_0) ≡ Bonsai-unpacked` (FP16) elementwise**
+  — confirmed across all 197 1.7B Q1\_0 tensors. Worst max-abs diff
+  9.77e-4 (1 FP16 ULP). Sign agreement 100%. 99.9947% of all 13.4M
+  groups have one distinct |w|. The "unpacked" file is just FP16
+  storage of the binary lattice — no second high-precision track.
+- **H2 — row permutation does not improve cosine to Qwen3-base**
+  — greedy best-row-perm cosine matches identity to ±1e-3 across
+  every layer (cos 0.43–0.60). Channel ordering is preserved.
+- **H3 — signs within each 128-block are statistically random**
+  — mean transitions/block 63.50 vs Binomial(127, 0.5) expectation
+  63.5; lag-1 autocorrelation ≈ 0; pos-count balanced.
+- **H4 — input columns are not a permutation of Qwen3's columns**
+  — per-col Pearson 0.05–0.13 *and* per-col Spearman 0.03–0.13;
+  top-10% loudest column overlap 12–16% vs 10% chance.
+  *Caveat:* this is a per-tensor test. A graph-equivalent residual-stream
+  permutation across many tensors would need a joint search;
+  `src/joint_permutation_search.py` does that.
+- **Magnitude follow-up:** Bonsai's per-block scale `s_g` correlates
+  with Qwen3 group mean(|w|) at +0.65 early, dropping to +0.37 late.
+  Per-output-row mean|w| correlation is preserved (~0.7); per-input-
+  column mean|w| correlation is structurally erased (≤ 0.13). Bonsai
+  is consistently 1.4–3× *louder* than Qwen3.
 
-The repo currently contains:
+The synthesis: Bonsai-1.7B looks like Qwen3-1.7B with the matrix-heavy
+weights *retrained* to live on a strict ±s\_g binary lattice, with channel
+ordering, head structure, and FFN intermediate dim all preserved verbatim.
+Norms and per-head q/k norms stay in higher precision. The "proprietary
+Caltech IP" the paper alludes to is most likely the training recipe
+(QAT/distillation), not a layout trick. Throughout the docs *observed*
+facts and *inferred* claims are clearly separated; keep that convention.
 
-- **The two whitepapers** (`1-bit-bonsai-8b-whitepaper.pdf`,
-  `ternary-bonsai-8b-whitepaper.pdf`). Read both. The first is the binary
-  family; the second is the ternary 1.58-bit family. PrismML deliberately
-  hides the methodology behind "proprietary Caltech IP."
-- **`FINDINGS.md`** — paper digest, the exact Q1_0 binary format reverse-
-  engineered from `ggml-quants.c`, and the three hypotheses (lossless
-  dequant / no permutation / sortedness-within-groups) that the analysis
-  scripts test. Read it.
-- **Analysis tooling** (`src/`):
-  - `q1_0.py` — pure-Python Q1_0 codec mirroring the C reference. Block =
-    18 bytes (FP16 d + 16 bytes signs, LSB-first within byte). Round-trip
-    self-tested.
-  - `gguf_inspect.py` — GGUF metadata + tensor inventory printer.
-  - `analyze_q1_0.py` — per-tensor sign-pattern, run-length, and
-    scale-ordering statistics. Tests "are blocks sorted within each group?"
-  - `compare_unpacked.py` — 3-way GGUF comparator (Q1 / unpacked-GGUF /
-    base-GGUF). Tests "does dequantize(Q1) equal the unpacked file?"
-  - `compare_unpacked_vs_qwen3.py` — 2-way FP comparator with greedy
-    permutation search. Supports safetensors. Tests "is Bonsai a
-    channel-permuted Qwen3?"
-- **Prebuilt llama.cpp binaries** for Linux x86_64 in
-  `prebuilt/linux-x86_64/{llama-cli, llama-quantize, llama-gguf}`. Built
-  from upstream `1e5ad35d` (b9093). macOS users use
-  `scripts/build_llama_cpp.sh` (auto-enables Metal).
-- **`uv` workspace** with `gguf`, `huggingface-hub`, `hf-transfer`, `numpy`,
-  `safetensors`, `pyyaml`. `pyproject.toml` + `uv.lock` are committed.
-- **GitHub Actions workflow** `.github/workflows/analyze-bonsai.yml` that
-  downloads the three model variants on a hosted runner, runs the
-  analyses, uploads weights to a release, commits reports back. Built as
-  a workaround when this sandbox couldn't reach `huggingface.co`.
-- **Three release tags already exist** with model bytes attached:
-  - `models-bonsai-1.7B-r5` — full (Q1_0 GGUF + unpacked + base, ~7 GB)
-  - `models-bonsai-4B-r6` — full (~13 GB)
-  - `models-bonsai-1.7B-r8` — partial (Q1_0 only)
-  See `models/MANIFEST.yaml` once any future workflow run writes it.
-- **`.claude/settings.json`** with `sandbox.allowedDomains` set to wildcard
-  `*.huggingface.co`, `*.hf.co`, `*.githubusercontent.com`,
-  `*.pytorch.org`, `*.modelscope.cn`, plus apex domains.
+## Repo layout
 
-## Sandbox network state — TEST THIS FIRST
-
-When I left, `huggingface.co` was blocked at the egress proxy
-(`x-deny-reason: host_not_allowed`). The user merged a PR that adds a
-project-scoped allowlist (`.claude/settings.json`). The user's intent is that
-this session has the new allowlist live. **Do not trust this.** Run:
-
-```sh
-curl -sIL -m 5 https://huggingface.co/prism-ml/Bonsai-1.7B-gguf/resolve/main/config.json | head -3
+```
+src/
+  q1_0.py                              # pure-Python Q1_0 codec
+  gguf_inspect.py                      # GGUF metadata + tensor inventory
+  analyze_q1_0.py                      # H3 — sign-pattern / sortedness
+  compare_unpacked.py                  # 3-way GGUF comparator
+  compare_q1_dequant_vs_unpacked.py    # H1 — bridge: dequant(Q1) vs unpacked
+  compare_unpacked_vs_qwen3.py         # H2 — FP comparator + greedy row-perm.
+                                       #   Multi-shard aware (pass a dir).
+  compare_magnitudes.py                # magnitude-distribution follow-up
+  test_column_permutation.py           # H4 — input-col permutation test
+  joint_permutation_search.py          # joint cross-tensor residual-stream
+                                       #   permutation search (Hungarian)
+  ptq_baseline.py                      # naive Q1_0(Qwen3) vs Bonsai vs base
+  deep_dive.py                         # 7 sections (norms, vocab, lm_head,
+                                       #   per-projection cos, per-head mag,
+                                       #   outliers, scale-shape)
+  qat_toy_demo.py                      # tiny char-level transformer with
+                                       #   BitLinear modules; trains on CPU
+  make_mini_report_figures.py          # parametrized on --size {1.7B,4B,8B}
+scripts/
+  build_llama_cpp.sh
+  fetch_models_from_release.sh
+  run_local_analysis.sh
+  run_all_on_trio.sh                   # full sweep runner; calls all of the
+                                       #   above against a (gguf, unpacked,
+                                       #   base) trio; loops every layer
+  merge_shards.py                      # multi-shard safetensors merger,
+                                       #   self-verifies via 3-tensor
+                                       #   round-trip equality
+  inference_smoke_test.sh              # llama-cli sanity test
+.github/workflows/
+  analyze-bonsai.yml                   # original (1.7B/4B/8B switchable)
+  analyze-bonsai-8b.yml                # hardcoded 8B; touch to retrigger
+prebuilt/linux-x86_64/{llama-cli,llama-quantize,llama-gguf}
+reports/bonsai-1.7B/                   # 01..XX text reports + figures/
+                                       #   + MINI_REPORT.md
+HANDOFF.md GLOSSARY.md FINDINGS.md README.md RECIPE_HINTS.md
 ```
 
-If you get `HTTP/2 200`, the allowlist is live and you can skip the entire
-GitHub Actions workaround. If you get `403 Host not in allowlist`, fall back to
-**Path B** below.
+## Things to know about the environment
 
-## The two paths from here
+- **HuggingFace egress is blocked** at the sandbox proxy
+  (`x-deny-reason: host_not_allowed`). The `.claude/settings.json`
+  allowlist exists but doesn't take effect mid-session and may not be
+  applied at all in fresh sessions. Test before relying on it:
+  ```sh
+  curl -sIL -m 5 https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/config.json | head -3
+  ```
+  If `403`, fall back to release-asset fetches via `github.com` (which
+  *is* allowed since the repo is public).
+- **VM disk is real but tight.** `df -h /` shows 252 GB total but
+  only ~30 GB is actually allocatable (reserved blocks). The 8B trio
+  at 33 GB does not fit alongside any other size; free one before
+  pulling the next.
+- **Repo is public.** Release-asset downloads via
+  `release-assets.githubusercontent.com` work without auth.
+- **`main` is branch-protected.** The workflow's "push reports back to
+  triggering ref" step silently fails on `main`. Trigger from
+  `claude/**` branches and reports will land on the triggering branch.
+- **Compute budget.** This VM is CPU-only. Tens-of-GB safetensors
+  comparisons run fine on CPU; 1.7B / 4B / 8B QAT training does *not*.
+  `qat_toy_demo.py` is a 100K-param char-level model — trains in
+  minutes on CPU and is the demonstrable scale.
+- **Existing release tags:** `models-bonsai-1.7B-r{2,3,4,5,8,9,10,13}`,
+  `models-bonsai-4B-r{6,11}`, `models-bonsai-8B-r1`. The `r5` (1.7B)
+  and `r11` (4B) tags have full trios; the others are partial because
+  the workflow's 60-min cap is hit before all the safetensors uploads
+  finish on the larger sizes.
 
-### Path A — direct fetch (preferred, when HF reachable)
+## Polling (the only pattern the user wants you to use)
 
-1. `uv run python -c "from huggingface_hub import snapshot_download;
-   snapshot_download('prism-ml/Bonsai-1.7B-gguf', local_dir='models/gguf-1.7B',
-   allow_patterns=['*Q1_0*.gguf','*.json','README*'])"`
-   — repeat for `prism-ml/Bonsai-1.7B-unpacked` (FP16 safetensors) and
-   `Qwen/Qwen3-1.7B`.
-2. Run the analyses:
-   - `uv run python src/gguf_inspect.py models/gguf-1.7B/Bonsai-1.7B-Q1_0.gguf --tensors`
-   - `uv run python src/analyze_q1_0.py models/gguf-1.7B/Bonsai-1.7B-Q1_0.gguf --top 0`
-   - `uv run python src/compare_unpacked_vs_qwen3.py models/unpacked/.../*.safetensors models/base/.../*.safetensors`
-3. Write empirical findings into `FINDINGS.md` (commit on a new branch + PR;
-   `main` is protected).
+When you need to wait on long-running work (model downloads, multi-minute
+analyses, GH workflow runs, etc.), kick the work off as a **true
+background process** with `nohup ... &` (**not** the harness's
+`run_in_background: true` — that wraps the work in a way the harness can
+lose if it suspends the session, and bg-waiter/`Monitor` patterns have
+caused the VM filesystem to roll back when relying on them).
 
-### Path B — pull from the existing release attachments
+Then keep your conversation turn alive with a *foreground* sleep call,
+and check completion in a **separate** Bash call:
 
-If HF is still blocked but the repo is public OR you have repo auth:
+```sh
+# call 1: keep-alive (300 is just an example duration)
+date -u +%H:%M:%S && sleep 300 && date -u +%H:%M:%S
 
-1. `scripts/fetch_models_from_release.sh` (auto-resolves the latest
-   `models-bonsai-1.7B-r*` tag from `models/MANIFEST.yaml` if present, else
-   the GitHub API).
-2. Reassembles `*.part-*` chunks; verifies sha256 if present.
-3. Run the same analyses as Path A.
+# call 2 (separate Bash): check state
+ls -lh reports/bonsai-4B/
+```
 
-If the repo is private and you don't have download auth: trigger a fresh
-workflow_dispatch on `main` with all defaults; it'll run the analyses on the
-runner, upload a release, and commit `reports/<family>-<size>/*.txt` back to
-`main`. Read those via `mcp__github__get_file_contents`.
+Do **not** use the `Monitor` tool, do **not** use bg waiters via
+`run_in_background: true`, do **not** use `sleep` inside the runner
+itself, and do **not** end your turn assuming you'll be woken by a
+webhook or `<task-notification>`.
 
-## What the analyses should answer
+This permission may be revoked if the user is actively chatting in real
+time. If they say so, switch to short status-check Bash calls per turn
+and let the user prompt the next check.
 
-The reports expose three numbers that decide everything. State them
-explicitly in `FINDINGS.md`:
-
-1. **`max(|dequant(Q1) - unpacked|)`** over every tensor. If ≈ 0 (≤ 1 fp16
-   ULP), the unpacked file is just an FP16 storage of the binary lattice
-   (i.e. weights live on `±s_g`). Strong hypothesis.
-2. **identity-row cosine** vs **best-permutation-row cosine** between
-   Bonsai-unpacked and Qwen3-base, for each weight matrix. If both ≈ 1, no
-   reorder; if identity ≪ best-perm, channels were permuted before
-   quantization (and you should figure out which ones — `attn_q`/`attn_k`
-   are constrained by RoPE pair structure, FFN intermediate is fully free).
-3. **mean sign-transitions per 128-block** in the Q1_0 file. Random ≈ 64.
-   ≤ 1 means signs are sorted within groups. If 64-ish: no sortedness
-   trick.
-
-## Open PRs / branches
-
-When I left:
-- Merged: PR #1 (toolkit), PR #2 (SHA256SUMS fix), PR #3 (sandbox allowlist).
-- Not merged: commit **`c2149fc`** on branch `claude/fix-sha256sums-path`. It
-  adds `main` to the workflow's push trigger branches so the workflow
-  auto-fires when the workflow file changes on `main`. Useful only if Path A
-  is blocked and you keep relying on the workflow. Open PR #4 for it
-  (or close the branch if you've moved fully to Path A).
-
-## House style
+## Other house style
 
 - One Bash command per call (the user asked for this — easier to review).
-- No `sleep` polling loops. If you need to wait for a workflow run, use
-  `Monitor` with persistence, or just end the turn and let webhooks wake you.
-- Don't open PRs unless asked. The user explicitly asked for PR coverage of
-  unmerged work; for new commits, ask first.
+- **PRs are fine to open without asking.**
 - Don't comment on PRs unless necessary; the user prefers diffs over prose.
 - Mobile-aware: short messages, ~10–15 lines, ~7–11 words per line.
+- Distinguish *observed* numbers (reproducible from the bytes) from
+  *inferred* claims (consistent with the data but not directly
+  attested). FINDINGS.md and the mini reports already do this — keep
+  the convention.
 
 ## What I would do next
 
-1. Test HF egress (one curl).
-2. If green: download 1.7B trio, run the three analyses, fill in the answer
-   to each of the three hypotheses in `FINDINGS.md` — concrete numbers, then
-   a one-line verdict per hypothesis. Commit on a branch, PR.
-3. If still blocked: triage allowlist (it should be live in the new session;
-   if not, ask the user briefly — don't keep working around it).
-4. After 1.7B's verdict, repeat for 4B and 8B if the verdict is interesting.
-
-The user's not waiting on anything urgent; they're available for clarifying
-questions on mobile.
+1. Re-fetch the 4B trio (`scripts/fetch_models_from_release.sh`
+   pointed at `models-bonsai-4B-r11` works; or use the bg-curl pattern
+   to parallelize the chunks). Run `scripts/run_all_on_trio.sh`
+   against it using **directory paths** — the comparators accept a
+   directory of shards transparently, no merging needed. Output to
+   `reports/bonsai-4B/`.
+2. Wait on the 8B workflow (latest `models-bonsai-8B-r1` is partial;
+   touching `.github/workflows/analyze-bonsai-8b.yml` retriggers).
+   Once the full trio uploads, free 4B from disk and pull 8B.
+3. Generate updated mini reports + a cross-size synthesis showing
+   that H1/H3/H4 reproduce at 4B and 8B (or finding the place they
+   don't). The cross-size axis is what tells us the recipe is uniform.
+4. Run the creative pieces: `inference_smoke_test.sh`,
+   `qat_toy_demo.py`, and validate `joint_permutation_search.py`
+   against a known-good case before reading too much into its
+   negative result on the real data.
 
 Good luck.

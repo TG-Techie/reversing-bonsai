@@ -1,0 +1,78 @@
+===== filter: model.layers.0\. =====
+  row: pearson_id=+0.5207  spearman=+0.4036
+model.layers.0.mlp.up_proj.weight                             shape=[6144, 2048]
+  col: pearson_id=+0.0644  spearman=+0.0276  sorted_pearson=+0.5469  KS_sorted=1.0000  top10%_overlap=9.31% (chance 10%)
+  row: pearson_id=+0.1111  spearman=+0.1152
+model.layers.0.self_attn.k_proj.weight                        shape=[1024, 2048]
+  col: pearson_id=+0.0250  spearman=+0.0199  sorted_pearson=+0.8888  KS_sorted=1.0000  top10%_overlap=11.27% (chance 10%)
+  row: pearson_id=+0.8122  spearman=+0.7479
+model.layers.0.self_attn.o_proj.weight                        shape=[2048, 2048]
+  col: pearson_id=+0.5825  spearman=+0.7215  sorted_pearson=+0.9197  KS_sorted=1.0000  top10%_overlap=28.92% (chance 10%)
+  row: pearson_id=+0.8735  spearman=+0.8882
+model.layers.0.self_attn.q_proj.weight                        shape=[2048, 2048]
+  col: pearson_id=+0.0505  spearman=+0.0479  sorted_pearson=+0.9497  KS_sorted=1.0000  top10%_overlap=10.29% (chance 10%)
+  row: pearson_id=+0.8320  spearman=+0.8066
+model.layers.0.self_attn.v_proj.weight                        shape=[1024, 2048]
+  col: pearson_id=+0.0480  spearman=+0.0769  sorted_pearson=+0.8923  KS_sorted=1.0000  top10%_overlap=7.84% (chance 10%)
+  row: pearson_id=+0.8932  spearman=+0.8404
+
+== AGGREGATE ==
+  per-col Pearson (identity)              mean=+0.1241  min=+0.0093  max=+0.5825
+  per-col Spearman                        mean=+0.1297  min=+0.0051  max=+0.7215
+  per-col Pearson after sort              mean=+0.7824  min=+0.4592  max=+0.9497
+  per-col KS(sorted)                      mean=+1.0000  min=+1.0000  max=+1.0000
+  top-10% loudest col overlap             mean=+0.1202  min=+0.0686  max=+0.2892
+  per-row Pearson (identity)              mean=+0.6774  min=+0.1111  max=+0.8932
+  per-row Spearman                        mean=+0.6544  min=+0.1152  max=+0.8882
+===== filter: model.layers.13\. =====
+  row: pearson_id=+0.5815  spearman=+0.5586
+model.layers.13.mlp.up_proj.weight                            shape=[6144, 2048]
+  col: pearson_id=+0.0241  spearman=+0.0093  sorted_pearson=+0.7370  KS_sorted=1.0000  top10%_overlap=10.78% (chance 10%)
+  row: pearson_id=+0.2965  spearman=+0.3198
+model.layers.13.self_attn.k_proj.weight                       shape=[1024, 2048]
+  col: pearson_id=+0.0214  spearman=+0.0172  sorted_pearson=+0.9279  KS_sorted=1.0000  top10%_overlap=9.31% (chance 10%)
+  row: pearson_id=+0.8420  spearman=+0.7939
+model.layers.13.self_attn.o_proj.weight                       shape=[2048, 2048]
+  col: pearson_id=+0.2908  spearman=+0.2834  sorted_pearson=+0.9182  KS_sorted=1.0000  top10%_overlap=49.51% (chance 10%)
+  row: pearson_id=+0.9503  spearman=+0.9375
+model.layers.13.self_attn.q_proj.weight                       shape=[2048, 2048]
+  col: pearson_id=+0.0228  spearman=+0.0104  sorted_pearson=+0.7742  KS_sorted=1.0000  top10%_overlap=10.78% (chance 10%)
+  row: pearson_id=+0.8555  spearman=+0.7594
+model.layers.13.self_attn.v_proj.weight                       shape=[1024, 2048]
+  col: pearson_id=+0.0143  spearman=+0.0332  sorted_pearson=+0.7635  KS_sorted=1.0000  top10%_overlap=9.31% (chance 10%)
+  row: pearson_id=+0.2155  spearman=+0.3122
+
+== AGGREGATE ==
+  per-col Pearson (identity)              mean=+0.0613  min=+0.0143  max=+0.2908
+  per-col Spearman                        mean=+0.0587  min=+0.0093  max=+0.2834
+  per-col Pearson after sort              mean=+0.8425  min=+0.7370  max=+0.9898
+  per-col KS(sorted)                      mean=+1.0000  min=+1.0000  max=+1.0000
+  top-10% loudest col overlap             mean=+0.1573  min=+0.0931  max=+0.4951
+  per-row Pearson (identity)              mean=+0.6610  min=+0.2155  max=+0.9503
+  per-row Spearman                        mean=+0.6267  min=+0.3122  max=+0.9375
+===== filter: model.layers.27\. =====
+  row: pearson_id=-0.0090  spearman=-0.1243
+model.layers.27.mlp.up_proj.weight                            shape=[6144, 2048]
+  col: pearson_id=+0.0506  spearman=-0.0116  sorted_pearson=+0.6507  KS_sorted=1.0000  top10%_overlap=10.29% (chance 10%)
+  row: pearson_id=-0.0161  spearman=-0.0688
+model.layers.27.self_attn.k_proj.weight                       shape=[1024, 2048]
+  col: pearson_id=+0.0078  spearman=+0.0012  sorted_pearson=+0.6940  KS_sorted=1.0000  top10%_overlap=7.84% (chance 10%)
+  row: pearson_id=+0.4729  spearman=+0.2179
+model.layers.27.self_attn.o_proj.weight                       shape=[2048, 2048]
+  col: pearson_id=+0.2583  spearman=+0.2105  sorted_pearson=+0.8185  KS_sorted=1.0000  top10%_overlap=52.94% (chance 10%)
+  row: pearson_id=+0.5414  spearman=-0.0034
+model.layers.27.self_attn.q_proj.weight                       shape=[2048, 2048]
+  col: pearson_id=+0.0231  spearman=+0.0055  sorted_pearson=+0.7403  KS_sorted=0.9980  top10%_overlap=9.80% (chance 10%)
+  row: pearson_id=+0.6853  spearman=+0.1768
+model.layers.27.self_attn.v_proj.weight                       shape=[1024, 2048]
+  col: pearson_id=-0.0044  spearman=-0.0129  sorted_pearson=+0.7741  KS_sorted=1.0000  top10%_overlap=7.84% (chance 10%)
+  row: pearson_id=+0.6866  spearman=+0.5754
+
+== AGGREGATE ==
+  per-col Pearson (identity)              mean=+0.0543  min=-0.0044  max=+0.2583
+  per-col Spearman                        mean=+0.0308  min=-0.0129  max=+0.2105
+  per-col Pearson after sort              mean=+0.7408  min=+0.6116  max=+0.8966
+  per-col KS(sorted)                      mean=+0.9997  min=+0.9980  max=+1.0000
+  top-10% loudest col overlap             mean=+0.1612  min=+0.0784  max=+0.5294
+  per-row Pearson (identity)              mean=+0.4257  min=-0.0161  max=+0.6866
+  per-row Spearman                        mean=+0.2133  min=-0.1243  max=+0.7194
