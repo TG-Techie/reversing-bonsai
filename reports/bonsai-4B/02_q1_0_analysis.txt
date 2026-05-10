@@ -1,0 +1,1343 @@
+== models/q1/Bonsai-4B-Q1_0.gguf ==
+  tensors: 398
+
+  Q1_0 tensors (after filter): 253
+
+-- [0] token_embd.weight  shape=[np.uint64(2560), np.uint64(151669)]  blocks=3033380  (54600840 bytes)
+     signs:   trans μ=63.54 σ=5.63  [34,92];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.68; ac1=-0.0006±0.0887
+     scales:  μ=0.01709 σ=0.003148  [0.003052,0.04468];  distinct(fp16)=461/3033380
+     scale order: nondec=49.44%  noninc=53.08%
+     layout:  151669 rows × 20 blocks/row
+-- [1] blk.0.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.39 σ=5.61  [39,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.64; ac1=+0.0018±0.0883
+     scales:  μ=0.03167 σ=0.008057  [0.01379,0.1172];  distinct(fp16)=333/20480
+     scale order: nondec=49.73%  noninc=52.48%
+     layout:  1024 rows × 20 blocks/row
+-- [2] blk.0.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.62  [39,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.69; ac1=+0.0000±0.0885
+     scales:  μ=0.02445 σ=0.006897  [0.01257,0.1533];  distinct(fp16)=387/81920
+     scale order: nondec=47.61%  noninc=53.12%
+     layout:  2560 rows × 32 blocks/row
+-- [3] blk.0.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.46 σ=5.62  [40,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.63; ac1=+0.0006±0.0885
+     scales:  μ=0.02923 σ=0.006331  [0.004883,0.1147];  distinct(fp16)=419/81920
+     scale order: nondec=50.90%  noninc=51.35%
+     layout:  4096 rows × 20 blocks/row
+-- [4] blk.0.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.47 σ=5.64  [42,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.94 σ=5.73; ac1=+0.0004±0.0889
+     scales:  μ=0.04287 σ=0.004906  [0.02612,0.06494];  distinct(fp16)=157/20480
+     scale order: nondec=50.30%  noninc=52.00%
+     layout:  1024 rows × 20 blocks/row
+-- [5] blk.0.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.62  [39,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.64; ac1=+0.0003±0.0886
+     scales:  μ=0.02539 σ=0.004393  [0.008911,0.08057];  distinct(fp16)=389/194560
+     scale order: nondec=51.33%  noninc=50.71%
+     layout:  2560 rows × 76 blocks/row
+-- [6] blk.0.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.64  [39,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=-0.0002±0.0888
+     scales:  μ=0.0366 σ=0.004165  [0.02136,0.08936];  distinct(fp16)=236/194560
+     scale order: nondec=51.34%  noninc=51.29%
+     layout:  9728 rows × 20 blocks/row
+-- [7] blk.0.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.63  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.65; ac1=-0.0002±0.0886
+     scales:  μ=0.03565 σ=0.004455  [0.02051,0.09521];  distinct(fp16)=241/194560
+     scale order: nondec=52.20%  noninc=50.49%
+     layout:  9728 rows × 20 blocks/row
+-- [8] blk.1.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.55 σ=5.62  [43,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.66; ac1=-0.0008±0.0884
+     scales:  μ=0.02913 σ=0.005187  [0.01422,0.08301];  distinct(fp16)=283/20480
+     scale order: nondec=49.82%  noninc=52.18%
+     layout:  1024 rows × 20 blocks/row
+-- [9] blk.1.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.63  [37,91];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=-0.0001±0.0887
+     scales:  μ=0.0281 σ=0.005848  [0.01294,0.1069];  distinct(fp16)=332/81920
+     scale order: nondec=53.11%  noninc=47.84%
+     layout:  2560 rows × 32 blocks/row
+-- [10] blk.1.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.51 σ=5.63  [41,91];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.65; ac1=-0.0002±0.0887
+     scales:  μ=0.02808 σ=0.004812  [0.01105,0.08691];  distinct(fp16)=313/81920
+     scale order: nondec=51.74%  noninc=50.36%
+     layout:  4096 rows × 20 blocks/row
+-- [11] blk.1.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.50 σ=5.63  [42,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.05 σ=5.67; ac1=-0.0000±0.0886
+     scales:  μ=0.03945 σ=0.006354  [0.02393,0.09619];  distinct(fp16)=224/20480
+     scale order: nondec=50.09%  noninc=52.26%
+     layout:  1024 rows × 20 blocks/row
+-- [12] blk.1.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.41 σ=5.57  [39,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.56; ac1=+0.0014±0.0877
+     scales:  μ=0.01714 σ=0.01159  [0.001587,0.1118];  distinct(fp16)=630/194560
+     scale order: nondec=50.55%  noninc=51.15%
+     layout:  2560 rows × 76 blocks/row
+-- [13] blk.1.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.67 σ=5.66  [39,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.70 σ=5.74; ac1=-0.0026±0.0891
+     scales:  μ=0.02566 σ=0.01979  [0.00148,0.09131];  distinct(fp16)=732/194560
+     scale order: nondec=48.13%  noninc=53.95%
+     layout:  9728 rows × 20 blocks/row
+-- [14] blk.1.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.62  [36,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.65; ac1=+0.0002±0.0886
+     scales:  μ=0.02354 σ=0.01528  [0.001862,0.09424];  distinct(fp16)=690/194560
+     scale order: nondec=49.84%  noninc=52.54%
+     layout:  9728 rows × 20 blocks/row
+-- [15] blk.2.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.49 σ=5.68  [43,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.68; ac1=+0.0002±0.0895
+     scales:  μ=0.03237 σ=0.006541  [0.01379,0.09521];  distinct(fp16)=319/20480
+     scale order: nondec=49.85%  noninc=52.51%
+     layout:  1024 rows × 20 blocks/row
+-- [16] blk.2.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.41 σ=5.62  [38,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.64; ac1=+0.0015±0.0885
+     scales:  μ=0.02892 σ=0.004674  [0.01105,0.09619];  distinct(fp16)=307/81920
+     scale order: nondec=48.24%  noninc=52.99%
+     layout:  2560 rows × 32 blocks/row
+-- [17] blk.2.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.66  [40,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=+0.0000±0.0891
+     scales:  μ=0.03067 σ=0.006869  [0.008118,0.1021];  distinct(fp16)=399/81920
+     scale order: nondec=51.39%  noninc=50.95%
+     layout:  4096 rows × 20 blocks/row
+-- [18] blk.2.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.48 σ=5.63  [40,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.08 σ=5.69; ac1=+0.0004±0.0887
+     scales:  μ=0.041 σ=0.004753  [0.02502,0.07373];  distinct(fp16)=162/20480
+     scale order: nondec=51.59%  noninc=50.73%
+     layout:  1024 rows × 20 blocks/row
+-- [19] blk.2.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.54 σ=5.63  [39,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.65; ac1=-0.0006±0.0887
+     scales:  μ=0.01709 σ=0.00472  [0.003632,0.0752];  distinct(fp16)=457/194560
+     scale order: nondec=52.29%  noninc=49.28%
+     layout:  2560 rows × 76 blocks/row
+-- [20] blk.2.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.64  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.68; ac1=+0.0002±0.0888
+     scales:  μ=0.02454 σ=0.01564  [0.002274,0.106];  distinct(fp16)=671/194560
+     scale order: nondec=48.62%  noninc=53.58%
+     layout:  9728 rows × 20 blocks/row
+-- [21] blk.2.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.63  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.66; ac1=+0.0002±0.0887
+     scales:  μ=0.02767 σ=0.01505  [0.002777,0.104];  distinct(fp16)=661/194560
+     scale order: nondec=49.95%  noninc=52.38%
+     layout:  9728 rows × 20 blocks/row
+-- [22] blk.3.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.52 σ=5.67  [38,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.61; ac1=-0.0004±0.0893
+     scales:  μ=0.03238 σ=0.007292  [0.01514,0.1108];  distinct(fp16)=318/20480
+     scale order: nondec=48.99%  noninc=53.35%
+     layout:  1024 rows × 20 blocks/row
+-- [23] blk.3.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.49 σ=5.64  [40,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.71; ac1=+0.0001±0.0888
+     scales:  μ=0.02917 σ=0.005544  [0.01251,0.1543];  distinct(fp16)=334/81920
+     scale order: nondec=51.55%  noninc=49.82%
+     layout:  2560 rows × 32 blocks/row
+-- [24] blk.3.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.63  [40,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.68; ac1=-0.0000±0.0886
+     scales:  μ=0.03043 σ=0.006448  [0.01044,0.08057];  distinct(fp16)=359/81920
+     scale order: nondec=50.93%  noninc=51.42%
+     layout:  4096 rows × 20 blocks/row
+-- [25] blk.3.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.59 σ=5.64  [42,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.12 σ=5.65; ac1=-0.0014±0.0888
+     scales:  μ=0.04144 σ=0.00646  [0.02515,0.0874];  distinct(fp16)=217/20480
+     scale order: nondec=50.49%  noninc=51.91%
+     layout:  1024 rows × 20 blocks/row
+-- [26] blk.3.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.54 σ=5.60  [39,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.69; ac1=-0.0007±0.0882
+     scales:  μ=0.0211 σ=0.009577  [0.0005798,0.105];  distinct(fp16)=847/194560
+     scale order: nondec=52.74%  noninc=49.03%
+     layout:  2560 rows × 76 blocks/row
+-- [27] blk.3.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.53 σ=5.68  [37,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.88 σ=5.66; ac1=-0.0004±0.0894
+     scales:  μ=0.03231 σ=0.01745  [0.001297,0.1084];  distinct(fp16)=780/194560
+     scale order: nondec=49.07%  noninc=53.19%
+     layout:  9728 rows × 20 blocks/row
+-- [28] blk.3.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.64  [38,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.63; ac1=+0.0004±0.0888
+     scales:  μ=0.0292 σ=0.01278  [0.001427,0.1416];  distinct(fp16)=787/194560
+     scale order: nondec=50.81%  noninc=51.61%
+     layout:  9728 rows × 20 blocks/row
+-- [29] blk.4.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.54 σ=5.65  [43,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.64; ac1=-0.0007±0.0889
+     scales:  μ=0.03354 σ=0.006374  [0.01508,0.08398];  distinct(fp16)=271/20480
+     scale order: nondec=48.94%  noninc=53.31%
+     layout:  1024 rows × 20 blocks/row
+-- [30] blk.4.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.51 σ=5.64  [37,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.67; ac1=-0.0002±0.0889
+     scales:  μ=0.03043 σ=0.004921  [0.009827,0.1748];  distinct(fp16)=327/81920
+     scale order: nondec=51.62%  noninc=49.75%
+     layout:  2560 rows × 32 blocks/row
+-- [31] blk.4.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.49 σ=5.62  [41,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=+0.0001±0.0885
+     scales:  μ=0.0319 σ=0.006399  [0.01105,0.07861];  distinct(fp16)=332/81920
+     scale order: nondec=51.28%  noninc=51.07%
+     layout:  4096 rows × 20 blocks/row
+-- [32] blk.4.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.51 σ=5.61  [41,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.04 σ=5.69; ac1=-0.0001±0.0884
+     scales:  μ=0.04386 σ=0.005377  [0.02661,0.07666];  distinct(fp16)=177/20480
+     scale order: nondec=50.00%  noninc=52.19%
+     layout:  1024 rows × 20 blocks/row
+-- [33] blk.4.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.65  [39,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.63; ac1=-0.0001±0.0890
+     scales:  μ=0.02315 σ=0.003839  [0.007416,0.124];  distinct(fp16)=395/194560
+     scale order: nondec=52.71%  noninc=49.49%
+     layout:  2560 rows × 76 blocks/row
+-- [34] blk.4.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.63  [38,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.67; ac1=+0.0001±0.0887
+     scales:  μ=0.04327 σ=0.008146  [0.01129,0.1523];  distinct(fp16)=384/194560
+     scale order: nondec=50.26%  noninc=51.94%
+     layout:  9728 rows × 20 blocks/row
+-- [35] blk.4.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.64  [38,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.64; ac1=+0.0001±0.0888
+     scales:  μ=0.03305 σ=0.005673  [0.005981,0.1025];  distinct(fp16)=485/194560
+     scale order: nondec=52.09%  noninc=50.35%
+     layout:  9728 rows × 20 blocks/row
+-- [36] blk.5.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.54 σ=5.59  [41,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.70; ac1=-0.0006±0.0880
+     scales:  μ=0.03372 σ=0.007571  [0.01562,0.08691];  distinct(fp16)=284/20480
+     scale order: nondec=48.79%  noninc=53.37%
+     layout:  1024 rows × 20 blocks/row
+-- [37] blk.5.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.39 σ=5.62  [41,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.70; ac1=+0.0017±0.0885
+     scales:  μ=0.03007 σ=0.006  [0.009033,0.21];  distinct(fp16)=359/81920
+     scale order: nondec=50.36%  noninc=50.76%
+     layout:  2560 rows × 32 blocks/row
+-- [38] blk.5.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.48 σ=5.61  [41,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.70; ac1=+0.0002±0.0884
+     scales:  μ=0.03183 σ=0.007308  [0.008057,0.08496];  distinct(fp16)=375/81920
+     scale order: nondec=51.34%  noninc=51.02%
+     layout:  4096 rows × 20 blocks/row
+-- [39] blk.5.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.49 σ=5.59  [41,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.04 σ=5.65; ac1=+0.0002±0.0881
+     scales:  μ=0.04372 σ=0.006745  [0.02087,0.08838];  distinct(fp16)=231/20480
+     scale order: nondec=49.70%  noninc=52.61%
+     layout:  1024 rows × 20 blocks/row
+-- [40] blk.5.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.64  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.64; ac1=-0.0001±0.0888
+     scales:  μ=0.02458 σ=0.003259  [0.006561,0.1709];  distinct(fp16)=439/194560
+     scale order: nondec=51.29%  noninc=50.83%
+     layout:  2560 rows × 76 blocks/row
+-- [41] blk.5.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.62  [37,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.66; ac1=+0.0003±0.0885
+     scales:  μ=0.04232 σ=0.006225  [0.01379,0.1621];  distinct(fp16)=357/194560
+     scale order: nondec=50.86%  noninc=51.61%
+     layout:  9728 rows × 20 blocks/row
+-- [42] blk.5.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.63  [36,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.66; ac1=+0.0001±0.0887
+     scales:  μ=0.03938 σ=0.005478  [0.01807,0.1167];  distinct(fp16)=282/194560
+     scale order: nondec=52.41%  noninc=50.10%
+     layout:  9728 rows × 20 blocks/row
+-- [43] blk.6.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.49 σ=5.61  [42,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.05 σ=5.68; ac1=+0.0001±0.0884
+     scales:  μ=0.03229 σ=0.005193  [0.01843,0.07812];  distinct(fp16)=228/20480
+     scale order: nondec=48.49%  noninc=53.73%
+     layout:  1024 rows × 20 blocks/row
+-- [44] blk.6.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.47 σ=5.61  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.67; ac1=+0.0005±0.0883
+     scales:  μ=0.03088 σ=0.009716  [0.005463,0.4238];  distinct(fp16)=521/81920
+     scale order: nondec=53.51%  noninc=47.42%
+     layout:  2560 rows × 32 blocks/row
+-- [45] blk.6.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.52 σ=5.65  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.65; ac1=-0.0003±0.0890
+     scales:  μ=0.03127 σ=0.005624  [0.01154,0.09375];  distinct(fp16)=328/81920
+     scale order: nondec=51.69%  noninc=50.61%
+     layout:  4096 rows × 20 blocks/row
+-- [46] blk.6.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.51 σ=5.59  [41,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.69; ac1=-0.0001±0.0881
+     scales:  μ=0.04644 σ=0.01152  [0.02576,0.1738];  distinct(fp16)=293/20480
+     scale order: nondec=49.52%  noninc=52.39%
+     layout:  1024 rows × 20 blocks/row
+-- [47] blk.6.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.52 σ=5.63  [40,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.66; ac1=-0.0003±0.0887
+     scales:  μ=0.02551 σ=0.003269  [0.00946,0.1709];  distinct(fp16)=384/194560
+     scale order: nondec=50.93%  noninc=51.17%
+     layout:  2560 rows × 76 blocks/row
+-- [48] blk.6.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.63  [38,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.96 σ=5.66; ac1=-0.0001±0.0887
+     scales:  μ=0.04164 σ=0.005472  [0.01758,0.1475];  distinct(fp16)=320/194560
+     scale order: nondec=51.12%  noninc=51.39%
+     layout:  9728 rows × 20 blocks/row
+-- [49] blk.6.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.64  [40,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.64; ac1=+0.0000±0.0888
+     scales:  μ=0.04079 σ=0.004953  [0.01929,0.1147];  distinct(fp16)=273/194560
+     scale order: nondec=51.87%  noninc=50.62%
+     layout:  9728 rows × 20 blocks/row
+-- [50] blk.7.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.59 σ=5.66  [42,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.63; ac1=-0.0015±0.0891
+     scales:  μ=0.03196 σ=0.008223  [0.01367,0.1021];  distinct(fp16)=341/20480
+     scale order: nondec=47.41%  noninc=54.79%
+     layout:  1024 rows × 20 blocks/row
+-- [51] blk.7.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.51 σ=5.62  [41,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.60; ac1=-0.0002±0.0885
+     scales:  μ=0.0297 σ=0.006852  [0.009827,0.1992];  distinct(fp16)=413/81920
+     scale order: nondec=51.31%  noninc=49.79%
+     layout:  2560 rows × 32 blocks/row
+-- [52] blk.7.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.63  [39,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.63; ac1=-0.0000±0.0886
+     scales:  μ=0.03012 σ=0.006531  [0.00885,0.09814];  distinct(fp16)=411/81920
+     scale order: nondec=51.08%  noninc=51.26%
+     layout:  4096 rows × 20 blocks/row
+-- [53] blk.7.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.60 σ=5.62  [42,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.06 σ=5.62; ac1=-0.0016±0.0884
+     scales:  μ=0.04623 σ=0.007962  [0.02368,0.0791];  distinct(fp16)=210/20480
+     scale order: nondec=50.49%  noninc=51.49%
+     layout:  1024 rows × 20 blocks/row
+-- [54] blk.7.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [39,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.65; ac1=+0.0000±0.0887
+     scales:  μ=0.02631 σ=0.003245  [0.009155,0.2061];  distinct(fp16)=360/194560
+     scale order: nondec=50.78%  noninc=51.24%
+     layout:  2560 rows × 76 blocks/row
+-- [55] blk.7.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.62  [39,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.94 σ=5.67; ac1=+0.0000±0.0886
+     scales:  μ=0.04071 σ=0.00524  [0.01556,0.1201];  distinct(fp16)=319/194560
+     scale order: nondec=51.08%  noninc=51.50%
+     layout:  9728 rows × 20 blocks/row
+-- [56] blk.7.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.63  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.66; ac1=-0.0002±0.0886
+     scales:  μ=0.04022 σ=0.004469  [0.0199,0.1196];  distinct(fp16)=260/194560
+     scale order: nondec=51.95%  noninc=50.48%
+     layout:  9728 rows × 20 blocks/row
+-- [57] blk.8.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.58 σ=5.58  [42,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.70; ac1=-0.0013±0.0879
+     scales:  μ=0.03287 σ=0.006965  [0.01672,0.08643];  distinct(fp16)=267/20480
+     scale order: nondec=47.12%  noninc=55.02%
+     layout:  1024 rows × 20 blocks/row
+-- [58] blk.8.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.48 σ=5.64  [38,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.62; ac1=+0.0003±0.0889
+     scales:  μ=0.03184 σ=0.005316  [0.01282,0.2178];  distinct(fp16)=337/81920
+     scale order: nondec=52.21%  noninc=49.36%
+     layout:  2560 rows × 32 blocks/row
+-- [59] blk.8.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.52 σ=5.63  [41,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.64; ac1=-0.0004±0.0886
+     scales:  μ=0.03076 σ=0.005484  [0.009033,0.09473];  distinct(fp16)=323/81920
+     scale order: nondec=50.68%  noninc=51.68%
+     layout:  4096 rows × 20 blocks/row
+-- [60] blk.8.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.49 σ=5.66  [40,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.08 σ=5.71; ac1=+0.0002±0.0891
+     scales:  μ=0.04685 σ=0.006275  [0.02612,0.0752];  distinct(fp16)=177/20480
+     scale order: nondec=52.07%  noninc=49.99%
+     layout:  1024 rows × 20 blocks/row
+-- [61] blk.8.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.61  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.66; ac1=-0.0002±0.0883
+     scales:  μ=0.02807 σ=0.003118  [0.009583,0.2295];  distinct(fp16)=354/194560
+     scale order: nondec=51.06%  noninc=50.89%
+     layout:  2560 rows × 76 blocks/row
+-- [62] blk.8.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.61  [38,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.67; ac1=+0.0003±0.0884
+     scales:  μ=0.04107 σ=0.005645  [0.01508,0.168];  distinct(fp16)=335/194560
+     scale order: nondec=51.03%  noninc=51.51%
+     layout:  9728 rows × 20 blocks/row
+-- [63] blk.8.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.64  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=-0.0001±0.0887
+     scales:  μ=0.04249 σ=0.005176  [0.01941,0.1011];  distinct(fp16)=257/194560
+     scale order: nondec=52.78%  noninc=49.65%
+     layout:  9728 rows × 20 blocks/row
+-- [64] blk.9.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.49 σ=5.60  [43,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.91 σ=5.67; ac1=+0.0002±0.0882
+     scales:  μ=0.03329 σ=0.009788  [0.01599,0.1572];  distinct(fp16)=352/20480
+     scale order: nondec=46.34%  noninc=55.86%
+     layout:  1024 rows × 20 blocks/row
+-- [65] blk.9.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.47 σ=5.63  [39,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.69; ac1=+0.0004±0.0887
+     scales:  μ=0.03105 σ=0.007171  [0.01318,0.2158];  distinct(fp16)=322/81920
+     scale order: nondec=50.66%  noninc=50.40%
+     layout:  2560 rows × 32 blocks/row
+-- [66] blk.9.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.51 σ=5.63  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.64; ac1=-0.0002±0.0886
+     scales:  μ=0.0305 σ=0.006894  [0.007935,0.1069];  distinct(fp16)=393/81920
+     scale order: nondec=50.39%  noninc=51.86%
+     layout:  4096 rows × 20 blocks/row
+-- [67] blk.9.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.47 σ=5.61  [36,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.91 σ=5.59; ac1=+0.0005±0.0883
+     scales:  μ=0.04659 σ=0.008779  [0.02466,0.0752];  distinct(fp16)=200/20480
+     scale order: nondec=52.86%  noninc=49.14%
+     layout:  1024 rows × 20 blocks/row
+-- [68] blk.9.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.62  [39,92];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.66; ac1=-0.0001±0.0884
+     scales:  μ=0.02768 σ=0.003471  [0.01038,0.1582];  distinct(fp16)=326/194560
+     scale order: nondec=50.80%  noninc=51.27%
+     layout:  2560 rows × 76 blocks/row
+-- [69] blk.9.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.63  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.06 σ=5.66; ac1=+0.0003±0.0887
+     scales:  μ=0.04259 σ=0.006765  [0.01123,0.2383];  distinct(fp16)=354/194560
+     scale order: nondec=50.98%  noninc=51.34%
+     layout:  9728 rows × 20 blocks/row
+-- [70] blk.9.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.62  [38,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.64; ac1=+0.0003±0.0885
+     scales:  μ=0.04276 σ=0.005792  [0.01904,0.126];  distinct(fp16)=272/194560
+     scale order: nondec=52.70%  noninc=49.67%
+     layout:  9728 rows × 20 blocks/row
+-- [71] blk.10.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.43 σ=5.63  [43,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.66; ac1=+0.0011±0.0887
+     scales:  μ=0.03223 σ=0.006348  [0.01526,0.127];  distinct(fp16)=271/20480
+     scale order: nondec=47.14%  noninc=55.14%
+     layout:  1024 rows × 20 blocks/row
+-- [72] blk.10.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.51 σ=5.66  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.68; ac1=-0.0001±0.0892
+     scales:  μ=0.03218 σ=0.006679  [0.01111,0.2832];  distinct(fp16)=346/81920
+     scale order: nondec=52.74%  noninc=48.50%
+     layout:  2560 rows × 32 blocks/row
+-- [73] blk.10.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.49 σ=5.64  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.64; ac1=+0.0002±0.0888
+     scales:  μ=0.03072 σ=0.006032  [0.007416,0.0874];  distinct(fp16)=386/81920
+     scale order: nondec=50.15%  noninc=52.18%
+     layout:  4096 rows × 20 blocks/row
+-- [74] blk.10.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.52 σ=5.66  [43,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.65; ac1=-0.0004±0.0891
+     scales:  μ=0.04607 σ=0.007061  [0.02124,0.07178];  distinct(fp16)=214/20480
+     scale order: nondec=54.57%  noninc=47.61%
+     layout:  1024 rows × 20 blocks/row
+-- [75] blk.10.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.52 σ=5.64  [37,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=-0.0003±0.0888
+     scales:  μ=0.02888 σ=0.003297  [0.01019,0.1875];  distinct(fp16)=332/194560
+     scale order: nondec=50.95%  noninc=51.14%
+     layout:  2560 rows × 76 blocks/row
+-- [76] blk.10.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.65  [37,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.06 σ=5.64; ac1=+0.0002±0.0890
+     scales:  μ=0.04287 σ=0.006974  [0.01514,0.168];  distinct(fp16)=362/194560
+     scale order: nondec=51.36%  noninc=51.00%
+     layout:  9728 rows × 20 blocks/row
+-- [77] blk.10.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.47 σ=5.64  [36,91];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=+0.0005±0.0888
+     scales:  μ=0.04372 σ=0.005646  [0.02136,0.127];  distinct(fp16)=264/194560
+     scale order: nondec=52.44%  noninc=49.94%
+     layout:  9728 rows × 20 blocks/row
+-- [78] blk.11.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.47 σ=5.60  [40,83];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.62; ac1=+0.0005±0.0883
+     scales:  μ=0.03303 σ=0.008782  [0.01544,0.1709];  distinct(fp16)=349/20480
+     scale order: nondec=46.73%  noninc=55.44%
+     layout:  1024 rows × 20 blocks/row
+-- [79] blk.11.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.45 σ=5.61  [41,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.64; ac1=+0.0008±0.0883
+     scales:  μ=0.03308 σ=0.006879  [0.01324,0.1641];  distinct(fp16)=331/81920
+     scale order: nondec=50.26%  noninc=51.09%
+     layout:  2560 rows × 32 blocks/row
+-- [80] blk.11.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.48 σ=5.67  [39,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.66; ac1=+0.0004±0.0893
+     scales:  μ=0.03123 σ=0.00677  [0.01093,0.1025];  distinct(fp16)=377/81920
+     scale order: nondec=50.64%  noninc=51.61%
+     layout:  4096 rows × 20 blocks/row
+-- [81] blk.11.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.56 σ=5.59  [41,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.66; ac1=-0.0009±0.0881
+     scales:  μ=0.0481 σ=0.008846  [0.0238,0.07373];  distinct(fp16)=193/20480
+     scale order: nondec=53.40%  noninc=48.72%
+     layout:  1024 rows × 20 blocks/row
+-- [82] blk.11.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.64  [39,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.65; ac1=-0.0000±0.0887
+     scales:  μ=0.02914 σ=0.003395  [0.01031,0.1562];  distinct(fp16)=320/194560
+     scale order: nondec=50.74%  noninc=51.42%
+     layout:  2560 rows × 76 blocks/row
+-- [83] blk.11.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.66  [37,93];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.08 σ=5.67; ac1=+0.0003±0.0891
+     scales:  μ=0.04268 σ=0.006619  [0.01318,0.1543];  distinct(fp16)=366/194560
+     scale order: nondec=51.26%  noninc=51.06%
+     layout:  9728 rows × 20 blocks/row
+-- [84] blk.11.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.62  [38,91];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.66; ac1=+0.0002±0.0885
+     scales:  μ=0.04499 σ=0.005895  [0.02075,0.1455];  distinct(fp16)=280/194560
+     scale order: nondec=52.42%  noninc=49.82%
+     layout:  9728 rows × 20 blocks/row
+-- [85] blk.12.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.50 σ=5.67  [42,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.64; ac1=+0.0000±0.0893
+     scales:  μ=0.03304 σ=0.007955  [0.01575,0.1436];  distinct(fp16)=315/20480
+     scale order: nondec=46.22%  noninc=56.10%
+     layout:  1024 rows × 20 blocks/row
+-- [86] blk.12.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.47 σ=5.65  [42,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.63; ac1=+0.0004±0.0889
+     scales:  μ=0.03283 σ=0.008131  [0.0127,0.2773];  distinct(fp16)=414/81920
+     scale order: nondec=49.71%  noninc=51.55%
+     layout:  2560 rows × 32 blocks/row
+-- [87] blk.12.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.48 σ=5.65  [34,94];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.64; ac1=+0.0003±0.0890
+     scales:  μ=0.03119 σ=0.006887  [0.009583,0.125];  distinct(fp16)=376/81920
+     scale order: nondec=51.00%  noninc=51.16%
+     layout:  4096 rows × 20 blocks/row
+-- [88] blk.12.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.49 σ=5.60  [39,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.91 σ=5.64; ac1=+0.0001±0.0881
+     scales:  μ=0.04878 σ=0.01032  [0.02185,0.1074];  distinct(fp16)=263/20480
+     scale order: nondec=52.59%  noninc=49.51%
+     layout:  1024 rows × 20 blocks/row
+-- [89] blk.12.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.64  [35,91];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.65; ac1=+0.0001±0.0888
+     scales:  μ=0.02939 σ=0.003503  [0.009888,0.1562];  distinct(fp16)=331/194560
+     scale order: nondec=50.76%  noninc=51.39%
+     layout:  2560 rows × 76 blocks/row
+-- [90] blk.12.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.65  [39,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.05 σ=5.64; ac1=+0.0000±0.0889
+     scales:  μ=0.04247 σ=0.007397  [0.01245,0.1924];  distinct(fp16)=395/194560
+     scale order: nondec=51.23%  noninc=51.11%
+     layout:  9728 rows × 20 blocks/row
+-- [91] blk.12.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.64  [40,92];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.65; ac1=-0.0002±0.0889
+     scales:  μ=0.0465 σ=0.006961  [0.01819,0.1289];  distinct(fp16)=317/194560
+     scale order: nondec=52.80%  noninc=49.42%
+     layout:  9728 rows × 20 blocks/row
+-- [92] blk.13.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.49 σ=5.68  [39,83];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.96 σ=5.70; ac1=+0.0001±0.0895
+     scales:  μ=0.03554 σ=0.01099  [0.01312,0.1436];  distinct(fp16)=364/20480
+     scale order: nondec=46.93%  noninc=55.24%
+     layout:  1024 rows × 20 blocks/row
+-- [93] blk.13.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.47 σ=5.64  [39,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.62; ac1=+0.0005±0.0889
+     scales:  μ=0.0327 σ=0.006817  [0.01349,0.2197];  distinct(fp16)=323/81920
+     scale order: nondec=48.88%  noninc=52.55%
+     layout:  2560 rows × 32 blocks/row
+-- [94] blk.13.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.56 σ=5.65  [38,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.66; ac1=-0.0010±0.0889
+     scales:  μ=0.03189 σ=0.008939  [0.007141,0.08691];  distinct(fp16)=427/81920
+     scale order: nondec=50.86%  noninc=51.35%
+     layout:  4096 rows × 20 blocks/row
+-- [95] blk.13.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.57 σ=5.65  [37,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.04 σ=5.66; ac1=-0.0012±0.0890
+     scales:  μ=0.04807 σ=0.007384  [0.02502,0.09131];  distinct(fp16)=205/20480
+     scale order: nondec=51.94%  noninc=50.01%
+     layout:  1024 rows × 20 blocks/row
+-- [96] blk.13.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.64  [39,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=-0.0001±0.0889
+     scales:  μ=0.02919 σ=0.003504  [0.01044,0.1367];  distinct(fp16)=361/194560
+     scale order: nondec=50.32%  noninc=51.79%
+     layout:  2560 rows × 76 blocks/row
+-- [97] blk.13.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.63  [37,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.07 σ=5.67; ac1=+0.0002±0.0887
+     scales:  μ=0.04153 σ=0.007853  [0.0127,0.1611];  distinct(fp16)=413/194560
+     scale order: nondec=50.76%  noninc=51.58%
+     layout:  9728 rows × 20 blocks/row
+-- [98] blk.13.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.62  [39,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.66; ac1=+0.0002±0.0885
+     scales:  μ=0.04701 σ=0.007665  [0.01611,0.1279];  distinct(fp16)=333/194560
+     scale order: nondec=52.53%  noninc=49.64%
+     layout:  9728 rows × 20 blocks/row
+-- [99] blk.14.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.48 σ=5.64  [42,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.69; ac1=+0.0003±0.0889
+     scales:  μ=0.03292 σ=0.006542  [0.0144,0.08545];  distinct(fp16)=282/20480
+     scale order: nondec=47.64%  noninc=54.88%
+     layout:  1024 rows × 20 blocks/row
+-- [100] blk.14.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.58 σ=5.63  [41,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.65; ac1=-0.0013±0.0886
+     scales:  μ=0.03318 σ=0.007431  [0.01178,0.3027];  distinct(fp16)=381/81920
+     scale order: nondec=51.05%  noninc=50.07%
+     layout:  2560 rows × 32 blocks/row
+-- [101] blk.14.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.52 σ=5.65  [37,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.65; ac1=-0.0003±0.0889
+     scales:  μ=0.03127 σ=0.006279  [0.01318,0.0957];  distinct(fp16)=322/81920
+     scale order: nondec=50.99%  noninc=51.42%
+     layout:  4096 rows × 20 blocks/row
+-- [102] blk.14.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.54 σ=5.64  [42,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.96 σ=5.68; ac1=-0.0007±0.0889
+     scales:  μ=0.04707 σ=0.008359  [0.02222,0.08936];  distinct(fp16)=220/20480
+     scale order: nondec=54.27%  noninc=47.70%
+     layout:  1024 rows × 20 blocks/row
+-- [103] blk.14.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.62  [41,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=+0.0001±0.0885
+     scales:  μ=0.02976 σ=0.003552  [0.01074,0.1436];  distinct(fp16)=321/194560
+     scale order: nondec=50.86%  noninc=51.39%
+     layout:  2560 rows × 76 blocks/row
+-- [104] blk.14.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.63  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.15 σ=5.65; ac1=+0.0001±0.0886
+     scales:  μ=0.0411 σ=0.007709  [0.01233,0.1738];  distinct(fp16)=411/194560
+     scale order: nondec=51.03%  noninc=51.33%
+     layout:  9728 rows × 20 blocks/row
+-- [105] blk.14.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.65  [38,92];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=-0.0001±0.0889
+     scales:  μ=0.04732 σ=0.00771  [0.01855,0.1152];  distinct(fp16)=299/194560
+     scale order: nondec=53.02%  noninc=49.16%
+     layout:  9728 rows × 20 blocks/row
+-- [106] blk.15.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.51 σ=5.62  [41,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.95 σ=5.68; ac1=-0.0002±0.0885
+     scales:  μ=0.03429 σ=0.01007  [0.01172,0.1582];  distinct(fp16)=379/20480
+     scale order: nondec=47.61%  noninc=54.44%
+     layout:  1024 rows × 20 blocks/row
+-- [107] blk.15.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.62  [42,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.63; ac1=-0.0000±0.0885
+     scales:  μ=0.03253 σ=0.006604  [0.01288,0.167];  distinct(fp16)=328/81920
+     scale order: nondec=52.01%  noninc=49.32%
+     layout:  2560 rows × 32 blocks/row
+-- [108] blk.15.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.48 σ=5.63  [42,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=+0.0004±0.0887
+     scales:  μ=0.03118 σ=0.007265  [0.01337,0.1001];  distinct(fp16)=339/81920
+     scale order: nondec=51.00%  noninc=51.28%
+     layout:  4096 rows × 20 blocks/row
+-- [109] blk.15.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.58 σ=5.62  [41,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.04 σ=5.68; ac1=-0.0012±0.0885
+     scales:  μ=0.04641 σ=0.007649  [0.02161,0.08936];  distinct(fp16)=226/20480
+     scale order: nondec=55.18%  noninc=46.74%
+     layout:  1024 rows × 20 blocks/row
+-- [110] blk.15.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.63  [39,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.68; ac1=+0.0001±0.0887
+     scales:  μ=0.0294 σ=0.003795  [0.01105,0.168];  distinct(fp16)=323/194560
+     scale order: nondec=50.89%  noninc=51.36%
+     layout:  2560 rows × 76 blocks/row
+-- [111] blk.15.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [39,91];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.10 σ=5.66; ac1=-0.0001±0.0887
+     scales:  μ=0.04084 σ=0.007449  [0.01318,0.2773];  distinct(fp16)=392/194560
+     scale order: nondec=51.41%  noninc=50.92%
+     layout:  9728 rows × 20 blocks/row
+-- [112] blk.15.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.64  [38,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.66; ac1=-0.0001±0.0888
+     scales:  μ=0.04688 σ=0.007616  [0.01794,0.1328];  distinct(fp16)=319/194560
+     scale order: nondec=53.13%  noninc=49.07%
+     layout:  9728 rows × 20 blocks/row
+-- [113] blk.16.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.52 σ=5.65  [43,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.96 σ=5.65; ac1=-0.0003±0.0890
+     scales:  μ=0.03409 σ=0.007957  [0.01587,0.1416];  distinct(fp16)=306/20480
+     scale order: nondec=49.20%  noninc=53.08%
+     layout:  1024 rows × 20 blocks/row
+-- [114] blk.16.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.64  [39,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.65; ac1=+0.0001±0.0889
+     scales:  μ=0.03202 σ=0.006734  [0.01202,0.2773];  distinct(fp16)=337/81920
+     scale order: nondec=48.83%  noninc=52.48%
+     layout:  2560 rows × 32 blocks/row
+-- [115] blk.16.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.48 σ=5.65  [37,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.96 σ=5.66; ac1=+0.0003±0.0890
+     scales:  μ=0.03161 σ=0.007034  [0.01398,0.08936];  distinct(fp16)=312/81920
+     scale order: nondec=50.85%  noninc=51.38%
+     layout:  4096 rows × 20 blocks/row
+-- [116] blk.16.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.49 σ=5.61  [39,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.69; ac1=+0.0001±0.0883
+     scales:  μ=0.04647 σ=0.009024  [0.02124,0.07617];  distinct(fp16)=226/20480
+     scale order: nondec=55.97%  noninc=45.82%
+     layout:  1024 rows × 20 blocks/row
+-- [117] blk.16.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.61  [39,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=+0.0000±0.0884
+     scales:  μ=0.02901 σ=0.00392  [0.01007,0.2754];  distinct(fp16)=346/194560
+     scale order: nondec=50.96%  noninc=51.24%
+     layout:  2560 rows × 76 blocks/row
+-- [118] blk.16.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.63  [38,92];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.14 σ=5.66; ac1=+0.0003±0.0887
+     scales:  μ=0.04168 σ=0.007728  [0.01349,0.1709];  distinct(fp16)=403/194560
+     scale order: nondec=51.05%  noninc=51.33%
+     layout:  9728 rows × 20 blocks/row
+-- [119] blk.16.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [39,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.65; ac1=-0.0000±0.0886
+     scales:  μ=0.04794 σ=0.007434  [0.01965,0.1455];  distinct(fp16)=305/194560
+     scale order: nondec=52.68%  noninc=49.41%
+     layout:  9728 rows × 20 blocks/row
+-- [120] blk.17.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.51 σ=5.63  [41,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.69; ac1=-0.0001±0.0886
+     scales:  μ=0.03363 σ=0.007768  [0.01575,0.1147];  distinct(fp16)=302/20480
+     scale order: nondec=48.32%  noninc=54.04%
+     layout:  1024 rows × 20 blocks/row
+-- [121] blk.17.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.59 σ=5.67  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.66; ac1=-0.0013±0.0893
+     scales:  μ=0.03239 σ=0.006996  [0.01129,0.1631];  distinct(fp16)=357/81920
+     scale order: nondec=49.65%  noninc=51.62%
+     layout:  2560 rows × 32 blocks/row
+-- [122] blk.17.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.66  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.95 σ=5.66; ac1=+0.0000±0.0891
+     scales:  μ=0.03183 σ=0.007766  [0.01471,0.08594];  distinct(fp16)=306/81920
+     scale order: nondec=50.65%  noninc=51.64%
+     layout:  4096 rows × 20 blocks/row
+-- [123] blk.17.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.54 σ=5.65  [41,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.04 σ=5.65; ac1=-0.0007±0.0890
+     scales:  μ=0.04664 σ=0.007504  [0.02271,0.08105];  distinct(fp16)=218/20480
+     scale order: nondec=55.95%  noninc=45.99%
+     layout:  1024 rows × 20 blocks/row
+-- [124] blk.17.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.65  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.66; ac1=-0.0002±0.0889
+     scales:  μ=0.02969 σ=0.003918  [0.01074,0.1992];  distinct(fp16)=327/194560
+     scale order: nondec=51.00%  noninc=51.35%
+     layout:  2560 rows × 76 blocks/row
+-- [125] blk.17.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.62  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.12 σ=5.67; ac1=+0.0001±0.0886
+     scales:  μ=0.04177 σ=0.007693  [0.01447,0.2061];  distinct(fp16)=411/194560
+     scale order: nondec=51.08%  noninc=51.32%
+     layout:  9728 rows × 20 blocks/row
+-- [126] blk.17.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.65  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.67; ac1=+0.0001±0.0890
+     scales:  μ=0.048 σ=0.007668  [0.01965,0.1572];  distinct(fp16)=340/194560
+     scale order: nondec=52.46%  noninc=49.71%
+     layout:  9728 rows × 20 blocks/row
+-- [127] blk.18.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.53 σ=5.62  [41,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.59; ac1=-0.0004±0.0886
+     scales:  μ=0.03434 σ=0.007705  [0.0127,0.1128];  distinct(fp16)=309/20480
+     scale order: nondec=49.41%  noninc=52.78%
+     layout:  1024 rows × 20 blocks/row
+-- [128] blk.18.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.44 σ=5.62  [39,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.67; ac1=+0.0010±0.0886
+     scales:  μ=0.03326 σ=0.007601  [0.0108,0.1416];  distinct(fp16)=360/81920
+     scale order: nondec=51.08%  noninc=50.13%
+     layout:  2560 rows × 32 blocks/row
+-- [129] blk.18.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.65  [39,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.68; ac1=-0.0000±0.0889
+     scales:  μ=0.03216 σ=0.007458  [0.01251,0.103];  distinct(fp16)=334/81920
+     scale order: nondec=51.11%  noninc=51.16%
+     layout:  4096 rows × 20 blocks/row
+-- [130] blk.18.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.58 σ=5.62  [43,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.96 σ=5.72; ac1=-0.0012±0.0885
+     scales:  μ=0.04899 σ=0.00903  [0.02295,0.07715];  distinct(fp16)=209/20480
+     scale order: nondec=56.59%  noninc=45.38%
+     layout:  1024 rows × 20 blocks/row
+-- [131] blk.18.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.64  [40,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.66; ac1=-0.0002±0.0888
+     scales:  μ=0.02993 σ=0.004327  [0.01007,0.2139];  distinct(fp16)=372/194560
+     scale order: nondec=50.90%  noninc=51.50%
+     layout:  2560 rows × 76 blocks/row
+-- [132] blk.18.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.63  [38,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.11 σ=5.67; ac1=-0.0002±0.0887
+     scales:  μ=0.04323 σ=0.009089  [0.01465,0.3105];  distinct(fp16)=480/194560
+     scale order: nondec=51.06%  noninc=51.14%
+     layout:  9728 rows × 20 blocks/row
+-- [133] blk.18.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.52 σ=5.64  [40,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.67; ac1=-0.0003±0.0887
+     scales:  μ=0.04925 σ=0.008476  [0.01544,0.1992];  distinct(fp16)=415/194560
+     scale order: nondec=52.65%  noninc=49.47%
+     layout:  9728 rows × 20 blocks/row
+-- [134] blk.19.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.52 σ=5.59  [40,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.96 σ=5.64; ac1=-0.0003±0.0880
+     scales:  μ=0.03296 σ=0.0124  [0.01477,0.293];  distinct(fp16)=390/20480
+     scale order: nondec=48.62%  noninc=53.39%
+     layout:  1024 rows × 20 blocks/row
+-- [135] blk.19.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.43 σ=5.60  [42,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.62; ac1=+0.0011±0.0883
+     scales:  μ=0.03268 σ=0.007847  [0.01093,0.2969];  distinct(fp16)=423/81920
+     scale order: nondec=50.25%  noninc=50.85%
+     layout:  2560 rows × 32 blocks/row
+-- [136] blk.19.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.65  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.65; ac1=-0.0001±0.0889
+     scales:  μ=0.0313 σ=0.009112  [0.007721,0.1973];  distinct(fp16)=459/81920
+     scale order: nondec=50.52%  noninc=51.70%
+     layout:  4096 rows × 20 blocks/row
+-- [137] blk.19.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.51 σ=5.68  [44,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.04 σ=5.66; ac1=-0.0002±0.0894
+     scales:  μ=0.04976 σ=0.01064  [0.02234,0.1138];  distinct(fp16)=280/20480
+     scale order: nondec=54.17%  noninc=47.67%
+     layout:  1024 rows × 20 blocks/row
+-- [138] blk.19.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.66; ac1=+0.0001±0.0887
+     scales:  μ=0.03031 σ=0.004521  [0.01013,0.2031];  distinct(fp16)=436/194560
+     scale order: nondec=51.18%  noninc=51.25%
+     layout:  2560 rows × 76 blocks/row
+-- [139] blk.19.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.52 σ=5.63  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.06 σ=5.65; ac1=-0.0003±0.0886
+     scales:  μ=0.04389 σ=0.01028  [0.01379,0.3457];  distinct(fp16)=522/194560
+     scale order: nondec=50.75%  noninc=51.50%
+     layout:  9728 rows × 20 blocks/row
+-- [140] blk.19.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.52 σ=5.64  [37,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.66; ac1=-0.0002±0.0888
+     scales:  μ=0.05 σ=0.009707  [0.01892,0.2852];  distinct(fp16)=428/194560
+     scale order: nondec=52.33%  noninc=49.80%
+     layout:  9728 rows × 20 blocks/row
+-- [141] blk.20.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.52 σ=5.63  [41,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.67; ac1=-0.0003±0.0886
+     scales:  μ=0.035 σ=0.01025  [0.01428,0.1396];  distinct(fp16)=361/20480
+     scale order: nondec=48.01%  noninc=53.99%
+     layout:  1024 rows × 20 blocks/row
+-- [142] blk.20.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.48 σ=5.64  [41,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.70; ac1=+0.0003±0.0888
+     scales:  μ=0.03336 σ=0.006938  [0.0119,0.1943];  distinct(fp16)=338/81920
+     scale order: nondec=51.09%  noninc=50.26%
+     layout:  2560 rows × 32 blocks/row
+-- [143] blk.20.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.62  [41,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.67; ac1=-0.0000±0.0885
+     scales:  μ=0.03239 σ=0.008277  [0.008911,0.1011];  distinct(fp16)=398/81920
+     scale order: nondec=51.10%  noninc=51.12%
+     layout:  4096 rows × 20 blocks/row
+-- [144] blk.20.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.53 σ=5.65  [42,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.72; ac1=-0.0005±0.0890
+     scales:  μ=0.05291 σ=0.009738  [0.02576,0.1191];  distinct(fp16)=264/20480
+     scale order: nondec=52.38%  noninc=49.64%
+     layout:  1024 rows × 20 blocks/row
+-- [145] blk.20.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.65  [36,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.66; ac1=+0.0001±0.0889
+     scales:  μ=0.03056 σ=0.00421  [0.009583,0.2012];  distinct(fp16)=352/194560
+     scale order: nondec=50.98%  noninc=51.47%
+     layout:  2560 rows × 76 blocks/row
+-- [146] blk.20.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.52 σ=5.62  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.10 σ=5.66; ac1=-0.0003±0.0885
+     scales:  μ=0.0443 σ=0.01012  [0.01404,0.373];  distinct(fp16)=500/194560
+     scale order: nondec=50.41%  noninc=51.84%
+     layout:  9728 rows × 20 blocks/row
+-- [147] blk.20.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.63  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.64; ac1=-0.0002±0.0887
+     scales:  μ=0.05079 σ=0.008562  [0.01953,0.1924];  distinct(fp16)=380/194560
+     scale order: nondec=52.00%  noninc=50.09%
+     layout:  9728 rows × 20 blocks/row
+-- [148] blk.21.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.53 σ=5.61  [41,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.68; ac1=-0.0005±0.0883
+     scales:  μ=0.03486 σ=0.008596  [0.009766,0.1279];  distinct(fp16)=384/20480
+     scale order: nondec=48.21%  noninc=54.22%
+     layout:  1024 rows × 20 blocks/row
+-- [149] blk.21.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.48 σ=5.60  [39,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.63; ac1=+0.0002±0.0882
+     scales:  μ=0.03324 σ=0.00643  [0.01141,0.1309];  distinct(fp16)=316/81920
+     scale order: nondec=51.77%  noninc=49.80%
+     layout:  2560 rows × 32 blocks/row
+-- [150] blk.21.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.51 σ=5.64  [40,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.66; ac1=-0.0002±0.0888
+     scales:  μ=0.03262 σ=0.00799  [0.01056,0.09033];  distinct(fp16)=379/81920
+     scale order: nondec=51.65%  noninc=50.70%
+     layout:  4096 rows × 20 blocks/row
+-- [151] blk.21.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.57 σ=5.61  [39,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.64; ac1=-0.0011±0.0883
+     scales:  μ=0.05373 σ=0.01111  [0.02747,0.1572];  distinct(fp16)=278/20480
+     scale order: nondec=51.20%  noninc=50.77%
+     layout:  1024 rows × 20 blocks/row
+-- [152] blk.21.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.64  [37,91];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.64; ac1=-0.0002±0.0889
+     scales:  μ=0.03098 σ=0.004198  [0.009949,0.168];  distinct(fp16)=376/194560
+     scale order: nondec=50.75%  noninc=51.77%
+     layout:  2560 rows × 76 blocks/row
+-- [153] blk.21.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.64  [38,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.08 σ=5.65; ac1=-0.0001±0.0888
+     scales:  μ=0.04466 σ=0.01237  [0.01367,0.498];  distinct(fp16)=558/194560
+     scale order: nondec=49.77%  noninc=52.42%
+     layout:  9728 rows × 20 blocks/row
+-- [154] blk.21.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.64  [39,93];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=-0.0000±0.0889
+     scales:  μ=0.05131 σ=0.009281  [0.01917,0.2158];  distinct(fp16)=398/194560
+     scale order: nondec=51.66%  noninc=50.43%
+     layout:  9728 rows × 20 blocks/row
+-- [155] blk.22.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.58 σ=5.63  [40,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.64; ac1=-0.0012±0.0887
+     scales:  μ=0.03432 σ=0.01001  [0.0105,0.1611];  distinct(fp16)=400/20480
+     scale order: nondec=48.27%  noninc=54.28%
+     layout:  1024 rows × 20 blocks/row
+-- [156] blk.22.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.49 σ=5.60  [39,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.67; ac1=+0.0001±0.0882
+     scales:  μ=0.03371 σ=0.007954  [0.01044,0.3066];  distinct(fp16)=380/81920
+     scale order: nondec=52.04%  noninc=48.91%
+     layout:  2560 rows × 32 blocks/row
+-- [157] blk.22.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.52 σ=5.64  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.65; ac1=-0.0003±0.0888
+     scales:  μ=0.03096 σ=0.007894  [0.0116,0.166];  distinct(fp16)=406/81920
+     scale order: nondec=50.51%  noninc=51.84%
+     layout:  4096 rows × 20 blocks/row
+-- [158] blk.22.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.54 σ=5.60  [43,83];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.95 σ=5.67; ac1=-0.0006±0.0882
+     scales:  μ=0.05724 σ=0.01183  [0.02661,0.1602];  distinct(fp16)=286/20480
+     scale order: nondec=50.90%  noninc=51.33%
+     layout:  1024 rows × 20 blocks/row
+-- [159] blk.22.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.64; ac1=-0.0000±0.0886
+     scales:  μ=0.0325 σ=0.004252  [0.01074,0.1494];  distinct(fp16)=396/194560
+     scale order: nondec=50.89%  noninc=51.74%
+     layout:  2560 rows × 76 blocks/row
+-- [160] blk.22.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.65  [39,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.05 σ=5.66; ac1=-0.0002±0.0889
+     scales:  μ=0.04582 σ=0.01353  [0.01392,0.4512];  distinct(fp16)=557/194560
+     scale order: nondec=49.34%  noninc=52.76%
+     layout:  9728 rows × 20 blocks/row
+-- [161] blk.22.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [36,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.64; ac1=-0.0000±0.0887
+     scales:  μ=0.05179 σ=0.009374  [0.02197,0.2617];  distinct(fp16)=379/194560
+     scale order: nondec=51.10%  noninc=50.93%
+     layout:  9728 rows × 20 blocks/row
+-- [162] blk.23.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.48 σ=5.64  [41,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.60; ac1=+0.0003±0.0888
+     scales:  μ=0.03468 σ=0.008496  [0.01904,0.1299];  distinct(fp16)=317/20480
+     scale order: nondec=46.87%  noninc=55.51%
+     layout:  1024 rows × 20 blocks/row
+-- [163] blk.23.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.51 σ=5.66  [37,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.65; ac1=-0.0002±0.0891
+     scales:  μ=0.03737 σ=0.008466  [0.01086,0.2441];  distinct(fp16)=413/81920
+     scale order: nondec=48.99%  noninc=52.35%
+     layout:  2560 rows × 32 blocks/row
+-- [164] blk.23.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.64  [41,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.67; ac1=-0.0000±0.0889
+     scales:  μ=0.03265 σ=0.007907  [0.01483,0.1299];  distinct(fp16)=322/81920
+     scale order: nondec=52.04%  noninc=50.27%
+     layout:  4096 rows × 20 blocks/row
+-- [165] blk.23.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.46 σ=5.65  [40,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.96 σ=5.61; ac1=+0.0006±0.0890
+     scales:  μ=0.06281 σ=0.0184  [0.03101,0.2217];  distinct(fp16)=325/20480
+     scale order: nondec=47.92%  noninc=54.02%
+     layout:  1024 rows × 20 blocks/row
+-- [166] blk.23.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.62  [38,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.65; ac1=-0.0001±0.0885
+     scales:  μ=0.03339 σ=0.004531  [0.01093,0.2617];  distinct(fp16)=360/194560
+     scale order: nondec=51.18%  noninc=51.46%
+     layout:  2560 rows × 76 blocks/row
+-- [167] blk.23.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [36,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.05 σ=5.66; ac1=+0.0000±0.0886
+     scales:  μ=0.04693 σ=0.01307  [0.01526,0.3438];  distinct(fp16)=516/194560
+     scale order: nondec=49.65%  noninc=52.54%
+     layout:  9728 rows × 20 blocks/row
+-- [168] blk.23.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [39,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.64; ac1=+0.0000±0.0886
+     scales:  μ=0.05168 σ=0.009076  [0.02063,0.2422];  distinct(fp16)=367/194560
+     scale order: nondec=51.22%  noninc=50.83%
+     layout:  9728 rows × 20 blocks/row
+-- [169] blk.24.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.52 σ=5.66  [43,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.67; ac1=-0.0003±0.0891
+     scales:  μ=0.03675 σ=0.01167  [0.01917,0.1914];  distinct(fp16)=353/20480
+     scale order: nondec=46.17%  noninc=55.96%
+     layout:  1024 rows × 20 blocks/row
+-- [170] blk.24.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.49 σ=5.65  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.64; ac1=+0.0001±0.0890
+     scales:  μ=0.03627 σ=0.01177  [0.01251,0.4102];  distinct(fp16)=519/81920
+     scale order: nondec=48.81%  noninc=52.23%
+     layout:  2560 rows × 32 blocks/row
+-- [171] blk.24.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.63  [40,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.64; ac1=-0.0001±0.0886
+     scales:  μ=0.0332 σ=0.008936  [0.01276,0.1069];  distinct(fp16)=358/81920
+     scale order: nondec=52.70%  noninc=49.50%
+     layout:  4096 rows × 20 blocks/row
+-- [172] blk.24.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.46 σ=5.67  [41,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.02 σ=5.66; ac1=+0.0006±0.0893
+     scales:  μ=0.0596 σ=0.02473  [0.02563,0.2637];  distinct(fp16)=417/20480
+     scale order: nondec=44.94%  noninc=56.91%
+     layout:  1024 rows × 20 blocks/row
+-- [173] blk.24.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.47 σ=5.64  [36,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=+0.0005±0.0888
+     scales:  μ=0.03361 σ=0.004379  [0.01141,0.2266];  distinct(fp16)=345/194560
+     scale order: nondec=51.49%  noninc=51.17%
+     layout:  2560 rows × 76 blocks/row
+-- [174] blk.24.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.52 σ=5.65  [37,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.09 σ=5.65; ac1=-0.0003±0.0889
+     scales:  μ=0.04683 σ=0.01132  [0.01843,0.2871];  distinct(fp16)=447/194560
+     scale order: nondec=49.44%  noninc=52.80%
+     layout:  9728 rows × 20 blocks/row
+-- [175] blk.24.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.63  [40,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.65; ac1=-0.0002±0.0887
+     scales:  μ=0.05143 σ=0.008788  [0.02637,0.1738];  distinct(fp16)=308/194560
+     scale order: nondec=50.96%  noninc=51.05%
+     layout:  9728 rows × 20 blocks/row
+-- [176] blk.25.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.45 σ=5.66  [37,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.05 σ=5.72; ac1=+0.0008±0.0892
+     scales:  μ=0.03605 σ=0.008477  [0.01227,0.127];  distinct(fp16)=310/20480
+     scale order: nondec=46.01%  noninc=56.16%
+     layout:  1024 rows × 20 blocks/row
+-- [177] blk.25.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.48 σ=5.62  [39,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=+0.0003±0.0886
+     scales:  μ=0.03701 σ=0.006637  [0.01178,0.1621];  distinct(fp16)=340/81920
+     scale order: nondec=50.49%  noninc=51.04%
+     layout:  2560 rows × 32 blocks/row
+-- [178] blk.25.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.45 σ=5.63  [37,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.68; ac1=+0.0008±0.0887
+     scales:  μ=0.03276 σ=0.007215  [0.0144,0.1084];  distinct(fp16)=328/81920
+     scale order: nondec=50.96%  noninc=51.45%
+     layout:  4096 rows × 20 blocks/row
+-- [179] blk.25.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.52 σ=5.63  [43,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.71; ac1=-0.0003±0.0886
+     scales:  μ=0.06261 σ=0.01343  [0.02832,0.1523];  distinct(fp16)=266/20480
+     scale order: nondec=48.09%  noninc=53.93%
+     layout:  1024 rows × 20 blocks/row
+-- [180] blk.25.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.64  [37,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.66; ac1=-0.0000±0.0888
+     scales:  μ=0.03332 σ=0.004434  [0.01056,0.2852];  distinct(fp16)=364/194560
+     scale order: nondec=51.52%  noninc=51.10%
+     layout:  2560 rows × 76 blocks/row
+-- [181] blk.25.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.52 σ=5.61  [41,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.08 σ=5.65; ac1=-0.0003±0.0884
+     scales:  μ=0.04715 σ=0.01089  [0.021,0.3027];  distinct(fp16)=430/194560
+     scale order: nondec=49.70%  noninc=52.53%
+     layout:  9728 rows × 20 blocks/row
+-- [182] blk.25.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.64  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.67; ac1=+0.0002±0.0888
+     scales:  μ=0.05134 σ=0.008734  [0.02405,0.1934];  distinct(fp16)=320/194560
+     scale order: nondec=51.18%  noninc=50.88%
+     layout:  9728 rows × 20 blocks/row
+-- [183] blk.26.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.51 σ=5.65  [42,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.05 σ=5.59; ac1=-0.0002±0.0890
+     scales:  μ=0.037 σ=0.009197  [0.01807,0.1318];  distinct(fp16)=323/20480
+     scale order: nondec=45.55%  noninc=56.62%
+     layout:  1024 rows × 20 blocks/row
+-- [184] blk.26.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.51 σ=5.65  [40,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.69; ac1=-0.0002±0.0890
+     scales:  μ=0.03725 σ=0.008028  [0.01044,0.2334];  distinct(fp16)=340/81920
+     scale order: nondec=53.45%  noninc=47.76%
+     layout:  2560 rows × 32 blocks/row
+-- [185] blk.26.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.50 σ=5.65  [36,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.66; ac1=+0.0001±0.0889
+     scales:  μ=0.03359 σ=0.007747  [0.01355,0.09814];  distinct(fp16)=319/81920
+     scale order: nondec=51.68%  noninc=50.65%
+     layout:  4096 rows × 20 blocks/row
+-- [186] blk.26.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.48 σ=5.64  [40,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.69; ac1=+0.0003±0.0888
+     scales:  μ=0.06433 σ=0.01485  [0.03101,0.1475];  distinct(fp16)=264/20480
+     scale order: nondec=46.45%  noninc=55.52%
+     layout:  1024 rows × 20 blocks/row
+-- [187] blk.26.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.53 σ=5.62  [41,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.66; ac1=-0.0004±0.0886
+     scales:  μ=0.03375 σ=0.004952  [0.01038,0.2471];  distinct(fp16)=373/194560
+     scale order: nondec=51.45%  noninc=51.25%
+     layout:  2560 rows × 76 blocks/row
+-- [188] blk.26.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.63  [39,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.05 σ=5.65; ac1=-0.0001±0.0886
+     scales:  μ=0.04808 σ=0.01062  [0.02185,0.3223];  distinct(fp16)=424/194560
+     scale order: nondec=49.80%  noninc=52.39%
+     layout:  9728 rows × 20 blocks/row
+-- [189] blk.26.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.63  [37,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.65; ac1=-0.0001±0.0886
+     scales:  μ=0.05207 σ=0.008298  [0.02368,0.2139];  distinct(fp16)=322/194560
+     scale order: nondec=51.22%  noninc=50.83%
+     layout:  9728 rows × 20 blocks/row
+-- [190] blk.27.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.47 σ=5.66  [39,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.69; ac1=+0.0005±0.0892
+     scales:  μ=0.03732 σ=0.01014  [0.01062,0.1226];  distinct(fp16)=331/20480
+     scale order: nondec=44.95%  noninc=57.39%
+     layout:  1024 rows × 20 blocks/row
+-- [191] blk.27.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.57 σ=5.64  [39,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.61; ac1=-0.0010±0.0888
+     scales:  μ=0.03638 σ=0.007225  [0.01013,0.1348];  distinct(fp16)=375/81920
+     scale order: nondec=50.26%  noninc=51.10%
+     layout:  2560 rows × 32 blocks/row
+-- [192] blk.27.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.47 σ=5.62  [41,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.66; ac1=+0.0004±0.0885
+     scales:  μ=0.03329 σ=0.007816  [0.01379,0.08936];  distinct(fp16)=310/81920
+     scale order: nondec=51.64%  noninc=50.71%
+     layout:  4096 rows × 20 blocks/row
+-- [193] blk.27.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.48 σ=5.65  [40,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.60; ac1=+0.0004±0.0889
+     scales:  μ=0.06161 σ=0.01507  [0.02954,0.1631];  distinct(fp16)=276/20480
+     scale order: nondec=46.66%  noninc=55.23%
+     layout:  1024 rows × 20 blocks/row
+-- [194] blk.27.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.53 σ=5.64  [40,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.65; ac1=-0.0005±0.0888
+     scales:  μ=0.03418 σ=0.005406  [0.01007,0.2373];  distinct(fp16)=395/194560
+     scale order: nondec=51.68%  noninc=51.00%
+     layout:  2560 rows × 76 blocks/row
+-- [195] blk.27.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [40,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.64; ac1=+0.0001±0.0887
+     scales:  μ=0.0485 σ=0.01064  [0.01941,0.3711];  distinct(fp16)=437/194560
+     scale order: nondec=50.00%  noninc=52.23%
+     layout:  9728 rows × 20 blocks/row
+-- [196] blk.27.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.64  [38,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=+0.0001±0.0888
+     scales:  μ=0.05253 σ=0.008068  [0.02441,0.252];  distinct(fp16)=320/194560
+     scale order: nondec=51.33%  noninc=50.75%
+     layout:  9728 rows × 20 blocks/row
+-- [197] blk.28.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.59 σ=5.62  [42,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.62; ac1=-0.0014±0.0884
+     scales:  μ=0.03788 σ=0.00987  [0.01758,0.1377];  distinct(fp16)=340/20480
+     scale order: nondec=46.01%  noninc=56.29%
+     layout:  1024 rows × 20 blocks/row
+-- [198] blk.28.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.55 σ=5.64  [37,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.62; ac1=-0.0008±0.0888
+     scales:  μ=0.03708 σ=0.008562  [0.008911,0.1973];  distinct(fp16)=464/81920
+     scale order: nondec=50.13%  noninc=51.18%
+     layout:  2560 rows × 32 blocks/row
+-- [199] blk.28.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.51 σ=5.64  [37,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=-0.0001±0.0888
+     scales:  μ=0.03422 σ=0.008205  [0.01263,0.1196];  distinct(fp16)=342/81920
+     scale order: nondec=51.57%  noninc=50.73%
+     layout:  4096 rows × 20 blocks/row
+-- [200] blk.28.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.44 σ=5.64  [43,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.68; ac1=+0.0009±0.0888
+     scales:  μ=0.06507 σ=0.01515  [0.02917,0.1445];  distinct(fp16)=275/20480
+     scale order: nondec=46.40%  noninc=55.84%
+     layout:  1024 rows × 20 blocks/row
+-- [201] blk.28.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.63  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=+0.0002±0.0886
+     scales:  μ=0.03507 σ=0.006136  [0.009705,0.2832];  distinct(fp16)=432/194560
+     scale order: nondec=51.53%  noninc=51.16%
+     layout:  2560 rows × 76 blocks/row
+-- [202] blk.28.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.64  [37,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.07 σ=5.64; ac1=+0.0001±0.0888
+     scales:  μ=0.05013 σ=0.01158  [0.009949,0.3984];  distinct(fp16)=496/194560
+     scale order: nondec=50.23%  noninc=51.98%
+     layout:  9728 rows × 20 blocks/row
+-- [203] blk.28.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.63  [37,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.67; ac1=-0.0001±0.0887
+     scales:  μ=0.05376 σ=0.00829  [0.02319,0.2002];  distinct(fp16)=331/194560
+     scale order: nondec=51.68%  noninc=50.53%
+     layout:  9728 rows × 20 blocks/row
+-- [204] blk.29.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.52 σ=5.68  [39,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.07 σ=5.63; ac1=-0.0004±0.0895
+     scales:  μ=0.03876 σ=0.0138  [0.0188,0.1924];  distinct(fp16)=383/20480
+     scale order: nondec=43.20%  noninc=58.85%
+     layout:  1024 rows × 20 blocks/row
+-- [205] blk.29.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.54 σ=5.60  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.65; ac1=-0.0006±0.0882
+     scales:  μ=0.0371 σ=0.008165  [0.006683,0.2139];  distinct(fp16)=371/81920
+     scale order: nondec=50.62%  noninc=50.63%
+     layout:  2560 rows × 32 blocks/row
+-- [206] blk.29.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.57 σ=5.63  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.69; ac1=-0.0011±0.0886
+     scales:  μ=0.0345 σ=0.00779  [0.01074,0.0957];  distinct(fp16)=330/81920
+     scale order: nondec=51.66%  noninc=50.69%
+     layout:  4096 rows × 20 blocks/row
+-- [207] blk.29.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.53 σ=5.66  [40,84];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=-0.0005±0.0891
+     scales:  μ=0.05957 σ=0.02278  [0.0271,0.2207];  distinct(fp16)=358/20480
+     scale order: nondec=45.16%  noninc=56.58%
+     layout:  1024 rows × 20 blocks/row
+-- [208] blk.29.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.48 σ=5.64  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=+0.0003±0.0888
+     scales:  μ=0.03549 σ=0.006365  [0.008606,0.3867];  distinct(fp16)=356/194560
+     scale order: nondec=52.00%  noninc=50.72%
+     layout:  2560 rows × 76 blocks/row
+-- [209] blk.29.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.63  [33,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.04 σ=5.64; ac1=+0.0002±0.0886
+     scales:  μ=0.05028 σ=0.01015  [0.02173,0.2852];  distinct(fp16)=391/194560
+     scale order: nondec=50.05%  noninc=52.18%
+     layout:  9728 rows × 20 blocks/row
+-- [210] blk.29.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.51 σ=5.63  [38,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.64; ac1=-0.0001±0.0887
+     scales:  μ=0.0541 σ=0.007662  [0.02393,0.1865];  distinct(fp16)=287/194560
+     scale order: nondec=51.13%  noninc=50.98%
+     layout:  9728 rows × 20 blocks/row
+-- [211] blk.30.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.54 σ=5.58  [42,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.64; ac1=-0.0006±0.0879
+     scales:  μ=0.03707 σ=0.01088  [0.01746,0.1758];  distinct(fp16)=350/20480
+     scale order: nondec=46.14%  noninc=56.04%
+     layout:  1024 rows × 20 blocks/row
+-- [212] blk.30.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.47 σ=5.65  [40,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.98 σ=5.61; ac1=+0.0004±0.0890
+     scales:  μ=0.03737 σ=0.008419  [0.006256,0.25];  distinct(fp16)=433/81920
+     scale order: nondec=53.32%  noninc=47.78%
+     layout:  2560 rows × 32 blocks/row
+-- [213] blk.30.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.49 σ=5.67  [39,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.99 σ=5.64; ac1=+0.0001±0.0893
+     scales:  μ=0.0332 σ=0.007758  [0.01318,0.1348];  distinct(fp16)=370/81920
+     scale order: nondec=50.91%  noninc=51.56%
+     layout:  4096 rows × 20 blocks/row
+-- [214] blk.30.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.48 σ=5.59  [39,85];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.05 σ=5.65; ac1=+0.0003±0.0880
+     scales:  μ=0.06409 σ=0.01666  [0.02808,0.1943];  distinct(fp16)=293/20480
+     scale order: nondec=49.32%  noninc=52.90%
+     layout:  1024 rows × 20 blocks/row
+-- [215] blk.30.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.65  [38,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.01 σ=5.65; ac1=+0.0001±0.0889
+     scales:  μ=0.0357 σ=0.006661  [0.007935,0.3223];  distinct(fp16)=382/194560
+     scale order: nondec=51.57%  noninc=50.99%
+     layout:  2560 rows × 76 blocks/row
+-- [216] blk.30.ffn_gate.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.62  [39,86];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.03 σ=5.65; ac1=+0.0001±0.0885
+     scales:  μ=0.05 σ=0.01026  [0.02136,0.3965];  distinct(fp16)=379/194560
+     scale order: nondec=50.03%  noninc=52.21%
+     layout:  9728 rows × 20 blocks/row
+-- [217] blk.30.ffn_up.weight  shape=[np.uint64(2560), np.uint64(9728)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.49 σ=5.63  [37,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=+0.0001±0.0887
+     scales:  μ=0.05392 σ=0.007603  [0.0238,0.293];  distinct(fp16)=287/194560
+     scale order: nondec=51.02%  noninc=51.11%
+     layout:  9728 rows × 20 blocks/row
+-- [218] blk.31.attn_k.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.54 σ=5.61  [45,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.97 σ=5.62; ac1=-0.0006±0.0883
+     scales:  μ=0.03721 σ=0.01199  [0.01648,0.1787];  distinct(fp16)=361/20480
+     scale order: nondec=44.96%  noninc=57.29%
+     layout:  1024 rows × 20 blocks/row
+-- [219] blk.31.attn_output.weight  shape=[np.uint64(4096), np.uint64(2560)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.46 σ=5.61  [40,89];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.64; ac1=+0.0006±0.0884
+     scales:  μ=0.03802 σ=0.00815  [0.005798,0.2217];  distinct(fp16)=421/81920
+     scale order: nondec=48.58%  noninc=52.46%
+     layout:  2560 rows × 32 blocks/row
+-- [220] blk.31.attn_q.weight  shape=[np.uint64(2560), np.uint64(4096)]  blocks=81920  (1474560 bytes)
+     signs:   trans μ=63.52 σ=5.64  [39,88];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.67; ac1=-0.0003±0.0888
+     scales:  μ=0.03319 σ=0.007467  [0.01184,0.1016];  distinct(fp16)=358/81920
+     scale order: nondec=51.14%  noninc=51.28%
+     layout:  4096 rows × 20 blocks/row
+-- [221] blk.31.attn_v.weight  shape=[np.uint64(2560), np.uint64(1024)]  blocks=20480  (368640 bytes)
+     signs:   trans μ=63.55 σ=5.65  [40,87];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=63.95 σ=5.72; ac1=-0.0008±0.0889
+     scales:  μ=0.06396 σ=0.01751  [0.02881,0.1846];  distinct(fp16)=316/20480
+     scale order: nondec=47.63%  noninc=54.59%
+     layout:  1024 rows × 20 blocks/row
+-- [222] blk.31.ffn_down.weight  shape=[np.uint64(9728), np.uint64(2560)]  blocks=194560  (3502080 bytes)
+     signs:   trans μ=63.50 σ=5.64  [39,90];  all-same=0.00%  <=1trans=0.00%
+     pos/blk: μ=64.00 σ=5.65; ac1=+0.0000±0.0888
+     scales:  μ=0.03584 σ=0.006771  [0.007446,0.377];  distinct(fp16)=383/194560
+     scale order: nondec=51.36%  noninc=51.28%
+     layout:  2560 rows × 76 blocks/row
