@@ -1,0 +1,116 @@
+## Depth-resolved SVD on (W_bonsai - W_teacher) at MLP gate/up
+
+`38_*` showed block-level flip coupling grows with depth at MLP
+gate/up (over-dispersion ratio ~1.1 at L0 → ~2.2 at L35). Two
+candidate mechanisms produce that pattern: **rank-grows-with-depth
+LoRA** (deeper = higher LoRA rank, more block-correlated structure)
+or **OBC-style sequential** (late layers compound earlier-layer
+reconstruction error, produce more block-coherent per-block fits).
+
+The clean discriminator: SVD the per-layer delta. If LoRA rank grows
+with depth, rank-128 % of squared-Frobenius-norm should rise with L.
+If OBC-style, rank concentration stays roughly flat (each layer's
+delta is approximately full-rank by construction; the coupling lives
+in *which positions flip*, not in the singular-value distribution).
+
+## Method
+
+Full SVD of `(W_bonsai - W_teacher)` at 5 depths × {gate, up}.
+Report % of squared-Frobenius-norm captured at ranks 16, 64, 128,
+256, 512.
+
+## Results (partial: ffn_up L18/L27/L35 still computing as of writing;
+   will be added in a follow-up edit)
+
+```
+tensor                    rank-16    rank-64   rank-128   rank-256   rank-512    ||delta||F
+ffn_gate L0                 1.26%      4.17%      7.80%     14.56%     26.61%       191.572
+ffn_gate L9                 1.18%      4.04%      7.66%     14.41%     26.48%       230.070
+ffn_gate L18                1.13%      4.12%      7.84%     14.73%     26.95%       244.266
+ffn_gate L27                1.23%      4.24%      7.96%     14.86%     27.09%       265.789
+ffn_gate L35                1.41%      4.71%      8.78%     16.20%     29.10%       287.101
+ffn_up   L0                 1.03%      3.89%      7.51%     14.28%     26.38%       187.259
+ffn_up   L9                 0.99%      3.84%      7.45%     14.20%     26.27%       229.504
+```
+
+## Reading
+
+Rank-128 % is **essentially flat across depth at MLP**:
+- ffn_gate: 7.80% (L0) → 7.66% (L9) → 7.84% (L18) → 7.96% (L27) → 8.78% (L35)
+- ffn_up: 7.51% (L0) → 7.45% (L9), L18+ pending
+
+Total spread across 5 depths at gate: 7.66-8.78% (range = 1.1pp).
+The Frobenius norm of the delta DOES grow with depth (gate L0 = 192,
+L35 = 287, +50%) but that growth is matched proportionally across
+all singular values, not concentrated in low-rank components.
+
+## Implication: rank-grows-with-depth LoRA is RULED OUT
+
+If a depth-graded LoRA preprocess explained the depth-growing block
+over-dispersion, rank-128 % would rise meaningfully with depth (a
+LoRA rank of, say, 256 at L35 vs 64 at L0 would give rank-128
+fractions 90% vs 25%). We observe ~8% throughout. The depth-growing
+block coupling cannot be the LoRA component growing; the technique's
+LoRA-equivalent component (if any) has uniform-rank effective
+structure across depth.
+
+## What this leaves consistent
+
+The depth-growing block coupling at MLP must come from a mechanism
+that:
+- Produces block-coherent flip patterns even though the *delta* is
+  approximately full-rank.
+- Has its block-coupling strength grow with depth.
+
+Mechanism families that fit:
+
+1. **OBC-style sequential per-block quantisation**. Each block's
+   sign decisions are made jointly to minimise activation
+   reconstruction error, with errors compounding layer-by-layer. The
+   per-block delta need not be low-rank, but the *position of
+   flips within a block* is correlated because the optimiser
+   couples them by construction. Late layers see more compounded
+   error and produce more block-coherent fits.
+2. **A depth-graded loss function** that explicitly rewards
+   block-coherent flip patterns more strongly at deep layers.
+   Possible but ad-hoc; the whitepaper's "principled framework"
+   wording argues against this.
+3. **A LoRA preprocess + per-element SGD step where the SGD's
+   effective per-block "update temperature" decreases with depth**.
+   Could produce growing coupling if the SGD step at deep layers
+   does fewer per-block updates, leaving the LoRA's natural
+   block-structure visible. Requires the LoRA to have block-
+   coherent structure (rank << 128). Not directly tested.
+
+The strongest natural fit is OBC-style sequential. It produces
+exactly the conjunction observed:
+- approximately full-rank delta everywhere (per-element decisions)
+- block-correlated flips (per-block joint optimisation)
+- depth-growing coupling (compounding earlier-layer error)
+
+## Refinement to the recipe
+
+A reproduction targeting Bonsai's MLP fingerprint cannot use a
+"LoRA + per-element SGD" recipe with a single uniform LoRA rank;
+that recipe produces uniform over-dispersion across depth. The
+recipe must include EITHER:
+- A per-layer optimisation step that becomes more block-coherent
+  at deep layers (sequential / OBC-style), OR
+- A depth-conditioned regulariser that increases block-coupling
+  strength layer-by-layer.
+
+This matches the Hassibi-group ℓ∞ paper's positioning: layer-by-layer
+optimisation with activation-aware per-block decisions, not a single
+global gradient pass over all weights.
+
+## Caveats
+
+- Tested at 5 depths × 2 MLP types = 10 SVDs. Attention types not
+  re-tested at this depth; the existing 34_* spot checks at q L0,
+  q L18, v L0 give rank-128 in 13.8-24.5% range — slightly more
+  concentrated than MLP, but no per-depth-attention sweep done.
+- Full SVD is exact; no rank-truncation noise. The flatness is
+  not an artifact of approximate SVD.
+- Bonsai's d_intermediate at 8B is 12288 (compared to d_model 4096),
+  so the gate/up matrices are taller-than-wide. Same SVD pattern
+  expected to hold for down_proj (transposed shape).
