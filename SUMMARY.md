@@ -121,14 +121,18 @@ section is anchored to a specific report under `reports/local-*/`.
     spike in either over-dispersion (`40_*`: q ~1.7-2.1, in line
     with q's 1.7-3.2 across all depths) OR rank-concentration
     (`43_*`: q rank-128 = 13.27-14.68% across all 6 probed depths,
-    1.4pp spread). The asymmetric MLP-only spike is most easily
-    explained by OBC-style sequential quantisation that processes
-    attention BEFORE MLP within each layer block: MLP at L1 sees
-    extra accumulated error from L1-attention's quantisation that
-    attn at L1 doesn't, and this within-block extra-error is
-    proportionally biggest at early layers (where total accumulated
-    error is smallest). This is a testable prediction on
-    reproductions.
+    1.4pp spread). The bytes constrain the mechanism to be
+    **MLP-asymmetric and depth-graded**. Mechanisms still
+    consistent with this asymmetry include: OBC-style sequential
+    with attn-before-MLP within-block ordering; a parallel pass
+    with SwiGLU-sensitivity-weighted loss; an MLP-only low-rank
+    LoRA component (rank-16 fraction at L1-3 MLP is 2-3× the L0
+    baseline, suggesting a small-rank LoRA component active there);
+    calibration-data composition that weights L1-3 MLP heaviest;
+    layer-norm-induced asymmetry (QK-norm on attn, no equivalent on
+    MLP). The bytes don't uniquely select among these. See
+    `local-8B/44_*` for the within-block-ordering hypothesis with
+    its third-verifier-catch corrections.
 
 ## What we INFER (not byte-attested, but consistent)
 

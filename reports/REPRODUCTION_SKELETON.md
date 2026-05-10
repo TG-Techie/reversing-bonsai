@@ -269,17 +269,42 @@ Bonsai's byte fingerprint, but that's compatible with several
 mechanism families — not exclusively the LoRA + SGD-α path
 described above.
 
-The 38_*-42_* findings collectively narrow the mechanism family.
-**OBC-style sequential per-block reconstruction with layer-wise
-compounded activation error** is the most parsimonious fit:
-- Approximately full-rank delta across all (depth, type) (`34_*`,
-  `39_*`, `41_*`).
-- Block-correlated flips by construction (`37_*`, `38_*`).
-- Depth-growing block-coupling at MLP / monotonic rise at v
-  (compounded earlier-layer error feeds later-layer per-block
-  decisions) (`40_*`).
-- 8B-specific L1-3 spike emerging from the deeper architecture
-  amplifying L0's quantisation error into L1's input (`42_*`).
+The 38_*-43_* findings collectively narrow the mechanism family
+to be **MLP-asymmetric and depth-graded**. Several mechanism
+families are still consistent with the bytes, including:
+
+- **OBC-style sequential per-block reconstruction** with layer-wise
+  compounded activation error.
+- **A parallel pass with a SwiGLU-sensitivity-weighted loss** —
+  would over-correct gate/up at early layers naturally.
+- **A small-rank LoRA component (r=8-32) on MLP only**, plus a
+  per-element step. Rank-16 fraction at L1-3 MLP is 2-3× the L0
+  baseline — consistent with this.
+- **Calibration-data composition** that weights L1-3 MLP heaviest.
+- **Layer-norm-induced asymmetry** (Qwen3 has QK-norm on attention
+  but no equivalent on MLP).
+
+Force-by-data RULED OUT (these mechanisms cannot match the bytes):
+- Uniform-rank-128 LoRA across all layers (`39_*`, `41_*`).
+- Pure i.i.d. element-wise noise on teacher (`37_*`, `40_*`).
+- Explicit L1-3-targeted rewrite applied uniformly across sizes
+  (`42_*`).
+- A parallel within-block pass with a SYMMETRIC loss across attn
+  and MLP (`43_*`'s asymmetry).
+
+The within-block-ordering hypothesis (attn-before-MLP) was initially
+proposed in `local-8B/44_*` as the simplest reading. After
+independent verification, it was downgraded to "one consistent
+candidate among several" because:
+1. The mechanism predicts MLP > attn at every layer; observation
+   has the OPPOSITE direction at L0 (8B) and L1 (1.7B).
+2. Multiple alternatives produce the same MLP-asymmetric L1-3
+   spike + flat-with-depth attention rank-concentration.
+
+A reproduction recipe should reproduce the constraints
+(MLP-asymmetric, depth-graded, full-rank delta, block-correlated
+flips). The specific within-block ordering remains an open question
+that the bytes alone don't decide.
 
 ## Why this skeleton is worth taking seriously
 
