@@ -51,11 +51,14 @@ jobs:
         with: { enable-cache: true }
 
       - name: Set up Python
-        run: uv python install 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Install minimal deps for download
         run: |
-          uv pip install --system huggingface_hub hf_transfer
+          python -m pip install --upgrade pip
+          python -m pip install huggingface_hub hf_transfer
 
       - name: Compute tag
         id: tag
