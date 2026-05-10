@@ -109,7 +109,11 @@ authoritative — treat it as the second eye on the same data, which
 is enough to catch most assumption slips.
 
 Sub-agents *terminate*. They are checks, not collaborators. Don't
-keepalive them, don't chain them.
+keepalive *them* — but **you keepalive while one is running**, the
+same way you do for any other async work. A spawned sub-agent is a
+background process from the parent's perspective; if you end your
+turn waiting for it, the harness can suspend you and the sub-agent's
+result lands silently.
 
 ## Why keepalive (and announce it)
 
