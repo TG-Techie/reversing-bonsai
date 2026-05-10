@@ -1,0 +1,16 @@
+Compared 7 tensors.
+tensor                                                                  flip_frac
+  model.layers.18.mlp.down_proj.weight                                    0.2311
+  model.layers.18.mlp.gate_proj.weight                                    0.2746
+  model.layers.18.mlp.up_proj.weight                                      0.2609
+  model.layers.18.self_attn.k_proj.weight                                 0.2507
+  model.layers.18.self_attn.o_proj.weight                                 0.2342
+  model.layers.18.self_attn.q_proj.weight                                 0.2672
+  model.layers.18.self_attn.v_proj.weight                                 0.1996
+
+ depth     mean      min      max  n
+    18    0.2455   0.1996   0.2746   7
+
+OVERALL: mean=0.2455  median=0.2507  min=0.1996  max=0.2746
+Random baseline (50/50 signs): 0.5000
+Pure Gaussian sign-quant prediction (cos = sqrt(2/pi)≈0.798): flip ≈ (1-0.798)/2 ≈ 0.1010

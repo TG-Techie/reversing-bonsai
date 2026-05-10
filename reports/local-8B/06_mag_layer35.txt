@@ -1,0 +1,45 @@
+== 254 Q1_0 tensors
+
+-- blk.35.attn_k.weight -> model.layers.35.self_attn.k_proj.weight  shape=[np.uint64(1024), np.uint64(4096)]
+   per-block (n=32768): corr s_g vs base..
+     mean(|w|)   = +0.4691
+     median(|w|) = +0.4189
+     max(|w|)    = +0.4173
+     std(|w|)    = +0.4905
+   ratio s_g / base_mean: median=1.515  p10..p90=1.237..2.014
+   per-col   corr mean|w|: +0.0552
+   per-row   corr mean|w|: +0.4897
+   global KS(|w|):          0.6322  mean|w|: bonsai=0.0293 base=0.0191
+
+-- blk.35.attn_output.weight -> model.layers.35.self_attn.o_proj.weight  shape=[np.uint64(4096), np.uint64(4096)]
+   per-block (n=131072): corr s_g vs base..
+     mean(|w|)   = +0.8263
+     median(|w|) = +0.7769
+     max(|w|)    = +0.6861
+     std(|w|)    = +0.7812
+   ratio s_g / base_mean: median=1.164  p10..p90=0.996..1.453
+   per-col   corr mean|w|: +0.6660
+   per-row   corr mean|w|: +0.9094
+   global KS(|w|):          0.4382  mean|w|: bonsai=0.0238 base=0.0199
+
+-- blk.35.attn_q.weight -> model.layers.35.self_attn.q_proj.weight  shape=[np.uint64(4096), np.uint64(4096)]
+   per-block (n=131072): corr s_g vs base..
+     mean(|w|)   = +0.6265
+     median(|w|) = +0.5751
+     max(|w|)    = +0.5224
+     std(|w|)    = +0.6203
+   ratio s_g / base_mean: median=1.186  p10..p90=1.019..1.530
+   per-col   corr mean|w|: -0.0167
+   per-row   corr mean|w|: +0.6512
+   global KS(|w|):          0.5068  mean|w|: bonsai=0.0234 base=0.0192
+
+-- blk.35.attn_v.weight -> model.layers.35.self_attn.v_proj.weight  shape=[np.uint64(1024), np.uint64(4096)]
+   per-block (n=32768): corr s_g vs base..
+     mean(|w|)   = +0.7565
+     median(|w|) = +0.6543
+     max(|w|)    = +0.5607
+     std(|w|)    = +0.7535
+   ratio s_g / base_mean: median=2.244  p10..p90=1.751..2.540
+   per-col   corr mean|w|: -0.0406
+   per-row   corr mean|w|: +0.7948
+   global KS(|w|):          0.7583  mean|w|: bonsai=0.0502 base=0.0228

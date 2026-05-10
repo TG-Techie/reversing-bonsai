@@ -1,0 +1,47 @@
+bonsai tensors: 399; base tensors: 399; common: 398
+
+-- model.layers.12.self_attn.k_proj.weight  shape=[1024, 4096]
+   identity:  rmse=0.02812  cos=0.5352
+   lattice_bonsai: groups=32768 binary_frac=1.0000 max_distinct=1 |μ|=0.03131
+   lattice_base  : groups=32768 binary_frac=0.0000 max_distinct=126 |μ|=0.02036
+   row_perm:  diag_cos=0.5352  best_cos=0.5352  identity=True
+
+-- model.layers.12.self_attn.k_norm.weight  shape=[128]
+
+-- model.layers.12.input_layernorm.weight  shape=[4096]
+
+-- model.layers.12.self_attn.o_proj.weight  shape=[4096, 4096]
+   identity:  rmse=0.02996  cos=0.6050
+   lattice_bonsai: groups=131072 binary_frac=1.0000 max_distinct=1 |μ|=0.03643
+   lattice_base  : groups=131072 binary_frac=0.0000 max_distinct=127 |μ|=0.02083
+   row_perm:  diag_cos=0.6050  best_cos=0.6050  identity=True
+
+-- model.layers.12.self_attn.q_proj.weight  shape=[4096, 4096]
+   identity:  rmse=0.02598  cos=0.5257
+   lattice_bonsai: groups=131072 binary_frac=1.0000 max_distinct=1 |μ|=0.0277
+   lattice_base  : groups=131072 binary_frac=0.0000 max_distinct=127 |μ|=0.02013
+   row_perm:  diag_cos=0.5257  best_cos=0.5257  identity=False
+
+-- model.layers.12.self_attn.q_norm.weight  shape=[128]
+
+-- model.layers.12.self_attn.v_proj.weight  shape=[1024, 4096]
+   identity:  rmse=0.03869  cos=0.6484
+   lattice_bonsai: groups=32768 binary_frac=1.0000 max_distinct=1 |μ|=0.05025
+   lattice_base  : groups=32768 binary_frac=0.0000 max_distinct=126 |μ|=0.02349
+   row_perm:  diag_cos=0.6484  best_cos=0.6484  identity=True
+
+-- model.layers.12.mlp.down_proj.weight  shape=[4096, 12288]
+   identity:  rmse=0.0251  cos=0.6350
+   lattice_bonsai: groups=393216 binary_frac=1.0000 max_distinct=1 |μ|=0.03125
+   lattice_base  : groups=393216 binary_frac=0.0000 max_distinct=128 |μ|=0.02106
+   row_perm:  diag_cos=0.6350  best_cos=0.6350  identity=True
+
+-- model.layers.12.mlp.gate_proj.weight  shape=[12288, 4096]
+   identity:  rmse=0.03347  cos=0.5582
+   lattice_bonsai: groups=393216 binary_frac=1.0000 max_distinct=1 |μ|=0.03933
+   lattice_base  : groups=393216 binary_frac=0.0000 max_distinct=128 |μ|=0.0224
+   row_perm:  diag_cos=0.5580  best_cos=0.5580  identity=True
+
+-- model.layers.12.post_attention_layernorm.weight  shape=[4096]
+
+[... truncated; pass --filter to narrow]

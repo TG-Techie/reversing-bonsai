@@ -116,16 +116,73 @@ def load_tensor(path: Path, name: str) -> np.ndarray | None:
                 pass
         return _read_safetensors_raw(path, name)
     if sfx == ".gguf":
-        from gguf import GGUFReader
+        from gguf import GGUFReader, GGMLQuantizationType
+        # The caller passes an HF-style name (model.layers.<i>.<sub>.weight);
+        # GGUF stores blk.<i>.<sub>.weight. Translate so we can look up.
+        gguf_candidates = _hf_to_gguf_candidates(name)
         r = GGUFReader(str(path), "r")
         for t in r.tensors:
-            if t.name == name:
-                # GGUF F16 tensors come back as f16; non-F16 we won't try here.
-                if str(t.tensor_type.name) in ("F16", "F32", "BF16"):
-                    arr = np.asarray(t.data)
-                    return arr.astype(np.float32)
-                return None
+            if t.name not in gguf_candidates and t.name != name:
+                continue
+            tt_name = str(t.tensor_type.name)
+            gguf_shape = list(t.shape)
+            hf_shape = list(reversed(gguf_shape))  # GGUF is fastest-dim-first
+            if tt_name in ("F16", "F32", "BF16"):
+                arr = np.asarray(t.data).astype(np.float32)
+                # F32 norms / 1D tensors: keep as-is. 2D weights: HF ordering.
+                if arr.size == int(np.prod(hf_shape)) and arr.ndim == 1 and len(hf_shape) > 1:
+                    arr = arr.reshape(hf_shape)
+                return arr
+            if tt_name == "Q1_0":
+                # Inline dequant. Q1_0_g128: 1 sign bit + 1 FP16 scale per 128-block.
+                from q1_0 import parse_q1_0
+                raw = bytes(t.data.tobytes()) if hasattr(t.data, "tobytes") else bytes(t.data)
+                scales, signs = parse_q1_0(raw, int(np.prod(gguf_shape)))
+                arr = (signs.astype(np.float32) * scales[:, None]).reshape(-1)
+                return arr.reshape(hf_shape)
+            return None
+        return None
     raise ValueError(f"Unsupported suffix: {path}")
+
+
+def _hf_to_gguf_candidates(hf_name: str) -> list[str]:
+    """Reverse of gguf_to_hf_candidates in compare_q1_dequant_vs_unpacked.py.
+    Given a HuggingFace tensor name, return GGUF-style names that might match."""
+    import re
+    # model.embed_tokens.weight  -> token_embd.weight
+    # lm_head.weight             -> output.weight
+    # model.layers.<i>.<sub>.weight -> blk.<i>.<sub_gguf>.weight
+    if hf_name.endswith(".weight") or hf_name.endswith(".bias"):
+        suffix = ".weight" if hf_name.endswith(".weight") else ".bias"
+        body = hf_name[: -len(suffix)]
+    else:
+        suffix = ""
+        body = hf_name
+    if body == "model.embed_tokens":
+        return [f"token_embd{suffix}"]
+    if body == "lm_head":
+        return [f"output{suffix}"]
+    m = re.match(r"^model\.layers\.(\d+)\.(.+)$", body)
+    if not m:
+        return [hf_name]
+    idx, sub = m.group(1), m.group(2)
+    sub_map = {
+        "self_attn.q_proj":     "attn_q",
+        "self_attn.k_proj":     "attn_k",
+        "self_attn.v_proj":     "attn_v",
+        "self_attn.o_proj":     "attn_output",
+        "mlp.gate_proj":        "ffn_gate",
+        "mlp.up_proj":          "ffn_up",
+        "mlp.down_proj":        "ffn_down",
+        "input_layernorm":      "attn_norm",
+        "post_attention_layernorm": "ffn_norm",
+        "self_attn.q_norm":     "attn_q_norm",
+        "self_attn.k_norm":     "attn_k_norm",
+    }
+    gguf_sub = sub_map.get(sub)
+    if gguf_sub is None:
+        return [f"blk.{idx}.{sub}{suffix}"]
+    return [f"blk.{idx}.{gguf_sub}{suffix}"]
 
 
 def list_tensor_names(path: Path) -> list[str]:
@@ -138,8 +195,14 @@ def list_tensor_names(path: Path) -> list[str]:
             return list(f.keys())
     if sfx == ".gguf":
         from gguf import GGUFReader
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from compare_q1_dequant_vs_unpacked import gguf_to_hf_candidates
         r = GGUFReader(str(path), "r")
-        return [t.name for t in r.tensors]
+        names = []
+        for t in r.tensors:
+            cands = gguf_to_hf_candidates(t.name)
+            names.append(cands[0] if cands else t.name)
+        return names
     return []
 
 
