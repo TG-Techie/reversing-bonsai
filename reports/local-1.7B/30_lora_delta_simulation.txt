@@ -59,3 +59,39 @@ behaviour.
   noise injection, iterative quant-aware procedures with sign
   freedom on small weights. The Gaussian-noise model is the
   simplest fit, not the only fit.
+
+## Cross-size at 8B q_proj L0
+
+Same simulation applied to Bonsai-8B teacher q_proj L0
+(teacher mean|w| = 0.020):
+
+```
+sigma     overall_agree   d1_flip   d10_flip
+0.020       0.782           0.470     0.006
+0.025       0.748           0.476     0.020
+0.030       0.720           0.480     0.041
+
+Bonsai measured at 8B q L0:
+  overall_agree = 0.752
+  d1_flip       = 0.474
+  d10_flip      = 0.025
+```
+
+sigma=0.025 reproduces 8B's pattern essentially exactly.
+
+## Cross-size implied LoRA delta std
+
+```
+size     teacher mean|w|   implied sigma   sigma/mean|w| ratio
+1.7B         0.027              0.040           1.50
+8B           0.020              0.025           1.25
+```
+
+The implied LoRA delta is RELATIVELY LIGHTER at 8B than at 1.7B
+(~1.25x mean|w| vs ~1.5x mean|w|). Consistent with the broader
+cross-size finding that bigger Bonsai stays closer to teacher.
+
+A reproduction targeting Bonsai-style behaviour should scale its
+LoRA delta with the teacher's mean|w| AND with model size: for a
+Qwen3-style base, expect a smaller relative delta at 8B than at
+1.7B.
