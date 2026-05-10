@@ -138,11 +138,25 @@ Take Qwen3-base, apply Q1_0_g128 sign-quant (per-128-group scale = mean(|w|)), m
 
 **This nails down the QAT signal precisely.** Format-induced loss alone is ~0.20 cos points (cos 0.79 → 1.00). Bonsai-vs-base sits at cos 0.45–0.65 (depending on size and depth). The remaining gap of 0.15–0.30 cos points is entirely the recipe's contribution.
 
-## Norms — re-trained, both sizes (4B verified; 1.7B/8B pending)
+## Norms — depth- and projection-dependent (4B and 8B compared)
 
-At 4B: 0/145 norm tensors are byte-equal to Qwen3-base, 0/145 equal to BF16→FP16(base). Cosine to base > 0.999 but absolute diffs go up to 0.27 on `input_layernorm`, far beyond a single BF16 ULP at typical norm-scale magnitudes. The diffs are 30× larger than what BF16 round-trip alone would explain.
+| size | tensor type   | byte-equal? | typical max diff | beyond round-trip? |
+| ---- | ------------- | ----------- | ---------------- | ------------------ |
+| 4B   | q_norm        | 0/36        | 0.04 (peak 0.11) | yes, ~3–4× ULP     |
+| 4B   | k_norm        | 0/36        | 0.04             | yes                |
+| 4B   | input_ln      | 0/36        | 0.10 (peak 0.27) | yes, up to 30× ULP |
+| 4B   | post_attn_ln  | 0/36        | 0.02 (peak 0.05) | borderline         |
+| 4B   | final_ln      | 0/1         | 0.06             | yes                |
+| 8B   | q_norm        | (within ULP)| 0.012 max        | **no — round-trip-tight at all 36 layers** |
+| 8B   | k_norm        | (within ULP)| 0.013 max        | **no — round-trip-tight at all 36 layers** |
+| 8B   | input_ln      | varies      | layer-dependent  | yes for layers 16–28 (peak 0.23 at L21); layers 0–13 and 32–35 stay <0.1 |
+| 8B   | post_attn_ln  | varies      | <0.05 typically  | borderline; only L35 reaches 0.11 |
 
-**Inference (suggestion):** norms participated in the technique that produced Bonsai — started from teacher values but allowed to drift. A reproduction that fixes norms at the teacher's values is unlikely to match the deployed magnitudes.
+**Cross-size shape:** at 4B, every norm-type moved beyond round-trip noise, with input_ln moving the most. At 8B, the **per-head q/k norms appear frozen** at base (within BF16 ULP), and only the **layer-level RMSNorms** (input_layernorm and post_attn_layernorm) move — and even they only at mid-stack layers (16–28), not throughout depth.
+
+**Refined inference (suggestion):** the technique at 8B is more conservative on the norms than at 4B. The mid-stack-only deviation pattern in 8B input_ln suggests the recipe is most disruptive in mid-depth layers and lighter at the boundaries — matches the H2 cosine shape (mid layers lowest cos to base) and the sign-flip middle-plateau pattern. A reproduction that uniformly trains every norm risks over-modifying the small-Bonsai pattern; matching 8B specifically may need targeted, depth-aware norm updates.
+
+**Caveats from independent verification:** earlier I'd written "input_ln moved >0.1 across all layers" — that was an overstatement; it's only true for the mid-stack range. The "round-trip-tight" verdict for q/k_norm is sensitive to whether you take ULP at peak |w| or at median |w|; on layer 10 input_ln, max diff is 0.0146 vs ULP@peak 0.0078 — a 2× excess at peak, which is locally "tight enough" by some readings but not others. Numbers in the table use ULP@peak.
 
 ## Per-head sign-flip distribution (1.7B)
 
