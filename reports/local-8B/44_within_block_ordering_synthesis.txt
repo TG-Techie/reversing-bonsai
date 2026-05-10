@@ -1,12 +1,23 @@
 ## Within-block ordering hypothesis: attn-before-MLP (synthesis of 40-43)
 
+> **CAVEAT (added after independent verification).** A verification
+> sub-agent flagged this synthesis as **over-stated**. The bytes
+> constrain that the mechanism is **MLP-asymmetric and depth-graded**;
+> they do NOT uniquely select "attn-before-MLP within-block ordering"
+> as the explanation. See "Verifier corrections" section at the
+> bottom for the alternatives the bytes also support.
+>
+> Use this document as a hypothesis-mapping exercise, not as a
+> recipe constraint.
+
 This document gathers the evidence from `40_*` through `43_*` plus
 the cross-size data from `local-1.7B/42_*` to argue for one specific
-recipe constraint: **the technique processes attention before MLP
-within each transformer block**.
+candidate recipe constraint: **the technique might process attention
+before MLP within each transformer block**.
 
-The argument is the simplest explanation for the asymmetric MLP-vs-
-attention pattern at L1-3.
+The argument is one consistent explanation for the asymmetric MLP-
+vs-attention pattern at L1-3, but multiple other mechanisms produce
+the same byte signatures.
 
 ## Restated observations (force-by-data)
 
@@ -166,3 +177,96 @@ not the per-decision objective.
   elevation) but the L1-3 spike at 1.7B is not large enough to
   produce the same per-layer ratios cleanly. 4B confirmation
   pending (model not on disk in this environment).
+
+## Verifier corrections (added after this document was first written)
+
+A fresh-context verification sub-agent challenged this synthesis
+and identified the following over-reaches:
+
+### 1. Direction-of-gap fails at L0 (8B) AND at L1 (1.7B)
+
+The within-block-ordering hypothesis predicts MLP > attn at every
+layer. Observed:
+- 8B L0: MLP avg over-disp 1.10, attn avg 1.66 → MLP < attn (gap
+  has WRONG sign)
+- 1.7B L1: MLP avg ~2.0, attn avg ~2.31 → MLP < attn (gap has
+  WRONG sign)
+
+The author's "elevated attn baseline" explanation is post-hoc.
+Under the sequential-error-compounding mechanism, MLP at L0 sees
+L0's attention quantisation error and should be ABOVE attn at L0
+by the within-block extra. It's not. **This is a direction-of-gap
+failure that should weaken the hypothesis, not be reported as
+confirming.**
+
+### 2. Small-rank LoRA was not properly tested
+
+The author dismisses heavy rank-128 LoRA at L1-3 because rank-128
+captures only 10-12%. But that argument only rules out high-rank
+LoRA. **A low-rank LoRA (r=8-32) on MLP only**, combined with a
+separate sign-graded perturbation, would:
+- Leave rank-128 % near baseline (the LoRA contribution is small
+  in absolute squared-norm)
+- Produce highly block-coherent flips by construction (LoRA
+  outer-product is rank-r block-coherent)
+- Be MLP-asymmetric trivially because it only touches MLP
+
+The rank-16 fractions at L1-3 are 2.97%, 2.96%, 1.89% (gate) and
+1.85%, 2.77%, 1.30% (up) — versus L0 baselines of 1.26%, 1.03%.
+That's a 2-3× relative jump at rank-16 specifically, more
+diagnostic than rank-128 and consistent with a small-rank LoRA
+component active at L1-3 MLP.
+
+### 3. Alternative mechanisms NOT ruled out by the bytes
+
+Three alternatives produce the same MLP-asymmetric L1-3 spike +
+flat-rank-concentration-at-attn pattern:
+
+- **SwiGLU-aware parallel pass**: a parallel-per-block recipe with
+  a SwiGLU-sensitivity-weighted loss would over-correct gate/up at
+  early layers (where activation variance is largest before LN
+  normalises through depth) and would NOT touch attention.
+  Observationally indistinguishable from sequential ordering.
+- **Calibration-data composition**: L1-3 MLPs in instruction-tuned
+  models often carry task/format-encoding circuits. A reconstruction
+  loss using PrismML's calibration corpus would naturally weight
+  L1-3 MLP heaviest.
+- **Layer-norm-induced asymmetry**: Qwen3 uses QK-norm on attention
+  but no equivalent on MLP. Norm placement alone can drive MLP-only
+  quantisation error amplification independent of ordering.
+
+### 4. Corrected statement of what the bytes rule out
+
+**Force-by-data ruled out:**
+- Uniform-rank-128 LoRA across all layers
+- Explicit L1-3-targeted rewrite uniformly applied across sizes
+- Pure i.i.d. element-wise noise on teacher
+
+**Merely less parsimonious (not ruled out):**
+- Parallel passes with SwiGLU-aware loss
+- MLP-only low-rank LoRA + per-element step
+- Calibration-weighted reconstruction targeting L1-3 MLP
+- Sequential attn-before-MLP ordering
+
+### 5. Process note
+
+This is the THIRD time a verification sub-agent has caught a
+confirmation-biased over-reach in this session. The first time
+(see `RECIPE_HINTS.md` v4 corrections) was about the "magnitude-
+graded sign-flip pattern uniquely implies LoRA preprocess" claim.
+The second time (see `36_*` retraction) was the "SGD does most of
+the work at deep MLP" sigma-misspecification artifact. This third
+catch (this section) was about over-stating "attn-before-MLP
+within-block ordering" as the byte-attested mechanism when in
+fact several alternatives are equally consistent.
+
+The pattern is robust: when you have an organising hypothesis
+(here: OBC-style sequential), it is easy to read every byte
+signature as evidence FOR it. Independent verification on the same
+data, with the explicit instruction to flag biased readings,
+reliably surfaces the over-reach.
+
+The corrected reading: **the bytes constrain the mechanism to be
+MLP-asymmetric and depth-graded, not specifically sequential
+within-block.** A reproduction recipe should reproduce those
+constraints; the within-block ordering question remains open.
