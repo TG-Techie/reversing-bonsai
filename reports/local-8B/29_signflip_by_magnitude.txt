@@ -74,3 +74,22 @@ technique isn't preserving the high-magnitude signal it should be.
 This is the tightest single reproduction-target found in this round
 of analysis. None of the 9 prior-art papers digested in
 `PRIOR_ART_VERDICT_MATRIX.md` predict this specific magnitude grading.
+
+## Cross-size confirmation (1.7B)
+
+Same test on 1.7B at L0.q / L0.mlp.up / L13.v / L27.mlp.down:
+
+```
+                 d1     d5     d10
+L0.q           0.483  0.341  0.056
+L0.mlp.up      0.460  0.340  0.068
+L13.v          0.472  0.251  0.012
+L27.mlp.dn     0.485  0.357  0.080
+```
+
+The d1-near-0.5, d10-near-0.0 pattern is reproduced. d10 values at
+1.7B are slightly higher than at 8B (1.7B q d10 = 0.056, 8B q d10 =
+0.025), consistent with the broader cross-size finding that bigger
+Bonsai stays closer to teacher signs at every magnitude bin.
+
+Magnitude-graded sign flips is a SIZE-INVARIANT recipe signature.
