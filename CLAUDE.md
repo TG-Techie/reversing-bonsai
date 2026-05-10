@@ -46,6 +46,31 @@ becomes a "finding." A few rules to stay honest:
 If a session is short on time, write fewer findings and back each one
 harder, instead of pushing more half-checked claims.
 
+## Agent discipline
+
+How to use sub-agents and how to manage your own session liveness.
+
+- **Sub-agents are short-lived and isolated.** When you need a fresh
+  pair of eyes (e.g. independent verification of a claim), spawn one
+  with `isolation: "worktree"` so it works on its own copy of the repo
+  and can't step on your live files. Brief it like a smart colleague
+  with no prior context, give it the data and the claim, ask for a
+  bounded report. Don't keep them around — they should terminate.
+- **Top-level agents must keepalive when work is async.** When a
+  download / analysis / sub-agent is running, the conversation turn
+  needs a foreground `sleep` to stay alive. Announce the keepalive
+  ("Doing a 60s keepalive while …") *before* sleeping; it's a
+  traceability win for the user and for future you reviewing the
+  transcript. **60s is usually enough**; analyses on this VM finish
+  in under 60s when run in parallel.
+- **Don't trust just one keepalive.** If you can, also leave a
+  second-cheaper signal that will wake you (a status file timestamp,
+  a webhook subscription, a follow-up Bash poll). Defense in depth
+  against the keepalive-sleep itself failing or being suspended.
+- **The user values traceability.** Announce intent before action;
+  surface what changed and what's next; keep tidy disk hygiene so
+  you don't hit VM limits mid-task.
+
 ## Sandbox VM execution notes
 
 > Empirical observations from running this repo's analyses inside a fresh
