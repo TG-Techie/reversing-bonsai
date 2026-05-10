@@ -1,0 +1,30 @@
+model.layers.27.mlp.down_proj.weight                          shape=[2048, 6144]
+  col: pearson_id=+0.0067  spearman=+0.0216  sorted_pearson=+0.8966  KS_sorted=1.0000  top10%_overlap=10.91% (chance 10%)
+  row: pearson_id=+0.6189  spearman=+0.7194
+model.layers.27.mlp.gate_proj.weight                          shape=[6144, 2048]
+  col: pearson_id=+0.0381  spearman=+0.0014  sorted_pearson=+0.6116  KS_sorted=1.0000  top10%_overlap=13.24% (chance 10%)
+  row: pearson_id=-0.0090  spearman=-0.1243
+model.layers.27.mlp.up_proj.weight                            shape=[6144, 2048]
+  col: pearson_id=+0.0506  spearman=-0.0116  sorted_pearson=+0.6507  KS_sorted=1.0000  top10%_overlap=10.29% (chance 10%)
+  row: pearson_id=-0.0161  spearman=-0.0688
+model.layers.27.self_attn.k_proj.weight                       shape=[1024, 2048]
+  col: pearson_id=+0.0078  spearman=+0.0012  sorted_pearson=+0.6940  KS_sorted=1.0000  top10%_overlap=7.84% (chance 10%)
+  row: pearson_id=+0.4729  spearman=+0.2179
+model.layers.27.self_attn.o_proj.weight                       shape=[2048, 2048]
+  col: pearson_id=+0.2583  spearman=+0.2105  sorted_pearson=+0.8185  KS_sorted=1.0000  top10%_overlap=52.94% (chance 10%)
+  row: pearson_id=+0.5414  spearman=-0.0034
+model.layers.27.self_attn.q_proj.weight                       shape=[2048, 2048]
+  col: pearson_id=+0.0231  spearman=+0.0055  sorted_pearson=+0.7403  KS_sorted=0.9980  top10%_overlap=9.80% (chance 10%)
+  row: pearson_id=+0.6853  spearman=+0.1768
+model.layers.27.self_attn.v_proj.weight                       shape=[1024, 2048]
+  col: pearson_id=-0.0044  spearman=-0.0129  sorted_pearson=+0.7741  KS_sorted=1.0000  top10%_overlap=7.84% (chance 10%)
+  row: pearson_id=+0.6866  spearman=+0.5754
+
+== AGGREGATE ==
+  per-col Pearson (identity)              mean=+0.0543  min=-0.0044  max=+0.2583
+  per-col Spearman                        mean=+0.0308  min=-0.0129  max=+0.2105
+  per-col Pearson after sort              mean=+0.7408  min=+0.6116  max=+0.8966
+  per-col KS(sorted)                      mean=+0.9997  min=+0.9980  max=+1.0000
+  top-10% loudest col overlap             mean=+0.1612  min=+0.0784  max=+0.5294
+  per-row Pearson (identity)              mean=+0.4257  min=-0.0161  max=+0.6866
+  per-row Spearman                        mean=+0.2133  min=-0.1243  max=+0.7194

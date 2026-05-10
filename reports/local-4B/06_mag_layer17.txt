@@ -1,0 +1,88 @@
+== 253 Q1_0 tensors
+
+-- blk.17.attn_k.weight -> model.layers.17.self_attn.k_proj.weight  shape=[np.uint64(1024), np.uint64(2560)]
+   per-block (n=20480): corr s_g vs base..
+     mean(|w|)   = +0.7688
+     median(|w|) = +0.7203
+     max(|w|)    = +0.7356
+     std(|w|)    = +0.7879
+   ratio s_g / base_mean: median=2.076  p10..p90=1.648..2.830
+   per-col   corr mean|w|: +0.4777
+   per-row   corr mean|w|: +0.8155
+   global KS(|w|):          0.7335  mean|w|: bonsai=0.0336 base=0.0163
+
+-- blk.17.attn_output.weight -> model.layers.17.self_attn.o_proj.weight  shape=[np.uint64(2560), np.uint64(4096)]
+   per-block (n=81920): corr s_g vs base..
+     mean(|w|)   = +0.7778
+     median(|w|) = +0.7405
+     max(|w|)    = +0.6672
+     std(|w|)    = +0.7598
+   ratio s_g / base_mean: median=1.963  p10..p90=1.553..2.312
+   per-col   corr mean|w|: +0.2723
+   per-row   corr mean|w|: +0.9380
+   global KS(|w|):          0.6527  mean|w|: bonsai=0.0324 base=0.0169
+
+-- blk.17.attn_q.weight -> model.layers.17.self_attn.q_proj.weight  shape=[np.uint64(4096), np.uint64(2560)]
+   per-block (n=81920): corr s_g vs base..
+     mean(|w|)   = +0.7051
+     median(|w|) = +0.6801
+     max(|w|)    = +0.6587
+     std(|w|)    = +0.7099
+   ratio s_g / base_mean: median=1.869  p10..p90=1.439..2.488
+   per-col   corr mean|w|: -0.1303
+   per-row   corr mean|w|: +0.7130
+   global KS(|w|):          0.6515  mean|w|: bonsai=0.0318 base=0.0174
+
+-- blk.17.attn_v.weight -> model.layers.17.self_attn.v_proj.weight  shape=[np.uint64(1024), np.uint64(2560)]
+   per-block (n=20480): corr s_g vs base..
+     mean(|w|)   = +0.7508
+     median(|w|) = +0.7004
+     max(|w|)    = +0.4886
+     std(|w|)    = +0.7034
+   ratio s_g / base_mean: median=2.483  p10..p90=2.156..2.906
+   per-col   corr mean|w|: +0.8460
+   per-row   corr mean|w|: +0.2583
+   global KS(|w|):          0.7743  mean|w|: bonsai=0.0466 base=0.0188
+
+-- blk.17.ffn_down.weight -> model.layers.17.mlp.down_proj.weight  shape=[np.uint64(2560), np.uint64(9728)]
+   per-block (n=194560): corr s_g vs base..
+     mean(|w|)   = +0.7609
+     median(|w|) = +0.6694
+     max(|w|)    = +0.3306
+     std(|w|)    = +0.6654
+   ratio s_g / base_mean: median=1.682  p10..p90=1.509..1.908
+   per-col   corr mean|w|: +0.1607
+   per-row   corr mean|w|: +0.8368
+   global KS(|w|):          0.6499  mean|w|: bonsai=0.0297 base=0.0176
+
+-- blk.17.ffn_gate.weight -> model.layers.17.mlp.gate_proj.weight  shape=[np.uint64(9728), np.uint64(2560)]
+   per-block (n=194560): corr s_g vs base..
+     mean(|w|)   = +0.4460
+     median(|w|) = +0.3949
+     max(|w|)    = +0.4145
+     std(|w|)    = +0.4704
+   ratio s_g / base_mean: median=2.368  p10..p90=1.750..2.912
+   per-col   corr mean|w|: +0.0813
+   per-row   corr mean|w|: +0.2400
+   global KS(|w|):          0.7602  mean|w|: bonsai=0.0418 base=0.0183
+
+-- blk.17.ffn_up.weight -> model.layers.17.mlp.up_proj.weight  shape=[np.uint64(9728), np.uint64(2560)]
+   per-block (n=194560): corr s_g vs base..
+     mean(|w|)   = +0.6730
+     median(|w|) = +0.5878
+     max(|w|)    = +0.4747
+     std(|w|)    = +0.6521
+   ratio s_g / base_mean: median=2.620  p10..p90=2.258..3.091
+   per-col   corr mean|w|: +0.5369
+   per-row   corr mean|w|: +0.6220
+   global KS(|w|):          0.8418  mean|w|: bonsai=0.0480 base=0.0182
+
+== AGGREGATE (across compared tensors) ==
+  corr s_g vs base mean(|w|)                        mean=+0.6975  min=+0.4460  max=+0.7778
+  corr s_g vs base median(|w|)                      mean=+0.6419  min=+0.3949  max=+0.7405
+  corr s_g vs base max(|w|)                         mean=+0.5386  min=+0.3306  max=+0.7356
+  corr s_g vs base std(|w|)                         mean=+0.6784  min=+0.4704  max=+0.7879
+  corr per-col mean|w|                              mean=+0.3207  min=-0.1303  max=+0.8460
+  corr per-row mean|w|                              mean=+0.6319  min=+0.2400  max=+0.9380
+  KS(|w_bonsai|, |w_base|)                          mean=+0.7234  min=+0.6499  max=+0.8418
+  ratio s_g / base_mean (median per tensor)         mean=+2.1517  min=+1.6819  max=+2.6204

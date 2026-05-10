@@ -1,0 +1,2290 @@
+== Q1_0 tensors in models/bonsai/4B/gguf/Bonsai-4B-Q1_0.gguf: 253
+
+-- token_embd.weight -> model.embed_tokens.weight  shape=[151669, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=3033380 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.0.attn_k.weight -> model.layers.0.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 4.61e-09
+   rel_rmse vs mean(|unpacked|)= 1.999e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 3.26e-10
+
+-- blk.0.attn_output.weight -> model.layers.0.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.288e-09
+   rel_rmse vs mean(|unpacked|)= 1.635e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 3.551e-10
+
+-- blk.0.attn_q.weight -> model.layers.0.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 2.75e-09
+   rel_rmse vs mean(|unpacked|)= 1.403e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 1.513e-10
+
+-- blk.0.attn_v.weight -> model.layers.0.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 6.333e-09
+   rel_rmse vs mean(|unpacked|)= 2.111e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 9.313e-10
+
+-- blk.0.ffn_down.weight -> model.layers.0.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.319e-09
+   rel_rmse vs mean(|unpacked|)= 1.562e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.823e-10
+
+-- blk.0.ffn_gate.weight -> model.layers.0.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.118e-09
+   rel_rmse vs mean(|unpacked|)= 1.402e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 1.569e-10
+
+-- blk.0.ffn_up.weight -> model.layers.0.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 6.691e-10
+   rel_rmse vs mean(|unpacked|)= 8.488e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 1.176e-10
+
+-- blk.1.attn_k.weight -> model.layers.1.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001526
+   mean|deq - unpacked|        = 8.475e-09
+   rel_rmse vs mean(|unpacked|)= 3.202e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.815e-06
+   scale mean|·|                = 3.725e-10
+
+-- blk.1.attn_output.weight -> model.layers.1.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.883e-09
+   rel_rmse vs mean(|unpacked|)= 1.228e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 3.027e-10
+
+-- blk.1.attn_q.weight -> model.layers.1.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 7.974e-10
+   rel_rmse vs mean(|unpacked|)= 9.155e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.1.attn_v.weight -> model.layers.1.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 5.96e-09
+   rel_rmse vs mean(|unpacked|)= 2.162e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.519e-10
+
+-- blk.1.ffn_down.weight -> model.layers.1.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.058e-09
+   rel_rmse vs mean(|unpacked|)= 1.468e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.048e-10
+
+-- blk.1.ffn_gate.weight -> model.layers.1.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.726e-09
+   rel_rmse vs mean(|unpacked|)= 1.777e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 1.575e-10
+
+-- blk.1.ffn_up.weight -> model.layers.1.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.522e-09
+   rel_rmse vs mean(|unpacked|)= 1.72e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 1.225e-10
+
+-- blk.2.attn_k.weight -> model.layers.2.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.2.attn_output.weight -> model.layers.2.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 2.017e-09
+   rel_rmse vs mean(|unpacked|)= 1.218e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 2.445e-10
+
+-- blk.2.attn_q.weight -> model.layers.2.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.438e-09
+   rel_rmse vs mean(|unpacked|)= 1.185e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.191e-10
+
+-- blk.2.attn_v.weight -> model.layers.2.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.934e-09
+   rel_rmse vs mean(|unpacked|)= 1.539e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 1.304e-09
+
+-- blk.2.ffn_down.weight -> model.layers.2.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 8.161e-10
+   rel_rmse vs mean(|unpacked|)= 1.365e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 4.768e-06
+   scale mean|·|                = 1.52e-10
+
+-- blk.2.ffn_gate.weight -> model.layers.2.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.231e-09
+   rel_rmse vs mean(|unpacked|)= 1.349e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 1.618e-10
+
+-- blk.2.ffn_up.weight -> model.layers.2.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.073e-09
+   rel_rmse vs mean(|unpacked|)= 1.006e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 1.679e-10
+
+-- blk.3.attn_k.weight -> model.layers.3.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 9.313e-11
+   rel_rmse vs mean(|unpacked|)= 3.293e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-06
+   scale mean|·|                = 9.313e-11
+
+-- blk.3.attn_output.weight -> model.layers.3.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 2.002e-09
+   rel_rmse vs mean(|unpacked|)= 1.199e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 2.445e-10
+
+-- blk.3.attn_q.weight -> model.layers.3.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 5.093e-10
+   rel_rmse vs mean(|unpacked|)= 8.194e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 2.445e-10
+
+-- blk.3.attn_v.weight -> model.layers.3.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.399e-09
+   rel_rmse vs mean(|unpacked|)= 1.726e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 8.382e-10
+
+-- blk.3.ffn_down.weight -> model.layers.3.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 2.218e-09
+   rel_rmse vs mean(|unpacked|)= 1.777e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 3.002e-10
+
+-- blk.3.ffn_gate.weight -> model.layers.3.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.049e-09
+   rel_rmse vs mean(|unpacked|)= 1.596e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.27e-10
+
+-- blk.3.ffn_up.weight -> model.layers.3.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.048e-09
+   rel_rmse vs mean(|unpacked|)= 1.984e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 2.586e-10
+
+-- blk.4.attn_k.weight -> model.layers.4.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.4.attn_output.weight -> model.layers.4.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 7.573e-09
+   rel_rmse vs mean(|unpacked|)= 2.989e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 6.054e-10
+
+-- blk.4.attn_q.weight -> model.layers.4.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.412e-09
+   rel_rmse vs mean(|unpacked|)= 1.104e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 4.424e-10
+
+-- blk.4.attn_v.weight -> model.layers.4.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 6.147e-09
+   rel_rmse vs mean(|unpacked|)= 2.005e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.815e-06
+   scale mean|·|                = 3.725e-10
+
+-- blk.4.ffn_down.weight -> model.layers.4.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.92e-09
+   rel_rmse vs mean(|unpacked|)= 1.508e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 1.961e-10
+
+-- blk.4.ffn_gate.weight -> model.layers.4.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 4.397e-09
+   rel_rmse vs mean(|unpacked|)= 1.807e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.67e-05
+   scale mean|·|                = 6.274e-10
+
+-- blk.4.ffn_up.weight -> model.layers.4.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.917e-09
+   rel_rmse vs mean(|unpacked|)= 1.457e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 3.235e-10
+
+-- blk.5.attn_k.weight -> model.layers.5.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001526
+   mean|deq - unpacked|        = 8.545e-09
+   rel_rmse vs mean(|unpacked|)= 2.802e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.519e-10
+
+-- blk.5.attn_output.weight -> model.layers.5.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 9.109e-10
+   rel_rmse vs mean(|unpacked|)= 7.952e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.5.attn_q.weight -> model.layers.5.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 8.12e-10
+   rel_rmse vs mean(|unpacked|)= 7.467e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 1.746e-10
+
+-- blk.5.attn_v.weight -> model.layers.5.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.863e-10
+   rel_rmse vs mean(|unpacked|)= 4.877e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.815e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.5.ffn_down.weight -> model.layers.5.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.619e-09
+   rel_rmse vs mean(|unpacked|)= 1.309e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.887e-10
+
+-- blk.5.ffn_gate.weight -> model.layers.5.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.262e-09
+   rel_rmse vs mean(|unpacked|)= 1.708e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.5.ffn_up.weight -> model.layers.5.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.88e-09
+   rel_rmse vs mean(|unpacked|)= 1.241e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 2.647e-10
+
+-- blk.6.attn_k.weight -> model.layers.6.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.467e-09
+   rel_rmse vs mean(|unpacked|)= 9.767e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 6.519e-10
+
+-- blk.6.attn_output.weight -> model.layers.6.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.397e-09
+   rel_rmse vs mean(|unpacked|)= 1.007e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 2.212e-10
+
+-- blk.6.attn_q.weight -> model.layers.6.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 3.492e-11
+   rel_rmse vs mean(|unpacked|)= 2.088e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-06
+   scale mean|·|                = 3.492e-11
+
+-- blk.6.attn_v.weight -> model.layers.6.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 8.103e-09
+   rel_rmse vs mean(|unpacked|)= 2.129e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 7.451e-10
+
+-- blk.6.ffn_down.weight -> model.layers.6.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.25e-09
+   rel_rmse vs mean(|unpacked|)= 1.089e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 2.108e-10
+
+-- blk.6.ffn_gate.weight -> model.layers.6.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.698e-09
+   rel_rmse vs mean(|unpacked|)= 1.147e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 3.921e-10
+
+-- blk.6.ffn_up.weight -> model.layers.6.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 1.495e-09
+   rel_rmse vs mean(|unpacked|)= 1.049e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 1.274e-10
+
+-- blk.7.attn_k.weight -> model.layers.7.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.7.attn_output.weight -> model.layers.7.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 5.279e-09
+   rel_rmse vs mean(|unpacked|)= 2.537e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.519e-10
+
+-- blk.7.attn_q.weight -> model.layers.7.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.363e-09
+   rel_rmse vs mean(|unpacked|)= 1.73e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 5.006e-10
+
+-- blk.7.attn_v.weight -> model.layers.7.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.817e-09
+   rel_rmse vs mean(|unpacked|)= 1.315e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 2.794e-10
+
+-- blk.7.ffn_down.weight -> model.layers.7.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.319e-09
+   rel_rmse vs mean(|unpacked|)= 1.104e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.274e-10
+
+-- blk.7.ffn_gate.weight -> model.layers.7.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.669e-09
+   rel_rmse vs mean(|unpacked|)= 1.894e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 6.568e-10
+
+-- blk.7.ffn_up.weight -> model.layers.7.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.012e-09
+   rel_rmse vs mean(|unpacked|)= 1.233e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.235e-10
+
+-- blk.8.attn_k.weight -> model.layers.8.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.8.attn_output.weight -> model.layers.8.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 1.764e-09
+   rel_rmse vs mean(|unpacked|)= 1.376e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.561e-10
+
+-- blk.8.attn_q.weight -> model.layers.8.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001068
+   mean|deq - unpacked|        = 1.15e-09
+   rel_rmse vs mean(|unpacked|)= 8.378e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.746e-10
+
+-- blk.8.attn_v.weight -> model.layers.8.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 3.027e-09
+   rel_rmse vs mean(|unpacked|)= 1.384e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 5.588e-10
+
+-- blk.8.ffn_down.weight -> model.layers.8.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.61e-09
+   rel_rmse vs mean(|unpacked|)= 1.131e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 2.255e-10
+
+-- blk.8.ffn_gate.weight -> model.layers.8.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.787e-09
+   rel_rmse vs mean(|unpacked|)= 1.408e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.549e-10
+
+-- blk.8.ffn_up.weight -> model.layers.8.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.88e-09
+   rel_rmse vs mean(|unpacked|)= 1.173e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 3.823e-10
+
+-- blk.9.attn_k.weight -> model.layers.9.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001068
+   mean|deq - unpacked|        = 1.059e-09
+   rel_rmse vs mean(|unpacked|)= 6.699e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 3.26e-10
+
+-- blk.9.attn_output.weight -> model.layers.9.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 4.284e-09
+   rel_rmse vs mean(|unpacked|)= 1.993e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.794e-10
+
+-- blk.9.attn_q.weight -> model.layers.9.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 2.771e-09
+   rel_rmse vs mean(|unpacked|)= 1.667e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 2.328e-10
+
+-- blk.9.attn_v.weight -> model.layers.9.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.725e-10
+   rel_rmse vs mean(|unpacked|)= 6.473e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 3.725e-10
+
+-- blk.9.ffn_down.weight -> model.layers.9.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 7.353e-10
+   rel_rmse vs mean(|unpacked|)= 8.196e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.421e-10
+
+-- blk.9.ffn_gate.weight -> model.layers.9.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.12e-09
+   rel_rmse vs mean(|unpacked|)= 1.473e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 3.088e-10
+
+-- blk.9.ffn_up.weight -> model.layers.9.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.684e-09
+   rel_rmse vs mean(|unpacked|)= 1.021e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 2.01e-10
+
+-- blk.10.attn_k.weight -> model.layers.10.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.10.attn_output.weight -> model.layers.10.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.842e-10
+   rel_rmse vs mean(|unpacked|)= 9.299e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 3.842e-10
+
+-- blk.10.attn_q.weight -> model.layers.10.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 6.345e-10
+   rel_rmse vs mean(|unpacked|)= 6.996e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.861e-06
+   scale mean|·|                = 8.149e-11
+
+-- blk.10.attn_v.weight -> model.layers.10.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.91e-09
+   rel_rmse vs mean(|unpacked|)= 1.359e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 3.725e-10
+
+-- blk.10.ffn_down.weight -> model.layers.10.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.974e-09
+   rel_rmse vs mean(|unpacked|)= 1.385e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.765e-10
+
+-- blk.10.ffn_gate.weight -> model.layers.10.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 4.056e-09
+   rel_rmse vs mean(|unpacked|)= 1.661e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.902e-10
+
+-- blk.10.ffn_up.weight -> model.layers.10.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.63e-09
+   rel_rmse vs mean(|unpacked|)= 1.075e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.255e-10
+
+-- blk.11.attn_k.weight -> model.layers.11.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001068
+   mean|deq - unpacked|        = 1.548e-09
+   rel_rmse vs mean(|unpacked|)= 1.001e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 3.26e-10
+
+-- blk.11.attn_output.weight -> model.layers.11.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.841e-09
+   rel_rmse vs mean(|unpacked|)= 1.667e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.815e-06
+   scale mean|·|                = 1.164e-10
+
+-- blk.11.attn_q.weight -> model.layers.11.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.52e-09
+   rel_rmse vs mean(|unpacked|)= 1.977e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 3.842e-10
+
+-- blk.11.attn_v.weight -> model.layers.11.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.189e-09
+   rel_rmse vs mean(|unpacked|)= 9.661e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 5.588e-10
+
+-- blk.11.ffn_down.weight -> model.layers.11.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.646e-09
+   rel_rmse vs mean(|unpacked|)= 1.703e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.647e-10
+
+-- blk.11.ffn_gate.weight -> model.layers.11.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.184e-09
+   rel_rmse vs mean(|unpacked|)= 1.48e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.353e-10
+
+-- blk.11.ffn_up.weight -> model.layers.11.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 6.171e-09
+   rel_rmse vs mean(|unpacked|)= 1.95e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.96e-10
+
+-- blk.12.attn_k.weight -> model.layers.12.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.12.attn_output.weight -> model.layers.12.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.682e-09
+   rel_rmse vs mean(|unpacked|)= 1.337e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.657e-10
+
+-- blk.12.attn_q.weight -> model.layers.12.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.328e-11
+   rel_rmse vs mean(|unpacked|)= 2.417e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-06
+   scale mean|·|                = 2.328e-11
+
+-- blk.12.attn_v.weight -> model.layers.12.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001831
+   mean|deq - unpacked|        = 4.657e-09
+   rel_rmse vs mean(|unpacked|)= 1.561e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.815e-06
+   scale mean|·|                = 2.794e-10
+
+-- blk.12.ffn_down.weight -> model.layers.12.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.152e-09
+   rel_rmse vs mean(|unpacked|)= 1.38e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.823e-10
+
+-- blk.12.ffn_gate.weight -> model.layers.12.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.219e-09
+   rel_rmse vs mean(|unpacked|)= 1.236e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 5e-10
+
+-- blk.12.ffn_up.weight -> model.layers.12.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.6e-09
+   rel_rmse vs mean(|unpacked|)= 1.634e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.804e-10
+
+-- blk.13.attn_k.weight -> model.layers.13.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 9.313e-11
+   rel_rmse vs mean(|unpacked|)= 4.242e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-06
+   scale mean|·|                = 9.313e-11
+
+-- blk.13.attn_output.weight -> model.layers.13.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.097e-09
+   rel_rmse vs mean(|unpacked|)= 1.933e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 3.143e-10
+
+-- blk.13.attn_q.weight -> model.layers.13.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.752e-09
+   rel_rmse vs mean(|unpacked|)= 1.124e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 2.212e-10
+
+-- blk.13.attn_v.weight -> model.layers.13.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.13.ffn_down.weight -> model.layers.13.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0001526
+   mean|deq - unpacked|        = 2.016e-09
+   rel_rmse vs mean(|unpacked|)= 1.51e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 1.765e-10
+
+-- blk.13.ffn_gate.weight -> model.layers.13.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.5e-09
+   rel_rmse vs mean(|unpacked|)= 1.308e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.529e-10
+
+-- blk.13.ffn_up.weight -> model.layers.13.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.125e-09
+   rel_rmse vs mean(|unpacked|)= 1.546e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.215e-10
+
+-- blk.14.attn_k.weight -> model.layers.14.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 4.657e-11
+   rel_rmse vs mean(|unpacked|)= 2.29e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-07
+   scale mean|·|                = 4.657e-11
+
+-- blk.14.attn_output.weight -> model.layers.14.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 6.019e-09
+   rel_rmse vs mean(|unpacked|)= 2.48e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 6.286e-10
+
+-- blk.14.attn_q.weight -> model.layers.14.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.572e-09
+   rel_rmse vs mean(|unpacked|)= 1.03e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 2.678e-10
+
+-- blk.14.attn_v.weight -> model.layers.14.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 5.588e-10
+   rel_rmse vs mean(|unpacked|)= 7.848e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 5.588e-10
+
+-- blk.14.ffn_down.weight -> model.layers.14.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.875e-09
+   rel_rmse vs mean(|unpacked|)= 2.133e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 2.745e-10
+
+-- blk.14.ffn_gate.weight -> model.layers.14.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 5.632e-09
+   rel_rmse vs mean(|unpacked|)= 1.974e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 4.804e-10
+
+-- blk.14.ffn_up.weight -> model.layers.14.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.407e-09
+   rel_rmse vs mean(|unpacked|)= 1.58e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 5.588e-10
+
+-- blk.15.attn_k.weight -> model.layers.15.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 2.328e-10
+   rel_rmse vs mean(|unpacked|)= 4.917e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 4.768e-06
+   scale mean|·|                = 2.328e-10
+
+-- blk.15.attn_output.weight -> model.layers.15.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.979e-10
+   rel_rmse vs mean(|unpacked|)= 6.658e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 1.979e-10
+
+-- blk.15.attn_q.weight -> model.layers.15.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 5.204e-09
+   rel_rmse vs mean(|unpacked|)= 2.355e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 5.937e-10
+
+-- blk.15.attn_v.weight -> model.layers.15.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.15.ffn_down.weight -> model.layers.15.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.627e-09
+   rel_rmse vs mean(|unpacked|)= 1.676e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.823e-10
+
+-- blk.15.ffn_gate.weight -> model.layers.15.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.685e-09
+   rel_rmse vs mean(|unpacked|)= 1.425e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.019e-10
+
+-- blk.15.ffn_up.weight -> model.layers.15.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.811e-09
+   rel_rmse vs mean(|unpacked|)= 1.273e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 3.137e-10
+
+-- blk.16.attn_k.weight -> model.layers.16.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001068
+   mean|deq - unpacked|        = 1.094e-09
+   rel_rmse vs mean(|unpacked|)= 6.816e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 2.794e-10
+
+-- blk.16.attn_output.weight -> model.layers.16.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.456e-09
+   rel_rmse vs mean(|unpacked|)= 1.528e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 2.212e-10
+
+-- blk.16.attn_q.weight -> model.layers.16.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 2.215e-09
+   rel_rmse vs mean(|unpacked|)= 1.17e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.979e-10
+
+-- blk.16.attn_v.weight -> model.layers.16.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.143e-09
+   rel_rmse vs mean(|unpacked|)= 1.442e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 1.024e-09
+
+-- blk.16.ffn_down.weight -> model.layers.16.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.474e-09
+   rel_rmse vs mean(|unpacked|)= 1.533e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 3.774e-10
+
+-- blk.16.ffn_gate.weight -> model.layers.16.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.36e-09
+   rel_rmse vs mean(|unpacked|)= 1.725e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 5e-10
+
+-- blk.16.ffn_up.weight -> model.layers.16.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 5.041e-09
+   rel_rmse vs mean(|unpacked|)= 1.634e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.51e-10
+
+-- blk.17.attn_k.weight -> model.layers.17.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.17.attn_output.weight -> model.layers.17.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.49e-09
+   rel_rmse vs mean(|unpacked|)= 1.158e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 2.445e-10
+
+-- blk.17.attn_q.weight -> model.layers.17.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.636e-09
+   rel_rmse vs mean(|unpacked|)= 1.022e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.17.attn_v.weight -> model.layers.17.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.657e-10
+   rel_rmse vs mean(|unpacked|)= 7.229e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 4.657e-10
+
+-- blk.17.ffn_down.weight -> model.layers.17.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.186e-09
+   rel_rmse vs mean(|unpacked|)= 1.499e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 3.578e-10
+
+-- blk.17.ffn_gate.weight -> model.layers.17.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0003052
+   mean|deq - unpacked|        = 4.041e-09
+   rel_rmse vs mean(|unpacked|)= 1.95e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.289e-05
+   scale mean|·|                = 4.804e-10
+
+-- blk.17.ffn_up.weight -> model.layers.17.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.539e-09
+   rel_rmse vs mean(|unpacked|)= 1.423e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.313e-10
+
+-- blk.18.attn_k.weight -> model.layers.18.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 2.328e-10
+   rel_rmse vs mean(|unpacked|)= 4.909e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 4.768e-06
+   scale mean|·|                = 2.328e-10
+
+-- blk.18.attn_output.weight -> model.layers.18.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.281e-09
+   rel_rmse vs mean(|unpacked|)= 8.33e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.513e-10
+
+-- blk.18.attn_q.weight -> model.layers.18.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 2.89e-09
+   rel_rmse vs mean(|unpacked|)= 1.6e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.18.attn_v.weight -> model.layers.18.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.678e-09
+   rel_rmse vs mean(|unpacked|)= 1.182e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-06
+   scale mean|·|                = 9.313e-11
+
+-- blk.18.ffn_down.weight -> model.layers.18.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.11e-09
+   rel_rmse vs mean(|unpacked|)= 1.56e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 2.353e-10
+
+-- blk.18.ffn_gate.weight -> model.layers.18.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.791e-09
+   rel_rmse vs mean(|unpacked|)= 1.586e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.363e-10
+
+-- blk.18.ffn_up.weight -> model.layers.18.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0003052
+   mean|deq - unpacked|        = 2.588e-09
+   rel_rmse vs mean(|unpacked|)= 1.415e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.289e-05
+   scale mean|·|                = 3.529e-10
+
+-- blk.19.attn_k.weight -> model.layers.19.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.19.attn_output.weight -> model.layers.19.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.583e-09
+   rel_rmse vs mean(|unpacked|)= 1.408e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.91e-10
+
+-- blk.19.attn_q.weight -> model.layers.19.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.054e-09
+   rel_rmse vs mean(|unpacked|)= 8.558e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.815e-06
+   scale mean|·|                = 1.048e-10
+
+-- blk.19.attn_v.weight -> model.layers.19.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001831
+   mean|deq - unpacked|        = 1.006e-08
+   rel_rmse vs mean(|unpacked|)= 2.185e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 1.49e-09
+
+-- blk.19.ffn_down.weight -> model.layers.19.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.984e-09
+   rel_rmse vs mean(|unpacked|)= 1.924e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 1.912e-10
+
+-- blk.19.ffn_gate.weight -> model.layers.19.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.22e-09
+   rel_rmse vs mean(|unpacked|)= 1.664e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.951e-10
+
+-- blk.19.ffn_up.weight -> model.layers.19.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.029e-09
+   rel_rmse vs mean(|unpacked|)= 1.058e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.804e-10
+
+-- blk.20.attn_k.weight -> model.layers.20.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.20.attn_output.weight -> model.layers.20.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.373e-09
+   rel_rmse vs mean(|unpacked|)= 1.849e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.054e-10
+
+-- blk.20.attn_q.weight -> model.layers.20.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.158e-09
+   rel_rmse vs mean(|unpacked|)= 1.897e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 3.376e-10
+
+-- blk.20.attn_v.weight -> model.layers.20.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 9.313e-11
+   rel_rmse vs mean(|unpacked|)= 2.85e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-06
+   scale mean|·|                = 9.313e-11
+
+-- blk.20.ffn_down.weight -> model.layers.20.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.978e-09
+   rel_rmse vs mean(|unpacked|)= 1.792e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 2.843e-10
+
+-- blk.20.ffn_gate.weight -> model.layers.20.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.39e-09
+   rel_rmse vs mean(|unpacked|)= 1.251e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.019e-10
+
+-- blk.20.ffn_up.weight -> model.layers.20.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.841e-09
+   rel_rmse vs mean(|unpacked|)= 9.24e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 1.961e-10
+
+-- blk.21.attn_k.weight -> model.layers.21.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001068
+   mean|deq - unpacked|        = 3.609e-09
+   rel_rmse vs mean(|unpacked|)= 1.359e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-06
+   scale mean|·|                = 9.313e-11
+
+-- blk.21.attn_output.weight -> model.layers.21.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 6.153e-09
+   rel_rmse vs mean(|unpacked|)= 2.52e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 5.472e-10
+
+-- blk.21.attn_q.weight -> model.layers.21.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 8.382e-10
+   rel_rmse vs mean(|unpacked|)= 7.666e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.815e-06
+   scale mean|·|                = 9.313e-11
+
+-- blk.21.attn_v.weight -> model.layers.21.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.21.ffn_down.weight -> model.layers.21.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.105e-09
+   rel_rmse vs mean(|unpacked|)= 1.48e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.21.ffn_gate.weight -> model.layers.21.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.001221
+   mean|deq - unpacked|        = 8.107e-09
+   rel_rmse vs mean(|unpacked|)= 4.988e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.117e-10
+
+-- blk.21.ffn_up.weight -> model.layers.21.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 3.272e-09
+   rel_rmse vs mean(|unpacked|)= 1.278e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 3.823e-10
+
+-- blk.22.attn_k.weight -> model.layers.22.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.22.attn_output.weight -> model.layers.22.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.523e-09
+   rel_rmse vs mean(|unpacked|)= 2.197e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 5.355e-10
+
+-- blk.22.attn_q.weight -> model.layers.22.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.49e-09
+   rel_rmse vs mean(|unpacked|)= 1.129e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 2.794e-10
+
+-- blk.22.attn_v.weight -> model.layers.22.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 2.319e-08
+   rel_rmse vs mean(|unpacked|)= 4.215e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9998 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 1.676e-09
+
+-- blk.22.ffn_down.weight -> model.layers.22.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.1e-09
+   rel_rmse vs mean(|unpacked|)= 1.802e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.559e-10
+
+-- blk.22.ffn_gate.weight -> model.layers.22.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 4.517e-09
+   rel_rmse vs mean(|unpacked|)= 1.864e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 5.098e-10
+
+-- blk.22.ffn_up.weight -> model.layers.22.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.642e-09
+   rel_rmse vs mean(|unpacked|)= 8.937e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 1.372e-10
+
+-- blk.23.attn_k.weight -> model.layers.23.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.863e-10
+   rel_rmse vs mean(|unpacked|)= 6.148e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.815e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.23.attn_output.weight -> model.layers.23.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.742e-09
+   rel_rmse vs mean(|unpacked|)= 1.533e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.23.attn_q.weight -> model.layers.23.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 2.841e-09
+   rel_rmse vs mean(|unpacked|)= 1.953e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.289e-05
+   scale mean|·|                = 5.821e-10
+
+-- blk.23.attn_v.weight -> model.layers.23.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.23.ffn_down.weight -> model.layers.23.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.539e-09
+   rel_rmse vs mean(|unpacked|)= 1.858e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 3.333e-10
+
+-- blk.23.ffn_gate.weight -> model.layers.23.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.644e-09
+   rel_rmse vs mean(|unpacked|)= 1.451e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.117e-10
+
+-- blk.23.ffn_up.weight -> model.layers.23.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0003052
+   mean|deq - unpacked|        = 3.024e-09
+   rel_rmse vs mean(|unpacked|)= 1.425e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.412e-10
+
+-- blk.24.attn_k.weight -> model.layers.24.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.653e-09
+   rel_rmse vs mean(|unpacked|)= 1.187e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 8.382e-10
+
+-- blk.24.attn_output.weight -> model.layers.24.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 8.909e-09
+   rel_rmse vs mean(|unpacked|)= 2.795e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.752e-10
+
+-- blk.24.attn_q.weight -> model.layers.24.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 1.164e-09
+   rel_rmse vs mean(|unpacked|)= 1.418e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.67e-05
+   scale mean|·|                = 4.773e-10
+
+-- blk.24.attn_v.weight -> model.layers.24.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 1.304e-09
+   rel_rmse vs mean(|unpacked|)= 1.339e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.67e-05
+   scale mean|·|                = 1.304e-09
+
+-- blk.24.ffn_down.weight -> model.layers.24.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.717e-09
+   rel_rmse vs mean(|unpacked|)= 1.694e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.51e-10
+
+-- blk.24.ffn_gate.weight -> model.layers.24.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.51e-09
+   rel_rmse vs mean(|unpacked|)= 1.44e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 5.098e-10
+
+-- blk.24.ffn_up.weight -> model.layers.24.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004272
+   mean|deq - unpacked|        = 5.98e-10
+   rel_rmse vs mean(|unpacked|)= 6.86e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.289e-05
+   scale mean|·|                = 2.549e-10
+
+-- blk.25.attn_k.weight -> model.layers.25.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.725e-10
+   rel_rmse vs mean(|unpacked|)= 8.366e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 3.725e-10
+
+-- blk.25.attn_output.weight -> model.layers.25.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.352e-09
+   rel_rmse vs mean(|unpacked|)= 1.507e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.445e-10
+
+-- blk.25.attn_q.weight -> model.layers.25.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.871e-09
+   rel_rmse vs mean(|unpacked|)= 1.642e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.725e-10
+
+-- blk.25.attn_v.weight -> model.layers.25.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.25.ffn_down.weight -> model.layers.25.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.274e-09
+   rel_rmse vs mean(|unpacked|)= 1.313e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.235e-10
+
+-- blk.25.ffn_gate.weight -> model.layers.25.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 4.541e-09
+   rel_rmse vs mean(|unpacked|)= 1.731e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.289e-05
+   scale mean|·|                = 6.47e-10
+
+-- blk.25.ffn_up.weight -> model.layers.25.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004272
+   mean|deq - unpacked|        = 2.402e-09
+   rel_rmse vs mean(|unpacked|)= 1.315e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-05
+   scale mean|·|                = 4.902e-10
+
+-- blk.26.attn_k.weight -> model.layers.26.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 1.397e-09
+   rel_rmse vs mean(|unpacked|)= 2.176e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.67e-05
+   scale mean|·|                = 1.397e-09
+
+-- blk.26.attn_output.weight -> model.layers.26.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.864e-09
+   rel_rmse vs mean(|unpacked|)= 1.597e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.075e-10
+
+-- blk.26.attn_q.weight -> model.layers.26.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.708e-09
+   rel_rmse vs mean(|unpacked|)= 1.918e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 2.678e-10
+
+-- blk.26.attn_v.weight -> model.layers.26.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.725e-10
+   rel_rmse vs mean(|unpacked|)= 4.688e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 3.725e-10
+
+-- blk.26.ffn_down.weight -> model.layers.26.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.382e-09
+   rel_rmse vs mean(|unpacked|)= 1.56e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.412e-10
+
+-- blk.26.ffn_gate.weight -> model.layers.26.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.554e-09
+   rel_rmse vs mean(|unpacked|)= 1.198e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 5.784e-10
+
+-- blk.26.ffn_up.weight -> model.layers.26.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 3.887e-09
+   rel_rmse vs mean(|unpacked|)= 1.547e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 5e-10
+
+-- blk.27.attn_k.weight -> model.layers.27.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.328e-09
+   rel_rmse vs mean(|unpacked|)= 1.34e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 3.725e-10
+
+-- blk.27.attn_output.weight -> model.layers.27.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.112e-09
+   rel_rmse vs mean(|unpacked|)= 1.872e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.636e-10
+
+-- blk.27.attn_q.weight -> model.layers.27.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.078e-09
+   rel_rmse vs mean(|unpacked|)= 1.459e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 2.794e-10
+
+-- blk.27.attn_v.weight -> model.layers.27.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 6.054e-09
+   rel_rmse vs mean(|unpacked|)= 1.406e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.27.ffn_down.weight -> model.layers.27.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 2.159e-09
+   rel_rmse vs mean(|unpacked|)= 1.508e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 3.529e-10
+
+-- blk.27.ffn_gate.weight -> model.layers.27.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004272
+   mean|deq - unpacked|        = 3.929e-09
+   rel_rmse vs mean(|unpacked|)= 1.531e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.67e-05
+   scale mean|·|                = 6.568e-10
+
+-- blk.27.ffn_up.weight -> model.layers.27.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004272
+   mean|deq - unpacked|        = 3.551e-09
+   rel_rmse vs mean(|unpacked|)= 1.535e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-05
+   scale mean|·|                = 5e-10
+
+-- blk.28.attn_k.weight -> model.layers.28.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.28.attn_output.weight -> model.layers.28.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.938e-09
+   rel_rmse vs mean(|unpacked|)= 1.28e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.794e-10
+
+-- blk.28.attn_q.weight -> model.layers.28.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 4.857e-09
+   rel_rmse vs mean(|unpacked|)= 2.106e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 9.662e-10
+
+-- blk.28.attn_v.weight -> model.layers.28.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.28.ffn_down.weight -> model.layers.28.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 3.439e-09
+   rel_rmse vs mean(|unpacked|)= 1.751e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 3.137e-10
+
+-- blk.28.ffn_gate.weight -> model.layers.28.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004272
+   mean|deq - unpacked|        = 4.581e-09
+   rel_rmse vs mean(|unpacked|)= 1.73e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.289e-05
+   scale mean|·|                = 7.255e-10
+
+-- blk.28.ffn_up.weight -> model.layers.28.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 3.941e-09
+   rel_rmse vs mean(|unpacked|)= 1.374e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 6.862e-10
+
+-- blk.29.attn_k.weight -> model.layers.29.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001068
+   mean|deq - unpacked|        = 1.129e-09
+   rel_rmse vs mean(|unpacked|)= 6.227e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 4.768e-06
+   scale mean|·|                = 2.328e-10
+
+-- blk.29.attn_output.weight -> model.layers.29.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.513e-09
+   rel_rmse vs mean(|unpacked|)= 1.167e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 1.164e-10
+
+-- blk.29.attn_q.weight -> model.layers.29.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 6.866e-09
+   rel_rmse vs mean(|unpacked|)= 2.548e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.869e-10
+
+-- blk.29.attn_v.weight -> model.layers.29.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 5.96e-09
+   rel_rmse vs mean(|unpacked|)= 1.432e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 2.794e-10
+
+-- blk.29.ffn_down.weight -> model.layers.29.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.699e-09
+   rel_rmse vs mean(|unpacked|)= 1.891e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.289e-10
+
+-- blk.29.ffn_gate.weight -> model.layers.29.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0003052
+   mean|deq - unpacked|        = 6.225e-09
+   rel_rmse vs mean(|unpacked|)= 2.052e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.176e-10
+
+-- blk.29.ffn_up.weight -> model.layers.29.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.821e-09
+   rel_rmse vs mean(|unpacked|)= 1.136e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 5.196e-10
+
+-- blk.30.attn_k.weight -> model.layers.30.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.119e-09
+   rel_rmse vs mean(|unpacked|)= 1.203e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.519e-10
+
+-- blk.30.attn_output.weight -> model.layers.30.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.363e-09
+   rel_rmse vs mean(|unpacked|)= 1.398e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.307e-10
+
+-- blk.30.attn_q.weight -> model.layers.30.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.017e-09
+   rel_rmse vs mean(|unpacked|)= 1.219e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.657e-10
+
+-- blk.30.attn_v.weight -> model.layers.30.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.30.ffn_down.weight -> model.layers.30.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.453e-09
+   rel_rmse vs mean(|unpacked|)= 1.148e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 2.255e-10
+
+-- blk.30.ffn_gate.weight -> model.layers.30.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.946e-09
+   rel_rmse vs mean(|unpacked|)= 1.208e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.137e-10
+
+-- blk.30.ffn_up.weight -> model.layers.30.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 6.23e-09
+   rel_rmse vs mean(|unpacked|)= 1.667e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.052e-05
+   scale mean|·|                = 8.235e-10
+
+-- blk.31.attn_k.weight -> model.layers.31.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 5.96e-09
+   rel_rmse vs mean(|unpacked|)= 2.293e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 7.451e-10
+
+-- blk.31.attn_output.weight -> model.layers.31.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 5.099e-09
+   rel_rmse vs mean(|unpacked|)= 2.07e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 3.725e-10
+
+-- blk.31.attn_q.weight -> model.layers.31.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.484e-09
+   rel_rmse vs mean(|unpacked|)= 1.062e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 2.794e-10
+
+-- blk.31.attn_v.weight -> model.layers.31.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.412e-08
+   rel_rmse vs mean(|unpacked|)= 3.794e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9998 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-05
+   scale mean|·|                = 1.956e-09
+
+-- blk.31.ffn_down.weight -> model.layers.31.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.167e-09
+   rel_rmse vs mean(|unpacked|)= 1.462e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 3.186e-10
+
+-- blk.31.ffn_gate.weight -> model.layers.31.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.051e-09
+   rel_rmse vs mean(|unpacked|)= 1.022e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 2.353e-10
+
+-- blk.31.ffn_up.weight -> model.layers.31.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 5.377e-09
+   rel_rmse vs mean(|unpacked|)= 1.877e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 3.052e-05
+   scale mean|·|                = 7.745e-10
+
+-- blk.32.attn_k.weight -> model.layers.32.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.969e-09
+   rel_rmse vs mean(|unpacked|)= 1.219e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 4.191e-10
+
+-- blk.32.attn_output.weight -> model.layers.32.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 6.519e-10
+   rel_rmse vs mean(|unpacked|)= 7.844e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 1.63e-10
+
+-- blk.32.attn_q.weight -> model.layers.32.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 1.281e-10
+   rel_rmse vs mean(|unpacked|)= 3.83e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 1.281e-10
+
+-- blk.32.attn_v.weight -> model.layers.32.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.794e-10
+   rel_rmse vs mean(|unpacked|)= 4.309e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 2.794e-10
+
+-- blk.32.ffn_down.weight -> model.layers.32.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.388e-09
+   rel_rmse vs mean(|unpacked|)= 1.489e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 3.015e-10
+
+-- blk.32.ffn_gate.weight -> model.layers.32.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004272
+   mean|deq - unpacked|        = 3.135e-09
+   rel_rmse vs mean(|unpacked|)= 1.381e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.823e-10
+
+-- blk.32.ffn_up.weight -> model.layers.32.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 3.046e-09
+   rel_rmse vs mean(|unpacked|)= 1.209e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.907e-05
+   scale mean|·|                = 5.784e-10
+
+-- blk.33.attn_k.weight -> model.layers.33.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 7.451e-10
+   rel_rmse vs mean(|unpacked|)= 1.082e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 9.537e-06
+   scale mean|·|                = 7.451e-10
+
+-- blk.33.attn_output.weight -> model.layers.33.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 9.313e-11
+   rel_rmse vs mean(|unpacked|)= 4.022e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 7.629e-06
+   scale mean|·|                = 9.313e-11
+
+-- blk.33.attn_q.weight -> model.layers.33.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 2.183e-09
+   rel_rmse vs mean(|unpacked|)= 1.534e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 2.678e-10
+
+-- blk.33.attn_v.weight -> model.layers.33.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.33.ffn_down.weight -> model.layers.33.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.963e-09
+   rel_rmse vs mean(|unpacked|)= 1.675e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 4.215e-10
+
+-- blk.33.ffn_gate.weight -> model.layers.33.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 5.635e-09
+   rel_rmse vs mean(|unpacked|)= 1.725e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 6.96e-10
+
+-- blk.33.ffn_up.weight -> model.layers.33.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 7.203e-09
+   rel_rmse vs mean(|unpacked|)= 1.891e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 7.745e-10
+
+-- blk.34.attn_k.weight -> model.layers.34.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.34.attn_output.weight -> model.layers.34.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0001526
+   mean|deq - unpacked|        = 2.887e-09
+   rel_rmse vs mean(|unpacked|)= 1.49e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 2.212e-10
+
+-- blk.34.attn_q.weight -> model.layers.34.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001526
+   mean|deq - unpacked|        = 2.331e-09
+   rel_rmse vs mean(|unpacked|)= 1.51e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 6.676e-06
+   scale mean|·|                = 1.746e-10
+
+-- blk.34.attn_v.weight -> model.layers.34.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.34.ffn_down.weight -> model.layers.34.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.358e-09
+   rel_rmse vs mean(|unpacked|)= 1.782e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.526e-05
+   scale mean|·|                = 3.627e-10
+
+-- blk.34.ffn_gate.weight -> model.layers.34.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004272
+   mean|deq - unpacked|        = 8.382e-10
+   rel_rmse vs mean(|unpacked|)= 8.226e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.144e-05
+   scale mean|·|                = 1.176e-10
+
+-- blk.34.ffn_up.weight -> model.layers.34.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.975e-09
+   rel_rmse vs mean(|unpacked|)= 1.16e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 4.019e-10
+
+-- blk.35.attn_k.weight -> model.layers.35.self_attn.k_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0
+   mean|deq - unpacked|        = 0
+   rel_rmse vs mean(|unpacked|)= 0
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=1.0000 max_distinct=1
+   scale max|d_q1 - mean(|x|)|  = 0
+   scale mean|·|                = 0
+
+-- blk.35.attn_output.weight -> model.layers.35.self_attn.o_proj.weight  shape=[2560, 4096]
+   max|deq - unpacked|         = 0.0002136
+   mean|deq - unpacked|        = 1.135e-09
+   rel_rmse vs mean(|unpacked|)= 1.079e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 2.794e-10
+
+-- blk.35.attn_q.weight -> model.layers.35.self_attn.q_proj.weight  shape=[4096, 2560]
+   max|deq - unpacked|         = 0.0001221
+   mean|deq - unpacked|        = 9.575e-10
+   rel_rmse vs mean(|unpacked|)= 9.212e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=81920 frac_binary=1.0000 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 5.722e-06
+   scale mean|·|                = 1.863e-10
+
+-- blk.35.attn_v.weight -> model.layers.35.self_attn.v_proj.weight  shape=[1024, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 2.305e-09
+   rel_rmse vs mean(|unpacked|)= 8.401e-06
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=20480 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 8.382e-10
+
+-- blk.35.ffn_down.weight -> model.layers.35.mlp.down_proj.weight  shape=[2560, 9728]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 1.386e-09
+   rel_rmse vs mean(|unpacked|)= 1.121e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 2.794e-10
+
+-- blk.35.ffn_gate.weight -> model.layers.35.mlp.gate_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0002441
+   mean|deq - unpacked|        = 3.681e-09
+   rel_rmse vs mean(|unpacked|)= 1.528e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 1.335e-05
+   scale mean|·|                = 3.823e-10
+
+-- blk.35.ffn_up.weight -> model.layers.35.mlp.up_proj.weight  shape=[9728, 2560]
+   max|deq - unpacked|         = 0.0004883
+   mean|deq - unpacked|        = 1.681e-09
+   rel_rmse vs mean(|unpacked|)= 1.091e-05
+   sign agreement (nonzero)    = 100.0000%
+   unpacked lattice            = groups=194560 frac_binary=0.9999 max_distinct=2
+   scale max|d_q1 - mean(|x|)|  = 2.67e-05
+   scale mean|·|                = 4.117e-10
+
+== SUMMARY ==
+  tensors compared:           253
+  worst max|deq - unpacked|:  0.001221  (blk.21.ffn_gate.weight)
+  global binary-lattice frac: 0.999945  (31416940/31418660 groups)
+  mean of per-tensor scale-mean-diffs: 3.581e-10
+
+Verdict guidance:
+  - If max|deq - unpacked| <= ~5e-4 across all tensors AND lattice frac == 1.0:
+    => Hypothesis A holds: unpacked is FP16 storage of dequant(Q1_0).
+  - If max|deq - unpacked| is small but lattice frac < 1.0:
+    => unpacked has FP residuals (likely from QAT pre-quantization training).

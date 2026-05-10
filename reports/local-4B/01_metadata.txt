@@ -1,0 +1,509 @@
+Using CPython 3.11.15 interpreter at: /usr/local/bin/python3
+Creating virtual environment at: .venv
+Downloading nvidia-cudnn-cu13 (349.1MiB)
+Downloading nvidia-cusolver (191.6MiB)
+Downloading triton (179.5MiB)
+Downloading nvidia-cufile (1.2MiB)
+Downloading nvidia-cusparse (139.2MiB)
+Downloading nvidia-curand (56.8MiB)
+Downloading nvidia-cufft (204.2MiB)
+Downloading nvidia-cublas (403.5MiB)
+Downloading nvidia-nccl-cu13 (187.4MiB)
+Downloading torch (506.0MiB)
+Downloading pillow (6.8MiB)
+Downloading nvidia-cuda-nvrtc (86.0MiB)
+Downloading nvidia-nvshmem-cu13 (57.6MiB)
+Downloading nvidia-cusparselt-cu13 (162.0MiB)
+Downloading nvidia-cuda-cupti (10.2MiB)
+Downloading matplotlib (8.4MiB)
+Downloading nvidia-nvjitlink (38.8MiB)
+Downloading numpy (16.1MiB)
+Downloading scipy (33.7MiB)
+Downloading cuda-bindings (6.0MiB)
+Downloading sympy (6.0MiB)
+Downloading fonttools (4.8MiB)
+Downloading nvidia-cuda-runtime (2.1MiB)
+Downloading hf-xet (4.3MiB)
+Downloading networkx (2.0MiB)
+Downloading hf-transfer (3.4MiB)
+Downloading kiwisolver (1.4MiB)
+Downloading setuptools (1.0MiB)
+ Downloading nvidia-cufile
+ Downloading pillow
+ Downloading nvidia-cuda-cupti
+ Downloading matplotlib
+ Downloading nvidia-curand
+ Downloading nvidia-nvshmem-cu13
+Downloading pygments (1.2MiB)
+ Downloading numpy
+ Downloading nvidia-cuda-nvrtc
+ Downloading nvidia-nvjitlink
+ Downloading nvidia-cusparse
+ Downloading triton
+ Downloading nvidia-cusolver
+ Downloading nvidia-cufft
+ Downloading nvidia-nccl-cu13
+ Downloading nvidia-cudnn-cu13
+ Downloading nvidia-cusparselt-cu13
+ Downloading nvidia-cublas
+ Downloading cuda-bindings
+ Downloading scipy
+ Downloading hf-xet
+ Downloading hf-transfer
+ Downloading fonttools
+ Downloading nvidia-cuda-runtime
+ Downloading kiwisolver
+ Downloading networkx
+ Downloading setuptools
+ Downloading pygments
+ Downloading sympy
+ Downloading torch
+Installed 65 packages in 120ms
+== models/bonsai/4B/gguf/Bonsai-4B-Q1_0.gguf ==
+  GGUF version: ?
+  alignment:    32
+  KV pairs:     35
+  tensors:      398
+
+== METADATA ==
+  GGUF.version :: UINT32 (n=1)
+  GGUF.tensor_count :: UINT64 (n=1)
+  GGUF.kv_count :: UINT64 (n=1)
+  general.architecture :: STRING (n=1)
+  general.type :: STRING (n=1)
+  general.sampling.top_k :: INT32 (n=1)
+  general.sampling.top_p :: FLOAT32 (n=1)
+  general.sampling.min_p :: FLOAT32 (n=1)
+  general.sampling.temp :: FLOAT32 (n=1)
+  general.name :: STRING (n=1)
+  general.size_label :: STRING (n=1)
+  qwen3.block_count :: UINT32 (n=1)
+  qwen3.context_length :: UINT32 (n=1)
+  qwen3.embedding_length :: UINT32 (n=1)
+  qwen3.feed_forward_length :: UINT32 (n=1)
+  qwen3.attention.head_count :: UINT32 (n=1)
+  qwen3.attention.head_count_kv :: UINT32 (n=1)
+  qwen3.rope.scaling.type :: STRING (n=1)
+  qwen3.rope.scaling.factor :: FLOAT32 (n=1)
+  qwen3.rope.scaling.original_context_length :: UINT32 (n=1)
+  qwen3.rope.freq_base :: FLOAT32 (n=1)
+  qwen3.attention.layer_norm_rms_epsilon :: FLOAT32 (n=1)
+  qwen3.attention.key_length :: UINT32 (n=1)
+  qwen3.attention.value_length :: UINT32 (n=1)
+  tokenizer.ggml.model :: STRING (n=1)
+  tokenizer.ggml.pre :: STRING (n=1)
+  tokenizer.ggml.tokens :: ARRAY (n=151669)
+  tokenizer.ggml.token_type :: ARRAY (n=151669)
+  tokenizer.ggml.merges :: ARRAY (n=151387)
+  tokenizer.ggml.eos_token_id :: UINT32 (n=1)
+  tokenizer.ggml.padding_token_id :: UINT32 (n=1)
+  tokenizer.ggml.add_bos_token :: BOOL (n=1)
+  tokenizer.chat_template :: STRING (n=1)
+  general.quantization_version :: UINT32 (n=1)
+  general.file_type :: UINT32 (n=1)
+
+== TENSORS ==
+  Quant breakdown:
+    Q1_0          count= 253  bytes=   539.34 MB
+    F32           count= 145  bytes=   766.00 KB
+  Total tensor bytes: 540.09 MB
+
+  Per-tensor (filtered):
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  output_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(151669)]  bytes=    52.07 MB  token_embd.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.0.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.0.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.0.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.0.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.0.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.0.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.0.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.0.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.0.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.0.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.0.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.1.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.1.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.1.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.1.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.1.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.1.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.1.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.1.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.1.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.1.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.1.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.2.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.2.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.2.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.2.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.2.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.2.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.2.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.2.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.2.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.2.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.2.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.3.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.3.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.3.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.3.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.3.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.3.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.3.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.3.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.3.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.3.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.3.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.4.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.4.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.4.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.4.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.4.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.4.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.4.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.4.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.4.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.4.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.4.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.5.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.5.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.5.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.5.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.5.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.5.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.5.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.5.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.5.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.5.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.5.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.6.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.6.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.6.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.6.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.6.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.6.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.6.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.6.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.6.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.6.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.6.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.7.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.7.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.7.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.7.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.7.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.7.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.7.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.7.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.7.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.7.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.7.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.8.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.8.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.8.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.8.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.8.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.8.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.8.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.8.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.8.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.8.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.8.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.9.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.9.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.9.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.9.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.9.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.9.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.9.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.9.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.9.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.9.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.9.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.10.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.10.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.10.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.10.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.10.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.10.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.10.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.10.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.10.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.10.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.10.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.11.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.11.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.11.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.11.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.11.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.11.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.11.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.11.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.11.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.11.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.11.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.12.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.12.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.12.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.12.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.12.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.12.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.12.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.12.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.12.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.12.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.12.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.13.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.13.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.13.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.13.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.13.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.13.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.13.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.13.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.13.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.13.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.13.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.14.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.14.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.14.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.14.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.14.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.14.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.14.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.14.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.14.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.14.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.14.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.15.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.15.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.15.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.15.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.15.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.15.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.15.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.15.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.15.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.15.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.15.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.16.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.16.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.16.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.16.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.16.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.16.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.16.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.16.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.16.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.16.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.16.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.17.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.17.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.17.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.17.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.17.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.17.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.17.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.17.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.17.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.17.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.17.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.18.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.18.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.18.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.18.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.18.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.18.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.18.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.18.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.18.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.18.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.18.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.19.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.19.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.19.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.19.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.19.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.19.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.19.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.19.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.19.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.19.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.19.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.20.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.20.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.20.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.20.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.20.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.20.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.20.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.20.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.20.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.20.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.20.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.21.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.21.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.21.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.21.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.21.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.21.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.21.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.21.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.21.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.21.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.21.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.22.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.22.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.22.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.22.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.22.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.22.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.22.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.22.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.22.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.22.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.22.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.23.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.23.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.23.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.23.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.23.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.23.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.23.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.23.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.23.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.23.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.23.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.24.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.24.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.24.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.24.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.24.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.24.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.24.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.24.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.24.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.24.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.24.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.25.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.25.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.25.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.25.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.25.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.25.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.25.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.25.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.25.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.25.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.25.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.26.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.26.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.26.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.26.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.26.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.26.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.26.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.26.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.26.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.26.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.26.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.27.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.27.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.27.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.27.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.27.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.27.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.27.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.27.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.27.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.27.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.27.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.28.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.28.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.28.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.28.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.28.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.28.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.28.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.28.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.28.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.28.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.28.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.29.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.29.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.29.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.29.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.29.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.29.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.29.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.29.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.29.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.29.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.29.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.30.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.30.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.30.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.30.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.30.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.30.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.30.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.30.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.30.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.30.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.30.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.31.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.31.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.31.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.31.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.31.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.31.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.31.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.31.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.31.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.31.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.31.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.32.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.32.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.32.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.32.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.32.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.32.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.32.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.32.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.32.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.32.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.32.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.33.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.33.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.33.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.33.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.33.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.33.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.33.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.33.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.33.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.33.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.33.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.34.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.34.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.34.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.34.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.34.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.34.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.34.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.34.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.34.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.34.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.34.ffn_up.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.35.attn_k.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.35.attn_k_norm.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.35.attn_norm.weight
+    Q1_0        shape=[np.uint64(4096), np.uint64(2560)]  bytes=     1.41 MB  blk.35.attn_output.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(4096)]  bytes=     1.41 MB  blk.35.attn_q.weight
+    F32         shape=[np.uint64(128)]                bytes=    512.00 B  blk.35.attn_q_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(1024)]  bytes=   360.00 KB  blk.35.attn_v.weight
+    Q1_0        shape=[np.uint64(9728), np.uint64(2560)]  bytes=     3.34 MB  blk.35.ffn_down.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.35.ffn_gate.weight
+    F32         shape=[np.uint64(2560)]               bytes=    10.00 KB  blk.35.ffn_norm.weight
+    Q1_0        shape=[np.uint64(2560), np.uint64(9728)]  bytes=     3.34 MB  blk.35.ffn_up.weight

@@ -1,0 +1,47 @@
+bonsai tensors: 310; base tensors: 311; common: 310
+
+-- model.layers.27.input_layernorm.weight  shape=[2048]
+
+-- model.layers.27.mlp.down_proj.weight  shape=[2048, 6144]
+   identity:  rmse=0.04824  cos=0.4370
+   lattice_bonsai: groups=98304 binary_frac=0.9999 max_distinct=2 |μ|=0.05159
+   lattice_base  : groups=98304 binary_frac=0.0000 max_distinct=127 |μ|=0.02726
+   row_perm:  diag_cos=0.4370  best_cos=0.4370  identity=True
+
+-- model.layers.27.mlp.gate_proj.weight  shape=[6144, 2048]
+   identity:  rmse=0.06606  cos=0.4428
+   lattice_bonsai: groups=98304 binary_frac=0.9999 max_distinct=2 |μ|=0.07235
+   lattice_base  : groups=98304 binary_frac=0.0000 max_distinct=128 |μ|=0.029
+   row_perm:  diag_cos=0.4426  best_cos=0.4421  identity=False
+
+-- model.layers.27.mlp.up_proj.weight  shape=[6144, 2048]
+   identity:  rmse=0.0728  cos=0.4463
+   lattice_bonsai: groups=98304 binary_frac=1.0000 max_distinct=2 |μ|=0.08023
+   lattice_base  : groups=98304 binary_frac=0.0000 max_distinct=127 |μ|=0.03002
+   row_perm:  diag_cos=0.4461  best_cos=0.4457  identity=False
+
+-- model.layers.27.post_attention_layernorm.weight  shape=[2048]
+
+-- model.layers.27.self_attn.k_norm.weight  shape=[128]
+
+-- model.layers.27.self_attn.k_proj.weight  shape=[1024, 2048]
+   identity:  rmse=0.04007  cos=0.3460
+   lattice_bonsai: groups=16384 binary_frac=1.0000 max_distinct=1 |μ|=0.0365
+   lattice_base  : groups=16384 binary_frac=0.0000 max_distinct=126 |μ|=0.02613
+   row_perm:  diag_cos=0.3460  best_cos=0.3456  identity=False
+
+-- model.layers.27.self_attn.o_proj.weight  shape=[2048, 2048]
+   identity:  rmse=0.05337  cos=0.4323
+   lattice_bonsai: groups=32768 binary_frac=0.9999 max_distinct=2 |μ|=0.05655
+   lattice_base  : groups=32768 binary_frac=0.0000 max_distinct=126 |μ|=0.0273
+   row_perm:  diag_cos=0.4323  best_cos=0.4323  identity=True
+
+-- model.layers.27.self_attn.q_norm.weight  shape=[128]
+
+-- model.layers.27.self_attn.q_proj.weight  shape=[2048, 2048]
+   identity:  rmse=0.0361  cos=0.4291
+   lattice_bonsai: groups=32768 binary_frac=0.9999 max_distinct=2 |μ|=0.0333
+   lattice_base  : groups=32768 binary_frac=0.0000 max_distinct=126 |μ|=0.027
+   row_perm:  diag_cos=0.4291  best_cos=0.4285  identity=False
+
+[... truncated; pass --filter to narrow]
