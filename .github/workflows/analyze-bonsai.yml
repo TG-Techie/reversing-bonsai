@@ -43,6 +43,16 @@ on:
         required: true
         default: true
         type: boolean
+      store_models:
+        description: "Where to persist the downloaded model files (mobile-friendly: 'release')"
+        required: true
+        default: "release"
+        type: choice
+        options:
+          - "none"     # ephemeral on the runner only
+          - "release"  # upload all model files as a GH release (best for mobile)
+          - "lfs"      # commit small Q1_0 file into the repo via Git LFS
+          - "both"     # release for big files + LFS for the small Q1_0
 
   push:
     branches:
@@ -269,21 +279,174 @@ jobs:
           path: ${{ steps.stage.outputs.dest }}/
           if-no-files-found: error
 
-      - name: Commit reports back to triggering branch
+      - name: Decide store_models mode
+        id: store
+        run: |
+          MODE="${{ inputs.store_models || 'release' }}"
+          # Resolve "both" into the union of release+lfs flags
+          want_release=false; want_lfs=false
+          case "$MODE" in
+            release) want_release=true ;;
+            lfs)     want_lfs=true ;;
+            both)    want_release=true; want_lfs=true ;;
+            none)    : ;;
+            *) echo "unknown store_models: $MODE"; exit 2 ;;
+          esac
+          {
+            echo "want_release=$want_release"
+            echo "want_lfs=$want_lfs"
+            # Tag and asset paths for the release
+            tag="models-${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}-r${{ github.run_number }}"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload models to a GitHub Release (mobile-friendly)
+        if: ${{ steps.store.outputs.want_release == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.store.outputs.tag }}
+          REF: ${{ github.ref_name }}
+          FAMILY: ${{ steps.paths.outputs.family }}
+          SIZE:   ${{ steps.paths.outputs.size }}
+        run: |
+          set -e
+          # Collect every model file we have on disk (small + large).
+          mapfile -t raw < <(find models -type f \
+            \( -name "*.gguf" -o -name "*.safetensors" -o -name "*.json" -o -name "*.txt" -o -name "*.md" \) \
+            | sort)
+          if [ "${#raw[@]}" -eq 0 ]; then
+            echo "No model files found; skipping release upload."
+            exit 0
+          fi
+
+          # GitHub Releases cap each asset at ~2 GiB. Split anything bigger
+          # into 1900-MiB chunks. We name them <orig>.part-aa, .part-ab, ...
+          # Reassembly: `cat <orig>.part-* > <orig>`
+          mkdir -p staging
+          declare -a assets
+          declare -a manifest
+          MAX_SIZE_BYTES=$((1900 * 1024 * 1024))
+          for src in "${raw[@]}"; do
+            sz=$(stat -c%s "$src")
+            base=$(basename "$src")
+            if [ "$sz" -le "$MAX_SIZE_BYTES" ]; then
+              ln -sf "$(realpath "$src")" "staging/$base"
+              assets+=("staging/$base")
+              manifest+=("$base|single|$sz")
+            else
+              echo "[i] $base is $(du -h "$src" | cut -f1) — splitting at 1900 MiB"
+              split -b 1900M -d --suffix-length=3 \
+                    "$src" "staging/${base}.part-"
+              for chunk in staging/${base}.part-*; do
+                assets+=("$chunk")
+              done
+              manifest+=("$base|split|$sz")
+            fi
+          done
+
+          # Sha256 sums per chunk (and per joined file). Useful for
+          # client-side verification after `cat`-joining.
+          (cd staging && sha256sum -- * 2>/dev/null) > SHA256SUMS.staged.txt || true
+
+          # Mobile-readable notes
+          {
+            echo "## Bonsai $FAMILY $SIZE (run #${{ github.run_number }})"
+            echo
+            echo "Source repos:"
+            echo "- GGUF:     https://huggingface.co/${{ steps.paths.outputs.gguf_repo }}"
+            echo "- unpacked: https://huggingface.co/${{ steps.paths.outputs.unpacked_repo }}"
+            echo "- base:     https://huggingface.co/${{ steps.paths.outputs.base_repo }}"
+            echo
+            echo "### Files"
+            for line in "${manifest[@]}"; do
+              IFS='|' read -r name kind sz <<< "$line"
+              human=$(numfmt --to=iec --suffix=B "$sz")
+              if [ "$kind" = "split" ]; then
+                echo "- \`$name\` (**$human**, split into 1.9 GiB chunks: \`$name.part-000\`, \`.part-001\`, ...)"
+                echo "  Reassemble: \`cat $name.part-* > $name\`"
+              else
+                echo "- \`$name\` ($human)"
+              fi
+            done
+            echo
+            echo "Verify chunks against \`SHA256SUMS.staged.txt\` after download."
+          } > release-notes.md
+
+          gh release create "$TAG" \
+            --title "Bonsai $FAMILY $SIZE models (run #${{ github.run_number }})" \
+            --notes-file release-notes.md \
+            --target "$REF" \
+            staging/SHA256SUMS.staged.txt 2>/dev/null || \
+          gh release create "$TAG" \
+            --title "Bonsai $FAMILY $SIZE models (run #${{ github.run_number }})" \
+            --notes-file release-notes.md \
+            --target "$REF"
+
+          # Upload assets (in batches to avoid command-line length issues)
+          for f in "${assets[@]}"; do
+            gh release upload "$TAG" "$f" --clobber
+          done
+          gh release upload "$TAG" "staging/SHA256SUMS.staged.txt" --clobber
+
+          # Drop a small index file into reports/ so the repo links to the
+          # release. Keeps everything navigable from GH mobile app.
+          {
+            echo "release_tag: $TAG"
+            echo "release_url: https://github.com/${{ github.repository }}/releases/tag/$TAG"
+            echo "files:"
+            for line in "${manifest[@]}"; do
+              IFS='|' read -r name kind sz <<< "$line"
+              human=$(numfmt --to=iec --suffix=B "$sz")
+              echo "  - name: $name"
+              echo "    size: $human"
+              echo "    kind: $kind"
+              echo "    url: https://github.com/${{ github.repository }}/releases/tag/$TAG"
+            done
+          } > "${{ steps.stage.outputs.dest }}/release.yaml"
+
+      - name: Stage Q1_0 GGUF for LFS commit
+        if: ${{ steps.store.outputs.want_lfs == 'true' }}
+        run: |
+          set -e
+          # Only the small Q1_0 file goes into LFS — the FP unpacked + base
+          # are too large for the free LFS quota and live in the release.
+          mkdir -p "models/${{ steps.paths.outputs.family }}/${{ steps.paths.outputs.size }}"
+          src="${{ steps.ggufpath.outputs.gguf_file }}"
+          dst="models/${{ steps.paths.outputs.family }}/${{ steps.paths.outputs.size }}/$(basename "$src")"
+          cp "$src" "$dst"
+          # Configure .gitattributes (idempotent) so .gguf is tracked by LFS.
+          if ! grep -qE '^\*\.gguf' .gitattributes 2>/dev/null; then
+            printf '*.gguf filter=lfs diff=lfs merge=lfs -text\n' >> .gitattributes
+          fi
+          # Make sure git-lfs is installed
+          if ! command -v git-lfs >/dev/null; then
+            sudo apt-get install -y git-lfs >/dev/null
+          fi
+          git lfs install --local
+
+      - name: Commit reports (and optional LFS-tracked Q1_0) back to branch
         if: ${{ inputs.commit_reports != false && github.event_name == 'workflow_dispatch' }}
         env:
           REF: ${{ github.ref_name }}
+          WANT_LFS: ${{ steps.store.outputs.want_lfs }}
         run: |
           set -e
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Always stage reports.
           git add "${{ steps.stage.outputs.dest }}/"
+          # If LFS mode is on, also stage the GGUF + .gitattributes.
+          if [ "$WANT_LFS" = "true" ]; then
+            git add .gitattributes \
+                    "models/${{ steps.paths.outputs.family }}/${{ steps.paths.outputs.size }}/" \
+                    || true
+          fi
           if git diff --cached --quiet; then
-            echo "No report changes to commit."
+            echo "Nothing to commit."
             exit 0
           fi
           MSG="reports: ${{ steps.paths.outputs.family }} ${{ steps.paths.outputs.size }} (run #${{ github.run_number }}) [skip ci]"
           git commit -m "$MSG"
-          # Push to the same branch that triggered the run.
+          # Pull-rebase to avoid races between concurrent runs.
           git pull --rebase origin "$REF" || true
           git push origin "HEAD:$REF"
