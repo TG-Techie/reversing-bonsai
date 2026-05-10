@@ -1,0 +1,31 @@
+## Joint discriminator: per-block sign-flip rate × per-block relative scale-drift
+## Tensor: model.layers.0.self_attn.q_proj.weight (8B)
+
+Block count: 131072 (4096 rows × 32 blocks/row, 128 weights per block)
+
+Block-wise statistics:
+  sign-flip rate (Bonsai vs Qwen3-base):  mean=0.2483, range [0.0078, 0.5312]
+  rel scale-drift |s_bonsai - mean(|w_base|)|/mean(|w_base|):  mean=0.3411
+  s_bonsai mean: 0.027003
+  s_base mean:   0.020224
+  ratio s_bonsai / s_base (median): 1.3236
+
+Joint correlation across blocks:
+  Pearson(flip_rate, scale_drift):  +0.1198
+  Spearman:                         +0.0605
+  Null (shuffled scale_drift):      +0.0003
+
+Binned flip-rate -> mean scale-drift:
+  [0.000, 0.106): n=  3036   mean_drift=0.1476
+  [0.106, 0.213): n= 27613   mean_drift=0.3437
+  [0.213, 0.319): n= 87790   mean_drift=0.3436
+  [0.319, 0.425): n= 12402   mean_drift=0.3602
+  [0.425, 0.531): n=   231   mean_drift=0.5793
+
+Interpretation: bulk of blocks (97% with flip-rate 10-43%) show
+essentially flat scale-drift, supporting H_b ('scales and signs
+evolved roughly independently for matrix-heavy weights') over H_a
+('coupled by gradient-based training'). The weak +0.12 Pearson is
+driven by the ~3000 very-low-flip and ~230 very-high-flip extreme
+blocks; could be a base-distribution effect (blocks Qwen3 already
+kept near binary have both low flip-rate and low drift).
