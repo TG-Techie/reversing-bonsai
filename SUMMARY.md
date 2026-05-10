@@ -108,14 +108,19 @@ section is anchored to a specific report under `reports/local-*/`.
     rank-128 would rise substantially with depth. It doesn't. The
     over-dispersion's relative range (1.07-2.25 over the same grid)
     is over 100× the SVD's relative spread. Report `local-8B/39_*`.
-22. **L1-L3 MLP "disturbance spike"**: per-block flip-count
+22. **L1-L3 MLP "disturbance spike" is 8B-specific** — at 8B the
     over-dispersion at L1-L3 `mlp.gate`/`mlp.up` reaches **10-13**,
-    far higher than anywhere else in the model. Same depth band where
-    sign-match-vs-teacher drops to 0.62-0.65 (the "disturbance dip").
-    A "single uniform LoRA rank" recipe cannot produce this; the
-    recipe must include either an L1-3-targeted rewrite step or a
-    depth-graded loss with very high L1-3 weight. Report
-    `local-8B/40_*`.
+    far higher than anywhere else in the model. SVD at L1-L3
+    (`local-8B/41_*`) rules out heavy-rank-128 LoRA: rank-128 % is
+    only 10-12% there (vs baseline 7.5-8%), and the delta MAGNITUDE
+    is *smaller* than at L0. Cross-size at 1.7B
+    (`local-1.7B/42_*`) shows the spike does NOT replicate: 1.7B's
+    L1 MLP over-dispersion is only 1.5-2.5. So a separate L1-3
+    rewrite step (uniformly applied across sizes) is RULED OUT. The
+    spike is a size-specific *output* of the recipe interacting with
+    Qwen3-8B's specific weight distribution — most consistent with
+    OBC-style sequential where accumulated activation error compounds
+    more strongly when more layers follow the early ones.
 
 ## What we INFER (not byte-attested, but consistent)
 

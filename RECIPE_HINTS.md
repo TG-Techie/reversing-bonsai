@@ -722,11 +722,42 @@ signs within blocks are essentially i.i.d. (over-dispersion ~1.0
 with shuffle controls matching to ±0.014). The L1-3 spike is real
 and not a confound.
 
-### Pending discrimination
+### L1-3 SVD result + cross-size validation (`local-8B/41_*`, `local-1.7B/42_*`)
 
-If L1-3 SVD shows much-higher rank-128 % than the L0/L9/L18/L27/L35
-baseline (7.5-9%), the L1-3 spike is LoRA-rank-driven and the recipe
-must include a heavy LoRA at L1-3 specifically. If the L1-3 SVD
-shows the same ~8% baseline, then the spike is mechanism-distinct
-from rank — pointing to an iterative reconstruction step (OBC-style)
-that runs harder at the early layers.
+**L1-3 SVD at 8B**: rank-128 captures 10-12% at L1, L2 (vs baseline
+7.5-8%) — a relative +40-50% but FAR from rank-128 LoRA dominance
+(~95%). The delta MAGNITUDE at L1-3 is SMALLER than at L0
+(||delta||F gate L1=152 vs L0=191; up L1=116 vs L0=187). At L1-3
+the technique makes fewer total changes that are highly block-
+coherent. **Heavy-rank-128 LoRA at L1-3 is RULED OUT.**
+
+**Cross-size at 1.7B**: the L1-3 spike of 10-13 at 8B does NOT
+appear at 1.7B (28 layers). 1.7B's L1 MLP over-dispersion is only
+1.57-2.47 — modestly elevated above L0 baseline 1.09-1.26. **A
+separate L1-3 rewrite step (uniformly applied across Bonsai sizes)
+is RULED OUT** — would produce the same spike at every size.
+
+So the L1-3 spike is **8B-specific**, not a recipe-step signature.
+Most consistent with: a single algorithm (e.g., OBC-style
+sequential) running identically across sizes whose accumulated
+activation error compounds more strongly when more layers follow
+the early ones. At 8B's 36-layer depth, by the time L1's per-block
+decisions are made, L0's quantisation error has already accumulated
+into L1's input distribution, and L1 has to fit those perturbed
+activations with very block-coherent decisions. At 1.7B's 28-layer
+depth the same effect is present but milder.
+
+A reproduction at 8B must produce the L1-3 spike as a *side effect*
+of the algorithm meeting Qwen3-8B's teacher, not as the result of
+an explicit L1-3-targeted step. A recipe that produces the L1-3
+spike at all sizes uniformly has the wrong mechanism even if its
+8B numbers match.
+
+### Cross-size patterns that DO replicate at 1.7B
+
+- `attn_q` uniformly elevated 1.7-3.8 at every depth.
+- `attn_v` rises monotonically with depth.
+- Deep-MLP rise at the last layer (`gate` ~2.2-2.3, `up` ~1.7-2.2).
+- Mid-layer modest plateau.
+
+These are size-invariant signatures of the recipe.
