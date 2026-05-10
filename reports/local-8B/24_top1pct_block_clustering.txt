@@ -1,0 +1,77 @@
+## Spatial clustering of top-1% scale blocks at 8B
+
+For each (layer, projection_type), find blocks whose `s_g` is in the top
+1% of all blocks in that tensor. Ask: are those blocks clustered by
+ROW (specific output channels), by COLUMN (specific 128-block-along-
+input positions), or random?
+
+Method: count rows containing at least one top-1% block; same for
+columns. Compute chi-squared vs uniform expectation.
+
+```
+                          rows-with-any-top1%   cols-with-any-top1%
+tensor                            (% of rows)       (% of cols)     chi^2 row | chi^2 col
+L 0   k    (1024 r, 32 c)               3.0%            100.0%         19315 |        72
+L 0   o    (4096 r, 32 c)              13.3%            100.0%         20285 |      2088
+L 0   q    (4096 r, 32 c)               6.3%            100.0%         52752 |        20
+L 0   v    (1024 r, 32 c)              22.5%            100.0%          1460 |        63
+L 0  down  (4096 r, 96 c)               4.2%            100.0%        228697 |       347
+L 0  gate (12288 r, 32 c)               6.7%            100.0%        160561 |        55
+L 0  up   (12288 r, 32 c)               5.2%            100.0%        179774 |        52
+L 9   q    (4096 r, 32 c)               4.0%            100.0%         70997 |        51
+L 9  gate (12288 r, 32 c)               5.7%            100.0%        157567 |        51
+L17   q    (4096 r, 32 c)               3.5%            100.0%         77202 |        33
+L25   q    (4096 r, 32 c)               1.5%            100.0%        107411 |        11
+L35   q    (4096 r, 32 c)               2.7%            100.0%        104411 |        22
+```
+
+(Sampled at layers 0, 9, 17, 25, 35 across all 7 projection types; the
+table above shows a representative subset; full output in run log.)
+
+Key observations:
+
+- **Rows containing top-1% blocks: 1.5–22%** of all rows (typically
+  4–10%). If random, roughly 1% of blocks should be top-1% with each
+  block independent, so the top-1% blocks would be spread across most
+  rows. The observed concentration says some rows are systematically
+  amplified.
+- **Columns containing top-1% blocks: 81–100%**. Top-1% blocks are
+  spread across nearly every column. No column-level concentration.
+- chi^2 row >> chi^2 col across the board: row distribution is
+  extremely non-uniform; column distribution is approximately uniform.
+
+## Confirmed via per-row mean-scale CV
+
+```
+                     CV(row-mean s_g)   p90/p10 ratio
+L 0   q                 0.2403              1.82
+L 0   k                 0.1891              1.51
+L 0  gate               0.0803              1.21
+L 0  down               0.1276              1.27
+L17   q                 0.2356              1.81
+L25   q                 0.2019              1.55
+L35  gate               0.2917              2.10
+L35  up                 0.2115              1.73
+```
+
+q_proj has CV(row means) of ~0.20–0.24 across depth; the top-10% of
+rows have mean s_g 1.5–1.8× the bottom-10% rows. Some specific output
+channels are systematically amplified throughout the network's depth.
+
+## Reading
+
+The technique's per-block scale assignment is **strongly per-output-
+channel structured, weakly per-input-position structured**. Specific
+output dimensions of each weight matrix get larger scales than others.
+This is consistent with an objective that values particular output
+channels more than others (e.g. distillation-loss weighting of
+specific activation features), and rules against per-input-column
+salience tier (which BiLLM and PTQ1.61 use).
+
+## Recipe constraint
+
+A reproduction targeting Bonsai-style behaviour should expect:
+- Per-output-channel mean-scale variation of ~20–30% (CV).
+- Top-decile rows systematically 1.5–2× louder than bottom-decile.
+- Column position (which 128-block-along-input) is essentially
+  uniform — don't bother with per-input-position salience.
