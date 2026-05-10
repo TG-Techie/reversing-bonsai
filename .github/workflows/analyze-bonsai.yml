@@ -1,0 +1,562 @@
+name: Analyze Bonsai Quantization
+
+# This workflow downloads the Bonsai 1-bit GGUF + the FP16 "unpacked" variant
+# + the corresponding base Qwen3 model, then runs metadata inspection,
+# Q1_0 sortedness/run-length analysis, and an unpacked-vs-base comparison.
+#
+# It exists because Claude Code's web sandbox blocks huggingface.co at the
+# egress proxy ("Host not in allowlist"), but GitHub-hosted runners have
+# unrestricted internet access. Trigger manually from the Actions tab
+# (workflow_dispatch) — pick model size + which steps to run.
+
+on:
+  workflow_dispatch:
+    inputs:
+      size:
+        description: "Model size"
+        required: true
+        default: "1.7B"
+        type: choice
+        options: ["1.7B", "4B", "8B"]
+      family:
+        description: "Bonsai family (binary first; ternary uses Q2_0)"
+        required: true
+        default: "bonsai"
+        type: choice
+        options: ["bonsai", "ternary"]
+      include_unpacked:
+        description: "Also download the FP16 'unpacked' Bonsai variant (large)"
+        required: true
+        default: true
+        type: boolean
+      include_base:
+        description: "Also download the corresponding base Qwen3 model (large)"
+        required: true
+        default: true
+        type: boolean
+      tensor_filter:
+        description: "Substring filter for per-tensor analysis (e.g. blk.0., attn_q, ffn_down)"
+        required: false
+        default: ""
+      push_results:
+        description: "Push the analysis reports + models/MANIFEST.yaml back to the triggering branch"
+        required: true
+        default: true
+        type: boolean
+      store_models:
+        description: "Where to persist the downloaded model files (mobile-friendly: 'release')"
+        required: true
+        default: "release"
+        type: choice
+        options:
+          - "none"     # ephemeral on the runner only
+          - "release"  # upload all model files as a GH release (best for mobile)
+          - "lfs"      # commit small Q1_0 file into the repo via Git LFS
+          - "both"     # release for big files + LFS for the small Q1_0
+
+  push:
+    branches:
+      - claude/analyze-bonsai-quantization-mWMZB
+    paths:
+      - "src/**"
+      - ".github/workflows/analyze-bonsai.yml"
+
+permissions:
+  contents: write    # needed for the optional 'commit reports back' step
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Free disk (aggressive — needed for 8B FP16)
+        run: |
+          # GH runners ship with ~14 GB free on /. The 8B FP16 unpacked +
+          # base is 32 GB, so we wipe every preinstalled toolchain we don't
+          # need. After this we typically have ~50 GB free on /.
+          echo "== before =="; df -h /
+          sudo rm -rf /usr/share/dotnet                || true
+          sudo rm -rf /usr/local/lib/android           || true
+          sudo rm -rf /opt/ghc                         || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL      || true
+          sudo rm -rf /usr/local/share/boost           || true
+          sudo rm -rf /usr/local/share/powershell      || true
+          sudo rm -rf /usr/local/share/chromium        || true
+          sudo rm -rf /usr/share/swift                 || true
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"          || true
+          sudo apt-get autoremove --purge -y           >/dev/null 2>&1 || true
+          sudo apt-get clean                           >/dev/null 2>&1 || true
+          sudo docker system prune -af                 >/dev/null 2>&1 || true
+          echo "== after =="; df -h /
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install deps
+        run: uv sync --no-dev
+
+      - name: Compute target paths
+        id: paths
+        run: |
+          SIZE="${{ inputs.size || '1.7B' }}"
+          FAMILY="${{ inputs.family || 'bonsai' }}"
+          if [ "$FAMILY" = "ternary" ]; then
+            GGUF_REPO="prism-ml/Ternary-Bonsai-${SIZE}-gguf"
+            QUANT_PATTERN="*Q2_0*.gguf"
+            UNPACKED_REPO="prism-ml/Ternary-Bonsai-${SIZE}-unpacked"
+          else
+            GGUF_REPO="prism-ml/Bonsai-${SIZE}-gguf"
+            QUANT_PATTERN="*Q1_0*.gguf"
+            UNPACKED_REPO="prism-ml/Bonsai-${SIZE}-unpacked"
+          fi
+          # Map size -> Qwen3 base repo
+          BASE_REPO="Qwen/Qwen3-${SIZE}"
+          {
+            echo "gguf_repo=$GGUF_REPO"
+            echo "quant_pattern=$QUANT_PATTERN"
+            echo "unpacked_repo=$UNPACKED_REPO"
+            echo "base_repo=$BASE_REPO"
+            echo "size=$SIZE"
+            echo "family=$FAMILY"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Download GGUF (small — quant only)
+        env:
+          HF_HUB_ENABLE_HF_TRANSFER: "1"
+        run: |
+          uv run python -c "
+          from huggingface_hub import snapshot_download
+          snapshot_download(
+              repo_id='${{ steps.paths.outputs.gguf_repo }}',
+              local_dir='models/gguf',
+              allow_patterns=['${{ steps.paths.outputs.quant_pattern }}',
+                              '*.json', 'README*'],
+          )
+          "
+          ls -lh models/gguf
+
+      - name: Download unpacked (FP16 Bonsai)
+        if: ${{ inputs.include_unpacked != false }}
+        env:
+          HF_HUB_ENABLE_HF_TRANSFER: "1"
+        run: |
+          uv run python -c "
+          from huggingface_hub import snapshot_download
+          try:
+              snapshot_download(
+                  repo_id='${{ steps.paths.outputs.unpacked_repo }}',
+                  local_dir='models/unpacked',
+                  allow_patterns=['*.safetensors', '*.json', 'README*'],
+              )
+          except Exception as e:
+              print('NOTE: unpacked repo not available:', e)
+          " || echo "unpacked repo skipped"
+          ls -lh models/unpacked || true
+
+      - name: Download base Qwen3
+        if: ${{ inputs.include_base != false }}
+        env:
+          HF_HUB_ENABLE_HF_TRANSFER: "1"
+        run: |
+          uv run python -c "
+          from huggingface_hub import snapshot_download
+          snapshot_download(
+              repo_id='${{ steps.paths.outputs.base_repo }}',
+              local_dir='models/base',
+              allow_patterns=['*.safetensors', '*.json', 'README*'],
+          )
+          "
+          ls -lh models/base
+
+      - name: Find GGUF file
+        id: ggufpath
+        run: |
+          gguf_file=$(find models/gguf -type f -name "${{ steps.paths.outputs.quant_pattern }}" | head -1)
+          echo "gguf_file=$gguf_file" >> "$GITHUB_OUTPUT"
+          echo "Found GGUF: $gguf_file"
+          ls -lh "$gguf_file"
+
+      - name: GGUF metadata inventory
+        run: |
+          mkdir -p reports
+          uv run python src/gguf_inspect.py \
+              "${{ steps.ggufpath.outputs.gguf_file }}" \
+              --tensors \
+              | tee "reports/01_metadata.txt"
+
+      - name: Q1_0 sortedness / sign-pattern analysis
+        run: |
+          uv run python src/analyze_q1_0.py \
+              "${{ steps.ggufpath.outputs.gguf_file }}" \
+              --top 0 \
+              ${{ inputs.tensor_filter && format('--filter "{0}"', inputs.tensor_filter) || '' }} \
+              | tee "reports/02_q1_0_analysis.txt"
+
+      - name: Compare Bonsai-unpacked vs Qwen3 base (FP, supports safetensors)
+        if: ${{ inputs.include_unpacked != false && inputs.include_base != false }}
+        run: |
+          set +e
+          unpacked=$(find models/unpacked -name "*.safetensors" | head -1)
+          [ -z "$unpacked" ] && unpacked=$(find models/unpacked -name "*.gguf" | head -1)
+          base=$(find models/base -name "*.safetensors" | head -1)
+          [ -z "$base" ] && base=$(find models/base -name "*.gguf" | head -1)
+          if [ -z "$unpacked" ] || [ -z "$base" ]; then
+            echo "Missing unpacked ($unpacked) or base ($base); skipping FP comparison." \
+              | tee "reports/03_unpacked_vs_qwen3.txt"
+            exit 0
+          fi
+          uv run python src/compare_unpacked_vs_qwen3.py \
+              "$unpacked" "$base" \
+              ${{ inputs.tensor_filter && format('--filter "{0}"', inputs.tensor_filter) || '' }} \
+              | tee "reports/03_unpacked_vs_qwen3.txt"
+
+      - name: 3-way Q1_0 vs Bonsai-unpacked-GGUF vs Qwen3-GGUF (if all GGUF)
+        if: ${{ inputs.include_unpacked != false }}
+        run: |
+          set +e
+          q1=$(find models/gguf -name "${{ steps.paths.outputs.quant_pattern }}" | head -1)
+          fp=$(find models/unpacked -name "*.gguf" | head -1)
+          # GGUFs of base Qwen3 aren't typically downloaded; skip the qwen arg
+          # unless the user separately stages a GGUF version of the base.
+          qw=""
+          if [ -z "$fp" ]; then
+            echo "No GGUF unpacked variant; skipping 3-way GGUF compare." \
+              | tee "reports/04_three_way_gguf.txt"
+            exit 0
+          fi
+          uv run python src/compare_unpacked.py \
+              --bonsai-q1 "$q1" --bonsai-fp "$fp" \
+              ${qw:+--qwen "$qw"} \
+              --limit 12 \
+              | tee "reports/04_three_way_gguf.txt"
+
+      - name: Lattice / sign-stats summary
+        run: |
+          # Quick top-line summary that's easy to skim from artifacts
+          {
+            echo "# Bonsai analysis summary"
+            echo "size=${{ steps.paths.outputs.size }}"
+            echo "family=${{ steps.paths.outputs.family }}"
+            echo "gguf=${{ steps.ggufpath.outputs.gguf_file }}"
+            echo
+            echo "## sha256"
+            sha256sum "${{ steps.ggufpath.outputs.gguf_file }}"
+            echo
+            echo "## sizes"
+            du -sh models/* 2>/dev/null || true
+          } | tee "reports/00_summary.txt"
+
+      - name: Stage reports under reports/<family>-<size>/
+        id: stage
+        run: |
+          # Move reports into a stable subdirectory keyed by (family, size)
+          # so multiple runs / sizes coexist in the repo without colliding.
+          DEST="reports/${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}"
+          mkdir -p "$DEST"
+          # `reports/` is where the previous steps wrote files; move them in.
+          for f in reports/*.txt; do
+            [ -f "$f" ] || continue
+            [ "$(dirname "$f")" = "$DEST" ] && continue
+            mv "$f" "$DEST/"
+          done
+          # Add a small machine-readable index for future tooling
+          {
+            echo "family: ${{ steps.paths.outputs.family }}"
+            echo "size: ${{ steps.paths.outputs.size }}"
+            echo "gguf_repo: ${{ steps.paths.outputs.gguf_repo }}"
+            echo "base_repo: ${{ steps.paths.outputs.base_repo }}"
+            echo "unpacked_repo: ${{ steps.paths.outputs.unpacked_repo }}"
+            echo "run_id: ${{ github.run_id }}"
+            echo "run_number: ${{ github.run_number }}"
+            echo "commit: ${{ github.sha }}"
+            echo "ran_at: $(date -u +%FT%TZ)"
+          } > "$DEST/run.yaml"
+          echo "dest=$DEST" >> "$GITHUB_OUTPUT"
+          ls -lh "$DEST"
+
+      - name: Upload reports artifact (always — useful even when push_results=false)
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}
+          path: ${{ steps.stage.outputs.dest }}/
+          if-no-files-found: error
+
+      - name: Decide store_models mode
+        id: store
+        run: |
+          MODE="${{ inputs.store_models || 'release' }}"
+          # Resolve "both" into the union of release+lfs flags
+          want_release=false; want_lfs=false
+          case "$MODE" in
+            release) want_release=true ;;
+            lfs)     want_lfs=true ;;
+            both)    want_release=true; want_lfs=true ;;
+            none)    : ;;
+            *) echo "unknown store_models: $MODE"; exit 2 ;;
+          esac
+          {
+            echo "want_release=$want_release"
+            echo "want_lfs=$want_lfs"
+            # Tag and asset paths for the release
+            tag="models-${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}-r${{ github.run_number }}"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload models to a GitHub Release (mobile-friendly)
+        if: ${{ steps.store.outputs.want_release == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.store.outputs.tag }}
+          REF: ${{ github.ref_name }}
+          FAMILY: ${{ steps.paths.outputs.family }}
+          SIZE:   ${{ steps.paths.outputs.size }}
+        run: |
+          set -e
+          # Collect every model file we have on disk (small + large).
+          mapfile -t raw < <(find models -type f \
+            \( -name "*.gguf" -o -name "*.safetensors" -o -name "*.json" -o -name "*.txt" -o -name "*.md" \) \
+            | sort)
+          if [ "${#raw[@]}" -eq 0 ]; then
+            echo "No model files found; skipping release upload."
+            exit 0
+          fi
+
+          # GitHub Releases cap each asset at ~2 GiB. Split anything bigger
+          # into 1900-MiB chunks. We name them <orig>.part-aa, .part-ab, ...
+          # Reassembly: `cat <orig>.part-* > <orig>`
+          mkdir -p staging
+          declare -a assets
+          declare -a manifest
+          MAX_SIZE_BYTES=$((1900 * 1024 * 1024))
+          for src in "${raw[@]}"; do
+            sz=$(stat -c%s "$src")
+            base=$(basename "$src")
+            if [ "$sz" -le "$MAX_SIZE_BYTES" ]; then
+              ln -sf "$(realpath "$src")" "staging/$base"
+              assets+=("staging/$base")
+              manifest+=("$base|single|$sz")
+            else
+              echo "[i] $base is $(du -h "$src" | cut -f1) — splitting at 1900 MiB"
+              split -b 1900M -d --suffix-length=3 \
+                    "$src" "staging/${base}.part-"
+              for chunk in staging/${base}.part-*; do
+                assets+=("$chunk")
+              done
+              manifest+=("$base|split|$sz")
+            fi
+          done
+
+          # Sha256 sums per chunk (and per joined file). Useful for
+          # client-side verification after `cat`-joining.
+          (cd staging && sha256sum -- * 2>/dev/null) > SHA256SUMS.staged.txt || true
+
+          # Mobile-readable notes
+          {
+            echo "## Bonsai $FAMILY $SIZE (run #${{ github.run_number }})"
+            echo
+            echo "Source repos:"
+            echo "- GGUF:     https://huggingface.co/${{ steps.paths.outputs.gguf_repo }}"
+            echo "- unpacked: https://huggingface.co/${{ steps.paths.outputs.unpacked_repo }}"
+            echo "- base:     https://huggingface.co/${{ steps.paths.outputs.base_repo }}"
+            echo
+            echo "### Files"
+            for line in "${manifest[@]}"; do
+              IFS='|' read -r name kind sz <<< "$line"
+              human=$(numfmt --to=iec --suffix=B "$sz")
+              if [ "$kind" = "split" ]; then
+                echo "- \`$name\` (**$human**, split into 1.9 GiB chunks: \`$name.part-000\`, \`.part-001\`, ...)"
+                echo "  Reassemble: \`cat $name.part-* > $name\`"
+              else
+                echo "- \`$name\` ($human)"
+              fi
+            done
+            echo
+            echo "Verify chunks against \`SHA256SUMS.staged.txt\` after download."
+          } > release-notes.md
+
+          gh release create "$TAG" \
+            --title "Bonsai $FAMILY $SIZE models (run #${{ github.run_number }})" \
+            --notes-file release-notes.md \
+            --target "$REF" \
+            staging/SHA256SUMS.staged.txt 2>/dev/null || \
+          gh release create "$TAG" \
+            --title "Bonsai $FAMILY $SIZE models (run #${{ github.run_number }})" \
+            --notes-file release-notes.md \
+            --target "$REF"
+
+          # Upload assets (in batches to avoid command-line length issues)
+          for f in "${assets[@]}"; do
+            gh release upload "$TAG" "$f" --clobber
+          done
+          gh release upload "$TAG" "staging/SHA256SUMS.staged.txt" --clobber
+
+          # Drop a small index file into reports/ so the repo links to the
+          # release. Keeps everything navigable from GH mobile app.
+          {
+            echo "release_tag: $TAG"
+            echo "release_url: https://github.com/${{ github.repository }}/releases/tag/$TAG"
+            echo "files:"
+            for line in "${manifest[@]}"; do
+              IFS='|' read -r name kind sz <<< "$line"
+              human=$(numfmt --to=iec --suffix=B "$sz")
+              echo "  - name: $name"
+              echo "    size: $human"
+              echo "    kind: $kind"
+              echo "    url: https://github.com/${{ github.repository }}/releases/tag/$TAG"
+            done
+          } > "${{ steps.stage.outputs.dest }}/release.yaml"
+
+      - name: Update repo-level models/MANIFEST.yaml
+        if: ${{ steps.store.outputs.want_release == 'true' }}
+        env:
+          TAG: ${{ steps.store.outputs.tag }}
+          FAMILY: ${{ steps.paths.outputs.family }}
+          SIZE: ${{ steps.paths.outputs.size }}
+        run: |
+          set -e
+          # MANIFEST.yaml is a single tree-resident index of every model
+          # release this repo has ever produced. fetch_models_from_release.sh
+          # reads it to know which assets to download for which (family,size).
+          mkdir -p models
+          uv run python - <<'PY'
+          import os, re, subprocess, json, hashlib, pathlib, sys
+          tag    = os.environ["TAG"]
+          family = os.environ["FAMILY"]
+          size   = os.environ["SIZE"]
+          repo   = os.environ.get("GITHUB_REPOSITORY", "")
+          run_no = os.environ.get("GITHUB_RUN_NUMBER", "0")
+          commit = os.environ.get("GITHUB_SHA", "")
+
+          # Collect what was actually staged for upload.
+          staging = pathlib.Path("staging")
+          files = []
+          for p in sorted(staging.iterdir()):
+              if not p.is_file() or p.is_symlink() and not p.exists():
+                  continue
+              name = p.name
+              # Symlinks point at single (non-split) original; resolve their target size.
+              real = p.resolve() if p.is_symlink() else p
+              files.append({
+                  "name": name,
+                  "size_bytes": real.stat().st_size,
+                  "url": f"https://github.com/{repo}/releases/download/{tag}/{name}",
+                  "is_chunk": ".part-" in name,
+              })
+
+          # Try yaml; fallback to a tiny hand-rolled emitter if not installed.
+          try:
+              import yaml
+          except ImportError:
+              yaml = None
+
+          path = pathlib.Path("models/MANIFEST.yaml")
+          if path.exists() and yaml:
+              data = yaml.safe_load(path.read_text()) or {}
+          else:
+              data = {}
+          data.setdefault("releases", {})
+
+          # Index by (family, size). Newest run wins; earlier ones moved to history.
+          key = f"{family}-{size}"
+          existing = data["releases"].get(key)
+          if existing and existing.get("tag") != tag:
+              data.setdefault("history", []).append(existing)
+          data["releases"][key] = {
+              "family": family,
+              "size":   size,
+              "tag":    tag,
+              "release_url": f"https://github.com/{repo}/releases/tag/{tag}",
+              "run_number": int(run_no),
+              "commit":     commit,
+              "files":      files,
+          }
+
+          if yaml:
+              path.write_text(yaml.safe_dump(data, sort_keys=False))
+          else:
+              # Minimal yaml output sufficient for our reader
+              import io
+              buf = io.StringIO()
+              def emit(d, indent=0):
+                  for k, v in d.items():
+                      pad = "  " * indent
+                      if isinstance(v, dict):
+                          buf.write(f"{pad}{k}:\n"); emit(v, indent+1)
+                      elif isinstance(v, list):
+                          buf.write(f"{pad}{k}:\n")
+                          for item in v:
+                              if isinstance(item, dict):
+                                  first = True
+                                  for ik, iv in item.items():
+                                      prefix = "- " if first else "  "
+                                      buf.write(f"{pad}  {prefix}{ik}: {json.dumps(iv)}\n")
+                                      first = False
+                              else:
+                                  buf.write(f"{pad}  - {json.dumps(item)}\n")
+                      else:
+                          buf.write(f"{pad}{k}: {json.dumps(v)}\n")
+              emit(data)
+              path.write_text(buf.getvalue())
+          print("wrote", path)
+          PY
+          cat models/MANIFEST.yaml
+
+      - name: Stage Q1_0 GGUF for LFS commit
+        if: ${{ steps.store.outputs.want_lfs == 'true' }}
+        run: |
+          set -e
+          # Only the small Q1_0 file goes into LFS — the FP unpacked + base
+          # are too large for the free LFS quota and live in the release.
+          mkdir -p "models/${{ steps.paths.outputs.family }}/${{ steps.paths.outputs.size }}"
+          src="${{ steps.ggufpath.outputs.gguf_file }}"
+          dst="models/${{ steps.paths.outputs.family }}/${{ steps.paths.outputs.size }}/$(basename "$src")"
+          cp "$src" "$dst"
+          # Configure .gitattributes (idempotent) so .gguf is tracked by LFS.
+          if ! grep -qE '^\*\.gguf' .gitattributes 2>/dev/null; then
+            printf '*.gguf filter=lfs diff=lfs merge=lfs -text\n' >> .gitattributes
+          fi
+          # Make sure git-lfs is installed
+          if ! command -v git-lfs >/dev/null; then
+            sudo apt-get install -y git-lfs >/dev/null
+          fi
+          git lfs install --local
+
+      - name: Push results (reports + manifest, +LFS Q1_0 if set) to triggering branch
+        # On a workflow_dispatch run, respect the user's push_results choice.
+        # On a push-triggered run there are no inputs, so default to pushing.
+        if: ${{ (github.event_name != 'workflow_dispatch') || (inputs.push_results != false) }}
+        env:
+          REF: ${{ github.ref_name }}
+          WANT_LFS: ${{ steps.store.outputs.want_lfs }}
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Always stage reports.
+          git add "${{ steps.stage.outputs.dest }}/"
+          # And the repo-level manifest (only present if we made a release).
+          [ -f models/MANIFEST.yaml ] && git add models/MANIFEST.yaml
+          # If LFS mode is on, also stage the GGUF + .gitattributes.
+          if [ "$WANT_LFS" = "true" ]; then
+            git add .gitattributes \
+                    "models/${{ steps.paths.outputs.family }}/${{ steps.paths.outputs.size }}/" \
+                    || true
+          fi
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          MSG="reports: ${{ steps.paths.outputs.family }} ${{ steps.paths.outputs.size }} (run #${{ github.run_number }}) [skip ci]"
+          git commit -m "$MSG"
+          # Pull-rebase to avoid races between concurrent runs.
+          git pull --rebase origin "$REF" || true
+          git push origin "HEAD:$REF"

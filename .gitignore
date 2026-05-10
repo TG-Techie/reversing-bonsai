@@ -161,6 +161,12 @@ venv.bak/
 .spyderproject
 .spyproject
 
+# Local model downloads (large)
+models/
+*.gguf
+*.safetensors
+bonsai_paper.txt
+
 # Rope project settings
 .ropeproject
 
