@@ -11,29 +11,34 @@ PrismML released "1-bit Bonsai" — a Qwen3 child model where every
 matrix-heavy weight has been quantized to 1 sign bit + a shared FP16
 scale per group of 128 weights (the `Q1_0_g128` format). The
 whitepaper attributes the quality preservation to "proprietary Caltech
-IP" but never describes the training procedure.
+IP" but **does not say what that IP is**. It might be a training
+procedure (QAT, distillation, calibration); it might be a graph
+transformation that re-parameterises the network before quantisation;
+it might be something further afield mathematically — an optimizer
+formulation, a basis change, an iterative reconstruction algorithm.
+The bytes don't directly tell us which.
 
 This repo's job is to **read the deployed bytes carefully enough that
-we can constrain what that procedure must have looked like.** We are
-not retraining. We are not building a fork. We are doing forensic
-reverse-engineering: every claim is something the bytes attest to,
-and the constraints those claims put on a hypothetical reproduction
-add up to a recipe sketch.
+we can constrain what techniques are consistent with them, and rule
+out the ones that aren't.** We are not retraining. We are not building
+a fork. We are doing forensic reverse-engineering: every claim is
+something the bytes attest to, and the constraints those claims put on
+candidate techniques add up to a shrinking hypothesis space.
 
-The audience for findings is whoever later tries to recreate
-Bonsai-style compression on a different model. They need to know
-*what's load-bearing about the format vs. the recipe*, because if you
-copy the format and miss the recipe you get post-training-quant noise,
-and if you copy the recipe and miss a format constraint you get an
-inference-time failure. So the discipline below isn't aesthetic — it's
-to keep that distinction sharp.
+The audience for findings is whoever later tries to recreate Bonsai-
+style compression on a different model. They need to know *what's
+load-bearing about the format, and what the bytes prove the technique
+must (or must not) include* — independent of any specific guess at
+what that technique is. The discipline below is meant to keep us from
+collapsing the open hypothesis space prematurely onto whatever
+specific technique we happened to think of first.
 
 ## Why this is empirical science, not coding
 
 A normal codebase rewards "I ran it, it worked, ship it." Here the
 artifacts are the truth, the scripts are just lenses, and a sloppy
-reading of a lens output produces a wrong recipe constraint that
-someone later spends compute trying to reproduce. Concretely the
+reading of a lens output produces a wrong constraint on the technique
+that someone later spends compute trying to reproduce. Concretely the
 common failure modes:
 
 - **A script ran successfully → I have a finding.** The output is
@@ -43,13 +48,15 @@ common failure modes:
   satisfying — which is the definition of confirmation bias.
 - **Reading the tail and projecting a trend.** "Layer 35 is 30% and
   layer 0 was 21%, so it's monotonically rising" is true on average
-  but if layers 4–15 are flat the recipe story is different (a
+  but if layers 4–15 are flat the implied technique is different (a
   middle-layer plateau suggests early/late regions get different
-  treatment). The mean hides the shape.
-- **"Storage precision" mistaken for "trainability".** A tensor
-  stored in F32 (vs the Q1_0 1-bit format) is *format-preserved*. It
-  may still have been trained during QAT — and the diff vs the
-  teacher tells us. Don't infer freezeness from format.
+  treatment from whatever produced these weights). The mean hides
+  the shape.
+- **"Storage precision" mistaken for "having stayed at teacher
+  values".** A tensor stored in F32 (vs the Q1_0 1-bit format) is
+  *format-preserved*. It may still differ from the teacher — and the
+  per-element diff vs the teacher tells us how much. Don't infer
+  "unchanged" from "stored at higher precision".
 - **Comparing across sizes by remembered numbers.** A "row cosine
   0.45 at 4B vs 0.50 at 1.7B" is meaningful only if the same script
   with the same arguments produced both. Mixing your local 4B run
