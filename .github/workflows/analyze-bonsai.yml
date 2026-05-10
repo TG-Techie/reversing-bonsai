@@ -56,10 +56,13 @@ on:
 
   push:
     branches:
-      - claude/analyze-bonsai-quantization-mWMZB
+      - main
+      - claude/**
     paths:
-      - "src/**"
       - ".github/workflows/analyze-bonsai.yml"
+      # NOT src/** — adding a script shouldn't burn 5-10 min downloading
+      # the model again. Trigger only when the workflow itself changes
+      # (e.g. when a fix lands on main).
 
 permissions:
   contents: write    # needed for the optional 'commit reports back' step
