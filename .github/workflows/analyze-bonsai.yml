@@ -38,6 +38,11 @@ on:
         description: "Substring filter for per-tensor analysis (e.g. blk.0., attn_q, ffn_down)"
         required: false
         default: ""
+      commit_reports:
+        description: "Commit the reports/ directory back to the triggering branch"
+        required: true
+        default: true
+        type: boolean
 
   push:
     branches:
@@ -47,7 +52,7 @@ on:
       - ".github/workflows/analyze-bonsai.yml"
 
 permissions:
-  contents: read
+  contents: write    # needed for the optional 'commit reports back' step
 
 jobs:
   analyze:
@@ -229,17 +234,56 @@ jobs:
             du -sh models/* 2>/dev/null || true
           } | tee "reports/00_summary.txt"
 
-      - name: Upload reports artifact
+      - name: Stage reports under reports/<family>-<size>/
+        id: stage
+        run: |
+          # Move reports into a stable subdirectory keyed by (family, size)
+          # so multiple runs / sizes coexist in the repo without colliding.
+          DEST="reports/${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}"
+          mkdir -p "$DEST"
+          # `reports/` is where the previous steps wrote files; move them in.
+          for f in reports/*.txt; do
+            [ -f "$f" ] || continue
+            [ "$(dirname "$f")" = "$DEST" ] && continue
+            mv "$f" "$DEST/"
+          done
+          # Add a small machine-readable index for future tooling
+          {
+            echo "family: ${{ steps.paths.outputs.family }}"
+            echo "size: ${{ steps.paths.outputs.size }}"
+            echo "gguf_repo: ${{ steps.paths.outputs.gguf_repo }}"
+            echo "base_repo: ${{ steps.paths.outputs.base_repo }}"
+            echo "unpacked_repo: ${{ steps.paths.outputs.unpacked_repo }}"
+            echo "run_id: ${{ github.run_id }}"
+            echo "run_number: ${{ github.run_number }}"
+            echo "commit: ${{ github.sha }}"
+            echo "ran_at: $(date -u +%FT%TZ)"
+          } > "$DEST/run.yaml"
+          echo "dest=$DEST" >> "$GITHUB_OUTPUT"
+          ls -lh "$DEST"
+
+      - name: Upload reports artifact (always — useful even when commit_reports=false)
         uses: actions/upload-artifact@v4
         with:
           name: analysis-${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}
-          path: reports/
+          path: ${{ steps.stage.outputs.dest }}/
           if-no-files-found: error
 
-      - name: Upload smaller raw extracts (optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: gguf-${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}
-          # Only the GGUF (~hundreds of MB). Useful for follow-up local work.
-          path: ${{ steps.ggufpath.outputs.gguf_file }}
-          if-no-files-found: warn
+      - name: Commit reports back to triggering branch
+        if: ${{ inputs.commit_reports != false && github.event_name == 'workflow_dispatch' }}
+        env:
+          REF: ${{ github.ref_name }}
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${{ steps.stage.outputs.dest }}/"
+          if git diff --cached --quiet; then
+            echo "No report changes to commit."
+            exit 0
+          fi
+          MSG="reports: ${{ steps.paths.outputs.family }} ${{ steps.paths.outputs.size }} (run #${{ github.run_number }}) [skip ci]"
+          git commit -m "$MSG"
+          # Push to the same branch that triggered the run.
+          git pull --rebase origin "$REF" || true
+          git push origin "HEAD:$REF"
