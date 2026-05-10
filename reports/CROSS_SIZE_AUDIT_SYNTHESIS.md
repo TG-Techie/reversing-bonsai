@@ -87,28 +87,44 @@ combination.
 
 ## What differs across sizes
 
-### The 4B-embed anomaly (open)
+### The 4B-embed anomaly (partially resolved)
 
 `embed_tokens` sign-match across the three sizes is `0.9993 / 0.9344 /
-0.9994` — **4B is a distinct outlier**, not 1.7B (1.7B and 8B both
-match the formula at >99.9%). This contradicts the earlier hypothesis
-that "tied embeddings (1.7B, 4B) drift more than untied (8B)" — 1.7B
-also has tied embed and shows tight match.
+0.9994` — **4B is a distinct outlier**.
 
-Possible explanations (none verified):
+Sanity-checked the row-permutation hypothesis: for the first 10
+rows of Bonsai-4B's embed, the argmax-cosine match against the
+first 5000 rows of Qwen3-4B-base is row k → row k for every k. **No
+row permutation.**
 
-1. The 4B release we used (`models-bonsai-4B-r11`) might be a
-   different vintage of the model than 1.7B-r5 / 8B (different
-   training data, different LoRA preprocess, etc.).
-2. A vocab-row reordering specific to 4B that breaks the trim-only
-   assumption (`nrows = min(...)` would still work, but if rows are
-   permuted within the kept range, sign-match drops).
-3. Some bug in the audit specific to 4B's tensor shapes.
+So the difference is real value drift, not row reordering. At 4B:
+- sign-match vs raw teacher = 0.9344 (7% of nonzero embed positions
+  flipped sign).
+- byte-match vs `formula(raw teacher)` at abs 1e-3 = 0.8937 (11%
+  miss; consistent with 7% sign flips + extra positions where the
+  per-block scale drifted more than 1e-3 even when sign agreed).
 
-This is an **open question** — worth a follow-up in a future session.
-A quick sanity check: load Bonsai-4B's row 0 token embedding and the
-top-1 nearest Qwen3-4B-base embedding row by cosine; if it's row 0,
-then no permutation. If it's a different row, permutation hypothesis.
+At 1.7B and 8B, both sign-match and byte-match are 0.999+ — so those
+two embeddings ARE the deterministic formula(raw teacher) byte-equal.
+
+**Reading:** at 4B, the deployed embed is *not* `formula(raw teacher)`;
+it is more consistent with `formula(LoRA-shifted teacher)` — i.e.
+the 4B model received a heavier embed-side preprocess (or a longer
+pre-quant fine-tune) than the 1.7B and 8B models. This is a **real
+cross-size recipe difference**.
+
+What this implies for a reproduction: the LoRA preprocess strength
+was *not* uniform across Bonsai sizes. PrismML may have tuned the
+preprocess per-size, with 4B getting more / different LoRA than the
+other two. A reproduction targeting Bonsai-style outputs at 4B will
+need to match this stronger preprocess; targeting 1.7B or 8B can use
+a lighter (or skipped) LoRA on the embedding specifically.
+
+Still open: *why* would 4B specifically need more preprocess than its
+siblings? One speculation: 4B sits at the awkward middle of the
+size-vs-quality tradeoff — small enough to need help, large enough
+that a shorter recipe doesn't get all the way there. But this is
+post-hoc rationalisation, not byte-attested.
 
 ### Magnitude of cross-size sign-match drift
 
