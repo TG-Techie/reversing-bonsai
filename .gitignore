@@ -223,8 +223,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# downloaded model artifacts (from release; reproduce via scripts/fetch_models_from_release.sh)
-models/q1/
-models/unpacked/
-models/base/
+# scratch directory for ad-hoc local runs; canonical reports live in
+# reports/<family>-<size>/. Contents of reports/local/ are not source of truth.
+reports/local/
 
