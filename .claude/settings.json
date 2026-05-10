@@ -1,0 +1,30 @@
+{
+  "$schema": "https://claude.ai/schema/settings.json",
+  "_comment": [
+    "Project-level settings for Claude Code on the web. The sandbox.allowedDomains",
+    "list extends the harness's default network egress allowlist for sessions",
+    "started in this repo. Without these, huggingface.co returns",
+    "'x-deny-reason: host_not_allowed' and Bonsai weight inspection requires",
+    "a GitHub Actions workaround (see .github/workflows/analyze-bonsai.yml).",
+    "",
+    "Adding a domain only takes effect at the start of a NEW session — the",
+    "egress proxy is initialized at sandbox spin-up."
+  ],
+  "sandbox": {
+    "allowedDomains": [
+      "huggingface.co",
+      "hf.co",
+      "cdn-lfs.huggingface.co",
+      "cdn-lfs-us-1.huggingface.co",
+      "cdn-lfs-eu-1.huggingface.co",
+
+      "release-assets.githubusercontent.com",
+      "objects.githubusercontent.com",
+
+      "download.pytorch.org",
+      "dl.fbaipublicfiles.com",
+      "modelscope.cn",
+      "www.modelscope.cn"
+    ]
+  }
+}
