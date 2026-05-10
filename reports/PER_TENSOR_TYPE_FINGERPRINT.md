@@ -62,9 +62,10 @@ For each type, what a recipe-implementation should aim for:
 
 ### `mlp.gate_proj` and `mlp.up_proj`
 
-- Lowest per-row Pearson with teacher (~0.42). The technique picks
-  DIFFERENT rows to amplify than the teacher had loud, especially at
-  late layers (L35 up: -0.22).
+- Per-row Pearson with teacher is DEPTH-VARYING (correction May 2026):
+  early layers ~0.6 (similar to attention), late layers ~0.2 or lower
+  (L35 up: -0.22). Mean across all sampled depths is ~0.42, but this
+  hides the depth structure.
 - Per-block CV is highest at early layers (gate: 0.44, up: 0.39) and
   falls with depth (gate ratio 0.54×, up ratio 0.39× early-vs-late).
   This depth shape is largely inherited from the teacher's natural
@@ -101,9 +102,11 @@ For each type, what a recipe-implementation should aim for:
    Pearson(per-row mean(deployed s_g), per-row mean(|w_teacher|))
    should be ~0.80. If it's 0.95+ you haven't perturbed enough; if
    it's <0.5 you've perturbed too much.
-2. For your reproduction's mlp.up_proj: Pearson should be ~0.42, NOT
-   ~0.80. If your MLP looks like attention you haven't reproduced
-   the disturbance.
+2. For your reproduction's mlp.up_proj: Pearson should DECREASE with
+   depth — about 0.5-0.7 at early layers, dropping to ~0.2 or lower
+   at late layers. If your MLP looks like attention at every depth
+   (Pearson stable ~0.8), you haven't reproduced the depth-conditioned
+   disturbance.
 3. Per-block amplification factor `s_bonsai / mean(σ · w_teacher)`
    should land at 1.5-2.4 with low intra-tensor variance (CV typically
    < 0.4). If the ratio is wildly variable (CV >> 1) the optimisation
