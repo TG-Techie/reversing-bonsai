@@ -83,37 +83,49 @@ models within your own harness are clean.
 ### 2. The Gemini fallback judge
 
 The rule-based extractor handles most answers; Gemini 2.5 Flash Lite
-is invoked only when the rule parser fails. Two paths:
+is invoked only when the rule parser fails. **Recommended path: get
+a Gemini API key**, drop into EvalScope's judge config (model name
+`gemini-2.5-flash-lite`, temperature `0.0`). This is the faithful
+reproduction of PrismML's setup and makes published-number-vs-your-
+score comparable.
 
-- **Get a Gemini API key**, drop into EvalScope's judge config. Cost
-  is negligible (Flash Lite, mostly thousands of tokens / benchmark
-  run). This reproduces their setup faithfully.
-- **Swap to a local judge LLM** (Qwen3-4B-Instruct, Llama-3.1-8B,
-  whatever fits) at temp=0. Score is no longer directly comparable
-  to PrismML's published numbers — but the *delta* between two
-  models scored under the same local judge is meaningful. Track
-  rule-parser-fallback rate; if <5% of items invoke the judge,
-  judge-choice barely moves the score.
+Cost is negligible: Flash Lite at temp=0 is invoked only when the
+rule parser fails (most often on MMLU-Redux / GPQA / MATH-500 / MuSR
+formatting variations). For a full benchmark sweep on Bonsai-8B +
+Qwen3-8B + a reproduction model, expect $-pennies to $-low-single-
+digit dollars total.
 
-The judge invocation rate matters most for MMLU-Redux, GPQA, MATH-500,
-MuSR. For IFEval/IFBench/BFCL/code benchmarks the judge is unused.
+Fallback only if API access is constrained: a local judge swap (e.g.
+Qwen3-4B-Instruct at temp=0) gives meaningful *delta* between models
+under the same judge but no longer compares 1:1 to PrismML's
+published numbers. Recommended only if Gemini is unavailable.
+
+The judge invocation rate matters most for MMLU-Redux, GPQA,
+MATH-500, MuSR. For IFEval/IFBench/BFCL/code benchmarks the judge is
+unused.
 
 ## Recommended local play
 
 For testing whether a reproduction recipe matches Bonsai's
-behavioural fingerprint, the cheapest meaningful test is:
+behavioural fingerprint:
 
-1. Stand up `llama.cpp` server with Metal on M4 Max.
-2. Run EvalScope against:
+1. Stand up `llama.cpp` server with Metal on M4 Max (use PrismML's
+   fork `PrismML-Eng/llama.cpp` for Q1_0_g128 kernel support).
+2. Configure EvalScope with Gemini 2.5 Flash Lite as the fallback
+   judge.
+3. Run EvalScope against:
    - `Qwen3-8B` FP16 GGUF (the upstream baseline)
    - `Bonsai-8B-Q1_0.gguf` (PrismML's deployed 1-bit)
    - Your reproduction's deployed weights (Q1_0 GGUF)
-3. Use a local judge model for fallback (or Gemini if you have a
-   key).
-4. Compare *gaps*: the Bonsai-8B → Qwen3-8B gap is 8.8 avg-points
-   (70.5 → 79.3) under PrismML's setup. Reproducing that gap (with
-   appropriate engine drift) is a cleaner success criterion than
-   landing on the absolute 70.5.
+4. Two success criteria, in priority order:
+   a. **Reproduce PrismML's published Bonsai-8B avg ≈ 70.5** within
+      ±1pp engine drift (Metal vs vLLM CUDA on H100). This validates
+      the harness setup itself.
+   b. **A reproduction recipe should land within ±2pp of 70.5** to
+      claim it matches the Bonsai fingerprint behaviourally.
+   The Bonsai-8B → Qwen3-8B gap is 8.8 avg-points (70.5 → 79.3).
+   Reproducing both endpoints under the same harness gives you a
+   consistent reference.
 
 ## Memory footprint on a 36GB M4 Max
 
@@ -150,8 +162,9 @@ fast to mmap-load.
 Replicate PrismML's benchmarks on M4 Max via:
 - EvalScope (OSS) +
 - llama.cpp Metal or MLX as the engine (instead of vLLM CUDA) +
-- Gemini API key OR local-judge swap
+- Gemini 2.5 Flash Lite as fallback judge (faithful to PrismML)
 
 Expected score drift vs PrismML's published numbers: small (~1pp) but
-non-zero. For comparing a reproduction recipe against Bonsai itself,
-that drift is a constant offset and the comparison stays clean.
+non-zero, attributable to the engine swap. Direct comparison of a
+reproduction recipe to Bonsai-8B is clean: both run under the same
+local harness so the drift cancels.
