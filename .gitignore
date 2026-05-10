@@ -227,3 +227,6 @@ __marimo__/
 # reports/<family>-<size>/. Contents of reports/local/ are not source of truth.
 reports/local/
 
+# in-flight chunked downloads (reassembled into models/, then deleted)
+tmpdl/
+
