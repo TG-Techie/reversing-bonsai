@@ -1,4 +1,52 @@
-# Sandbox VM execution notes
+# Working notes for agents in this repo
+
+> Living notes from agents reverse-engineering Bonsai. Read this first.
+> Two halves: (1) discipline — *how* to do this work, since it's
+> empirical science not coding; (2) sandbox quirks — concrete VM/env
+> traps that aren't obvious from the surface.
+
+## Scientific discipline (don't skip)
+
+This repo is reverse-engineering a model artifact. That's empirical
+science, and it's easy to slip into coding mode where a script run
+becomes a "finding." A few rules to stay honest:
+
+- **Pre-register what you're measuring.** Before running a script,
+  state in one sentence: what tensor/layer/axis is being compared,
+  with what statistic, against what null. Vague "compare Bonsai vs
+  base" produces vague conclusions.
+- **A finding is a claim about the bytes; pause and stress-test it
+  before writing it down.** Useful prompts to ask yourself:
+  *what assumption did I make? what would a skeptical reader ask? is
+  the trend genuinely monotonic, or did I read the tail?*
+- **Distinguish observation from inference, in your own head and on
+  the page.** "the bytes show X" is observed; "Bonsai's recipe
+  therefore did Y" is inferred. Don't blur them. Use the existing
+  *force-by-format* / *force-by-data* / *suggestion* labels.
+- **Match methodology when comparing across sizes.** A "row cosine
+  0.45 at 4B vs 0.50 at 1.7B" is only meaningful if both numbers came
+  from the same script with the same arguments on the same kind of
+  tensor list. Re-run the smaller size locally rather than citing
+  remembered numbers from a doc.
+- **Spot-check, don't trust.** When comparing two arrays, eyeball a
+  few rows by hand: shape, dtype, sample values. The most common bug
+  here is a silent slice misalignment (vocab trim, GGUF shape
+  reversal, BF16 vs FP16 cast).
+- **Use a low-context judge for headline claims.** Spawn a fresh
+  sub-agent with no prior context, give it the data and the claim,
+  and let it independently sanity-check. Anything that survives that
+  is more trustworthy than your own conviction.
+- **Numbers without uncertainty are aspirations.** Report a range
+  (min/max across the layers measured), not just a mean — and say
+  *how many layers* the mean averages over.
+- **"Storage precision ≠ training freezeness."** Just because a
+  tensor is stored in F32 doesn't mean it was held fixed during QAT.
+  Check value-level deviation before claiming "preserved verbatim."
+
+If a session is short on time, write fewer findings and back each one
+harder, instead of pushing more half-checked claims.
+
+## Sandbox VM execution notes
 
 > Empirical observations from running this repo's analyses inside a fresh
 > Claude Code-on-the-web session, May 2026. Things that surprised me are
