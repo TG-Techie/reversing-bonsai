@@ -113,23 +113,28 @@ keepalive them, don't chain them.
 
 ## Why keepalive (and announce it)
 
-A keepalive is the only thing keeping your **own agent loop** alive
-while async work runs. The CC-on-the-web harness suspends turns that
-have no foreground action; without a `sleep`, your `nohup ... &`
-finishes without you seeing it. Pattern:
+The CC-on-the-web harness suspends turns that have no foreground
+work — so without a `sleep`, your own agent loop halts. If you kicked
+off `nohup ... &` and ended your turn, the harness can pause the
+session and your background process can finish without you ever
+seeing the result. The pattern that works is:
 
-1. Start long work in the background (`nohup ... &`, **not**
-   `run_in_background: true` — the harness wrapper has been observed
-   to lose work across suspends).
-2. Hold the turn open with `date -u +%H:%M:%S && sleep N && date -u
-   +%H:%M:%S` so the duration is bracketed in the transcript.
-   Pick `N` from **30 / 60 / 90 / 180 s** sized to the work in flight,
-   with **300 s** as a last resort.
+1. Start the long-running work as a true background process
+   (`nohup ... &`, **not** `run_in_background: true` on the harness
+   — the harness wrapper has been observed to lose work across
+   suspends).
+2. Hold the turn open with a foreground `sleep` of duration matched
+   to expected work-time. You have agency: pick from
+   **30 / 60 / 90 / 180 s** sized to the work in flight, with **300 s
+   a last resort**. Bracket the call with timestamps so the gap is
+   visible: `date -u +%H:%M:%S && sleep N && date -u +%H:%M:%S`.
 3. Check completion in a *separate* Bash call afterward.
 
-Always **announce** ("Doing a 60s keepalive while H2 finishes") —
-the user is often on mobile and a bare `sleep 60` is
-indistinguishable from a hung session.
+The "**announce before sleeping**" part — saying "Doing a 60s
+keepalive while H2 finishes" — is for the user (who's often on
+mobile and watching the transcript stream) and for future-you reading
+the transcript later. A bare `sleep 60` looks indistinguishable from
+the agent dying. The announcement makes the intent legible.
 
 If a single `sleep` is the only thing keeping the session alive,
 that's a single point of failure. Where you can, also drop a
