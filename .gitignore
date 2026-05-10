@@ -222,3 +222,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# downloaded model artifacts (from release; reproduce via scripts/fetch_models_from_release.sh)
+models/q1/
+models/unpacked/
+models/base/
+

@@ -1,0 +1,10 @@
+# Bonsai bonsai 1.7B analysis (sandbox-local run)
+ran_at: 2026-05-10T02:00:53Z
+source_release: models-bonsai-1.7B-r5
+host: claude-code sandbox (post-public-repo)
+
+Files:
+  01_metadata.txt          — GGUF KV + tensor inventory
+  02_q1_0_analysis.txt     — sign/scale stats per Q1_0 tensor
+  03_unpacked_vs_qwen3.txt — row cosine + permutation search vs Qwen3
+  05_dequant_vs_unpacked.txt — dequant(Q1_0) vs unpacked safetensors

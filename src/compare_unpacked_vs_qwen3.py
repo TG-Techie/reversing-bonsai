@@ -37,15 +37,51 @@ from pathlib import Path
 import numpy as np
 
 
+def _bf16_bytes_to_f32(buf: bytes, shape: tuple[int, ...]) -> np.ndarray:
+    """BF16 = upper 16 bits of an FP32. Promote without going through PyTorch."""
+    u16 = np.frombuffer(buf, dtype=np.uint16)
+    u32 = (u16.astype(np.uint32) << 16)
+    return u32.view(np.float32).reshape(shape)
+
+
 def load_tensor(path: Path, name: str) -> np.ndarray | None:
-    """Load a tensor from safetensors or GGUF, return float32 numpy array."""
+    """Load a tensor from safetensors or GGUF, return float32 numpy array.
+
+    safetensors framework='numpy' doesn't support BF16 (numpy has no native
+    bfloat16). For BF16 tensors we read the raw bytes via the file's offset
+    table and bit-shift them up to FP32. Qwen3 base ships as BF16 so this
+    branch matters in practice.
+    """
     sfx = path.suffix.lower()
     if sfx == ".safetensors":
         from safetensors import safe_open
         with safe_open(str(path), framework="numpy") as f:
             if name not in f.keys():
                 return None
-            return f.get_tensor(name).astype(np.float32)
+            try:
+                return f.get_tensor(name).astype(np.float32)
+            except TypeError:
+                # numpy=='bfloat16' not supported -> fall back to raw bytes.
+                pass
+        # Re-open and read the raw bytes for this tensor.
+        import json, struct
+        with open(path, "rb") as fh:
+            hdr_len = struct.unpack("<Q", fh.read(8))[0]
+            hdr = json.loads(fh.read(hdr_len))
+            data_start = 8 + hdr_len
+            meta = hdr[name]
+            dtype = meta["dtype"]
+            shape = tuple(meta["shape"])
+            off_a, off_b = meta["data_offsets"]
+            fh.seek(data_start + off_a)
+            buf = fh.read(off_b - off_a)
+        if dtype == "BF16":
+            return _bf16_bytes_to_f32(buf, shape)
+        if dtype == "F16":
+            return np.frombuffer(buf, dtype=np.float16).reshape(shape).astype(np.float32)
+        if dtype == "F32":
+            return np.frombuffer(buf, dtype=np.float32).reshape(shape).copy()
+        raise ValueError(f"Unsupported safetensors dtype: {dtype}")
     if sfx == ".gguf":
         from gguf import GGUFReader
         r = GGUFReader(str(path), "r")
