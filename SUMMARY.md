@@ -87,6 +87,22 @@ section is anchored to a specific report under `reports/local-*/`.
     self-identification as "Bonsai by PrismML, created by Babak
     Hassibi at Caltech". The chat template injects no model name.
     Some pipeline step encoded this identity.
+20. **Per-block flip counts are over-dispersed vs Binomial**, with
+    the over-dispersion **depth- and projection-type-dependent**.
+    `attn_q` over-dispersed at every depth (1.95-2.67); `attn_v` L0,
+    `mlp.gate` L0, `mlp.up` L0 are essentially Binomial (1.07-1.17);
+    deep MLP grows to >2.0 at L35. A control Gaussian-noise simulator
+    matched to the marginal flip rate gives 0.9-1.17 across all
+    deciles — confirming the over-dispersion is a real Bonsai
+    signature, not an artifact. Per-element-i.i.d. flipping is RULED
+    OUT for q at every depth and for late MLP. Reports
+    `local-8B/37_*` and `38_*`.
+21. **The depth-growing block coupling at MLP is NOT explained by
+    growing LoRA rank**: full SVD across 5 depths × {gate, up} shows
+    rank-128 % of squared-Frobenius-norm is essentially flat across
+    depth (gate 7.66-8.78%; same for up). If a depth-graded LoRA
+    rank produced the depth-growing coupling, rank-128 would rise
+    substantially with depth. It doesn't. Report `local-8B/39_*`.
 
 ## What we INFER (not byte-attested, but consistent)
 
@@ -126,6 +142,17 @@ Each of these is inconsistent with at least one byte signature:
   shows the delta is approximately full-rank; LoRA at rank-128
   would explain ~95% of squared-norm at rank-128; Bonsai's delta
   explains only 14%.
+- **Pure i.i.d. element-wise noise on teacher**: matches the
+  first-order magnitude-graded flip pattern but produces Binomial
+  per-block flip counts (over-dispersion ~1.0). Bonsai's actual
+  flip counts are over-dispersed at q every depth (1.95-2.67) and
+  at deep MLP (>2.0 at L35). Some block-coherent component is
+  required.
+- **A uniform single-rank LoRA component** of any rank:
+  rank-128 % of squared-Frobenius-norm of the delta is essentially
+  flat (7.5-8.8%) across MLP depth, while block-coupling grows
+  from ~1.1 (L0) to >2.0 (L35). The growing coupling cannot come
+  from growing LoRA rank.
 
 ## Mechanisms still consistent with the bytes
 
