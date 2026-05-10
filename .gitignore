@@ -241,3 +241,4 @@ reports/bonsai-8B/05_dequant_vs_unpacked.txt
 reports/bonsai-8B/06_magnitudes.txt
 reports/bonsai-8B/07_col_permutation.txt
 
+models/qat_demo/
