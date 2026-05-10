@@ -1,0 +1,147 @@
+## Cross-size validation: 1.7B 28-layer over-dispersion sweep
+
+`40_*` at 8B revealed a striking L1-L3 MLP "disturbance spike" with
+over-dispersion 10-13. This experiment runs the same sweep at 1.7B
+(28 layers) to test whether the spike is a **universal recipe-step
+signature** (and so should appear at every size) or an
+**8B-specific feature** of the algorithm's interaction with that
+particular teacher.
+
+## Method
+
+Identical to `local-8B/40_*`'s `depth_overdisp_sweep.py`, retargeted
+at the 1.7B GGUF + base.
+
+## Full 28-layer sweep at 1.7B
+
+```
+L  |   q_p   q_od |   v_p   v_od |  gp_p   gp_od |  up_p   up_od |  dn_p   dn_od
+ 0 |0.3016  2.294 |0.2110  1.687 |0.2933   1.263 |0.2998   1.091 |0.2416   1.091
+ 1 |0.2907  2.312 |0.2425  1.220 |0.2677   1.569 |0.3301   2.471 |0.2546   1.117
+ 2 |0.2779  2.337 |0.2353  1.488 |0.2729   1.377 |0.3128   1.150 |0.2487   1.099
+ 3 |0.2881  2.010 |0.2333  1.195 |0.2695   1.294 |0.3044   1.174 |0.2542   1.072
+ 4 |0.2965  1.955 |0.2249  1.393 |0.2703   1.404 |0.2989   1.185 |0.2489   1.105
+ 5 |0.2947  1.816 |0.2367  1.820 |0.2874   1.187 |0.2880   1.089 |0.2517   1.135
+ 6 |0.2862  2.669 |0.2156  1.188 |0.2865   1.287 |0.2860   1.135 |0.2544   1.234
+ 7 |0.3025  1.887 |0.2211  1.229 |0.2844   1.298 |0.2915   1.145 |0.2559   1.370
+ 8 |0.2888  2.289 |0.2322  1.040 |0.2897   1.314 |0.2917   1.148 |0.2593   1.406
+ 9 |0.2982  2.526 |0.2262  1.261 |0.2918   1.342 |0.2899   1.219 |0.2572   1.445
+10 |0.2968  1.914 |0.2269  1.490 |0.2949   1.534 |0.2937   1.273 |0.2620   1.454
+11 |0.2850  3.010 |0.2292  1.221 |0.2971   1.344 |0.2884   1.180 |0.2594   1.408
+12 |0.2781  2.013 |0.2280  1.080 |0.2980   1.376 |0.2880   1.187 |0.2618   1.588
+13 |0.2776  2.397 |0.2290  1.036 |0.2972   1.389 |0.2914   1.177 |0.2675   1.726
+14 |0.2861  2.673 |0.2278  1.116 |0.2968   1.413 |0.2924   1.202 |0.2718   1.702
+15 |0.2981  2.632 |0.2310  1.237 |0.2984   1.519 |0.2942   1.280 |0.2742   1.651
+16 |0.2874  3.151 |0.2387  1.335 |0.3034   1.778 |0.2979   1.410 |0.2747   1.338
+17 |0.2868  2.729 |0.2171  1.324 |0.3006   1.523 |0.2975   1.356 |0.2687   1.471
+18 |0.2909  2.810 |0.2396  1.298 |0.3024   1.641 |0.3008   1.409 |0.2706   1.437
+19 |0.3027  3.797 |0.2523  1.589 |0.3058   1.692 |0.3036   1.455 |0.2648   1.384
+20 |0.2916  2.999 |0.2497  1.496 |0.3112   1.510 |0.3068   1.298 |0.2632   1.400
+21 |0.2952  3.158 |0.2516  1.570 |0.3081   1.450 |0.3032   1.246 |0.2616   1.475
+22 |0.3016  2.955 |0.2602  1.756 |0.3068   1.426 |0.3020   1.221 |0.2626   1.568
+23 |0.3134  2.073 |0.2584  1.491 |0.3058   1.378 |0.3039   1.217 |0.2710   1.565
+24 |0.3144  2.484 |0.2612  1.242 |0.3091   1.391 |0.3045   1.206 |0.2775   1.474
+25 |0.3078  2.502 |0.2526  1.437 |0.3156   1.475 |0.3062   1.250 |0.2833   1.311
+26 |0.2907  4.482 |0.2686  1.678 |0.3171   1.657 |0.3071   1.320 |0.2887   1.092
+27 |0.3179  2.742 |0.2885  1.810 |0.3123   2.310 |0.3110   1.659 |0.3185   1.021
+```
+
+## Cross-size comparison: where 1.7B differs from 8B
+
+### The L1-L3 MLP "disturbance spike" is 8B-specific
+
+```
+location          8B over-disp       1.7B over-disp
+L1 ffn_gate            10.27              1.57
+L1 ffn_up              11.06              2.47
+L2 ffn_gate            10.20              1.38
+L2 ffn_up              13.03              1.15
+L3 ffn_gate            12.11              1.29
+L3 ffn_up              10.37              1.17
+```
+
+At 1.7B the L1 over-dispersion is 1.6-2.5 (modestly elevated) — far
+from the 10-13 of 8B. The "spike" is NOT universal. **A separate
+L1-3 rewrite step in the recipe (uniformly applied across sizes) is
+RULED OUT** — it would have produced the same spike at 1.7B.
+
+### Patterns that DO replicate cross-size
+
+```
+pattern                                 8B         1.7B
+attn_q over-dispersion range          1.7-3.2     1.8-3.8
+attn_v rises monotonically            1.1-1.8     1.0-1.8
+deep-MLP rise at last layer           gate 2.16   gate 2.31
+                                       up 2.25     up 1.66
+ffn_down stays modest (1.0-1.7)       yes         yes
+mid-layer middle plateau              yes         yes
+```
+
+The qualitative shape — q uniformly elevated, v rising with depth,
+deep-MLP rise at end, mid-layer plateau, modest down — is preserved.
+What's NOT preserved: the L1-3 spike's MAGNITUDE (and to a lesser
+extent, location).
+
+### Quantitative cross-size offsets
+
+- 1.7B has higher baseline flip rates (~0.28-0.32 vs 8B's 0.20-0.30).
+  Consistent with the "smaller Bonsai = more deviation from teacher"
+  finding from `local-8B/26_*` and earlier.
+- 1.7B has higher v over-dispersion baseline (1.69 at L0 vs 8B's
+  1.12 at L0).
+- 1.7B's down has a mid-layer hump (~1.4-1.7 around L8-25) that's
+  modest at 8B.
+
+## Implication for the recipe
+
+Three readings of the 8B-only L1-3 spike are consistent with the
+cross-size data:
+
+1. **Pure-OBC-style sequential applied identically across sizes**.
+   The L1-3 spike is an 8B-specific *output* of the algorithm
+   meeting Qwen3-8B's specific weight distribution. At 1.7B the same
+   algorithm produces only modest L1 elevation. No special-case step
+   needed. **This fits PrismML's "principled framework, not narrow
+   exceptions" framing**.
+
+2. **Single algorithm with size-conditioned parameters**. The
+   recipe has hyperparameters (e.g., per-layer regularisation
+   strength, OBC step size) that PrismML tuned per-size. At 8B the
+   tuning happened to make L1-3 highly block-coherent; at 1.7B the
+   same algorithm with different hyperparameters produced a flatter
+   profile.
+
+3. **Two distinct recipes**. PrismML used different
+   approaches at different sizes. Lowest probability given the
+   whitepaper's unified framework claim.
+
+The bytes don't discriminate (1) from (2). They DO rule out reading
+(3) plus any hypothesis requiring an explicit per-layer-targeted
+step at L1-3.
+
+## Recipe constraint refinement
+
+A reproduction at 8B should produce the L1-3 spike *as a side effect*
+of the algorithm running on Qwen3-8B's teacher weights — not as the
+result of an explicit L1-3-targeted step. If a recipe produces the
+spike at 1.7B too (where Bonsai-1.7B doesn't have one), the recipe
+has the wrong mechanism even if it matches 8B numbers.
+
+The size-specific spike is a **discriminator** between mechanism
+families:
+- Algorithms with size-invariant per-layer treatment (e.g., a
+  constant LoRA rank applied to all layers): would produce the spike
+  at every size. **Doesn't match.**
+- Algorithms with size-conditioned compounding (OBC-style with the
+  early-layer error compounding more strongly when more layers
+  follow it): could produce the spike only at 8B. **Matches.**
+
+## Caveats
+
+- Single-seed measurements at each size; no resampling-noise
+  estimate.
+- 1.7B has 28 layers vs 8B's 36. The "depth fraction" comparison
+  may be more meaningful than raw layer-index. Eg L1/28 = 3.6% of
+  depth at 1.7B; L1/36 = 2.8% at 8B; close enough.
+- 4B (32 layers) is not re-measured here. The 4B trio fits in the
+  download budget if needed for a third cross-size point.
