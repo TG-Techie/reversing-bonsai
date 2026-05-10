@@ -28,8 +28,12 @@ measurement that supports a specific claim.
 23_cv_signmatch_correlation.txt    per-layer CV ↔ sign-match: single disturbance axis (6/7 projections)
 24_top1pct_block_clustering.txt    top-1% scale blocks cluster by ROW, not column
 25_base_vs_bonsai_cv_evolution.txt teacher's MLP-CV-falls is INHERITED; technique compresses MLP CV ~2×
-26_per_row_amplitude_match.txt     per-row Bonsai vs teacher: attention/down inherit (Pearson 0.7-0.86); MLP gate/up deviate (0.42)
+26_per_row_amplitude_match.txt     per-row Bonsai vs teacher: attention/down inherit (Pearson 0.7-0.86); MLP gate/up deviate; depth-conditioned (~0.6 early to ~0.2 late at gate/up)
 27_per_block_amp_ratio.txt         per-tensor amplification factor ~constant (CV 7-40%)
+28_within_row_block_autocorr.txt   within-row lag-1 autocorr ≈ 0 (per-block independence within row)
+29_signflip_by_magnitude.txt       sign flips MAGNITUDE-GRADED (d1~0.47, d10~0.025); size-invariant. NOT discriminatory of LoRA vs other mechanisms.
+33_per_kind_lora_strength.txt      implied per-tensor-type sigma; v/down receive lighter LoRA than q/k/o/gate/up
+34_svd_low_rank_test.txt           SVD of (W_bonsai - W_teacher) is NOT low-rank; RULES OUT pure-LoRA-only step 1
 ```
 
 ## Quick claim → evidence pointer
@@ -53,3 +57,7 @@ this is where to look:
 | Single disturbance axis for 6/7 projections | `23_*` |
 | Per-tensor amplification factor near-constant | `27_*` |
 | Head identity NOT preserved cross-layer | `22_*` |
+| Sign flips magnitude-graded (d1~0.47, d10~0.025) | `29_*` |
+| Per-tensor-type LoRA strength (v/down lighter) | `33_*` |
+| Bonsai delta is NOT low-rank (rules out pure-LoRA-only) | `34_*` |
+| Per-block independence within rows | `28_*` |
