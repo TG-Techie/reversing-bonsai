@@ -108,31 +108,33 @@ section is anchored to a specific report under `reports/local-*/`.
     rank-128 would rise substantially with depth. It doesn't. The
     over-dispersion's relative range (1.07-2.25 over the same grid)
     is over 100× the SVD's relative spread. Report `local-8B/39_*`.
-22. **L1-L3 MLP "disturbance spike" is 8B-specific** — at 8B the
-    over-dispersion at L1-L3 `mlp.gate`/`mlp.up` reaches **10-13**,
-    far higher than anywhere else in the model. SVD at L1-L3
-    (`local-8B/41_*`) rules out heavy-rank-128 LoRA: rank-128 % is
-    only 10-12% there (vs baseline 7.5-8%), and the delta MAGNITUDE
-    is *smaller* than at L0. Cross-size at 1.7B
-    (`local-1.7B/42_*`) shows the spike does NOT replicate: 1.7B's
-    L1 MLP over-dispersion is only 1.5-2.5. So a separate L1-3
-    rewrite step (uniformly applied across sizes) is RULED OUT.
+22. **L1-L3 MLP "disturbance spike" is 8B-specific AND partially a
+    teacher artifact** — at 8B the over-dispersion at L1-L3
+    `mlp.gate`/`mlp.up` reaches **10-13**. SVD at L1-L3
+    (`local-8B/41_*`) rules out heavy-rank-128 LoRA. Cross-size at
+    1.7B (`local-1.7B/42_*`) shows the spike does NOT replicate:
+    1.7B's L1 MLP over-dispersion is only 1.5-2.5. **But a 4th
+    confound check (`local-8B/45_*`) revealed that Qwen3-8B's
+    teacher gate weights at L1-3 have ~10× higher cross-block CV
+    and ~30× higher within-block CV variability than other depths.
+    Random Gaussian noise applied to L1 teacher (calibrated to
+    L1's flip rate) gives over-dispersion ~13 — close to Bonsai's
+    actual 10.27.** So the "L1-3 spike" is substantially explained
+    by Qwen3-8B's intrinsic teacher block-heterogeneity at those
+    layers, NOT solely by Bonsai's recipe applying a special
+    mechanism. A separate L1-3 rewrite step uniformly applied
+    across sizes is still RULED OUT, but the previous reading
+    "the recipe makes block-coherent decisions at L1-3" is
+    substantially weakened.
 23. **The L1-3 spike is MLP-specific** — attention at L1-3 shows no
-    spike in either over-dispersion (`40_*`: q ~1.7-2.1, in line
-    with q's 1.7-3.2 across all depths) OR rank-concentration
-    (`43_*`: q rank-128 = 13.27-14.68% across all 6 probed depths,
-    1.4pp spread). The bytes constrain the mechanism to be
-    **MLP-asymmetric and depth-graded**. Mechanisms still
-    consistent with this asymmetry include: OBC-style sequential
-    with attn-before-MLP within-block ordering; a parallel pass
-    with SwiGLU-sensitivity-weighted loss; an MLP-only low-rank
-    LoRA component (rank-16 fraction at L1-3 MLP is 2-3× the L0
-    baseline, suggesting a small-rank LoRA component active there);
-    calibration-data composition that weights L1-3 MLP heaviest;
-    layer-norm-induced asymmetry (QK-norm on attn, no equivalent on
-    MLP). The bytes don't uniquely select among these. See
-    `local-8B/44_*` for the within-block-ordering hypothesis with
-    its third-verifier-catch corrections.
+    spike. Per (22), this is now interpretable as primarily a
+    teacher-structure asymmetry: q_proj teacher weights are uniform
+    across all depths (block_CV ~0.2 throughout), while gate_proj
+    teacher at L1-3 has block_CV ~1.0 (10× higher). So the
+    "MLP-asymmetric L1-3 effect" might reflect Qwen3-8B teacher
+    weight structure rather than a recipe choice. The recipe-
+    attributable signal is much weaker than the over-dispersion
+    numbers suggested. See `local-8B/45_*`.
 
 ## What we INFER (not byte-attested, but consistent)
 
