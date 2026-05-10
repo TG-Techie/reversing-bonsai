@@ -82,35 +82,65 @@ def main():
     print(f"writing {out_path}: header={header_len}, data={out_off}, total={8 + header_len + out_off}")
 
     BUF = 8 * 1024 * 1024  # 8 MiB
+    # CRITICAL: write tensor bytes in the SAME ORDER as the merged header
+    # claims. Header offsets were computed by iterating sorted(keys); we
+    # MUST iterate sorted(keys) here too. An earlier per-shard-batched
+    # version of this loop wrote bytes in shard order, which silently
+    # mis-mapped tensors whose shapes happened to match (e.g. all q_proj
+    # weights at a given size are the same shape, so a wrong layer's
+    # q_proj loads without error and yields garbage cosines).
+    src_handles: dict[Path, "BufferedReader"] = {}
+    def src(sp: Path):
+        if sp not in src_handles:
+            src_handles[sp] = open(sp, "rb")
+        return src_handles[sp]
     with open(out_path, "wb") as out:
         out.write(struct.pack("<Q", header_len))
         out.write(header_bytes)
-        # Stream tensors per source shard; open each shard once
-        per_shard: dict[Path, list[str]] = {}
-        for k in keys:
-            per_shard.setdefault(all_keys[k][0], []).append(k)
-        done = 0
-        for sp, ks in per_shard.items():
-            data_start = shard_data_starts[sp]
-            with open(sp, "rb") as src_f:
-                # Sort by source offset so we read sequentially
-                ks_sorted = sorted(ks, key=lambda x: all_keys[x][3])
-                for k in ks_sorted:
-                    _, _, _, a, b = all_keys[k]
-                    nbytes = b - a
-                    src_f.seek(data_start + a)
-                    remaining = nbytes
-                    while remaining > 0:
-                        chunk = src_f.read(min(BUF, remaining))
-                        if not chunk:
-                            print(f"unexpected EOF reading {k} from {sp}", file=sys.stderr)
-                            sys.exit(2)
-                        out.write(chunk)
-                        remaining -= len(chunk)
-                    done += 1
-                    if done % 100 == 0 or done == len(keys):
-                        print(f"  [{done}/{len(keys)}] {k}  ({nbytes/1e6:.1f} MB)")
+        for done, k in enumerate(keys, start=1):
+            sp, _, _, a, b = all_keys[k]
+            nbytes = b - a
+            src_f = src(sp)
+            src_f.seek(shard_data_starts[sp] + a)
+            remaining = nbytes
+            while remaining > 0:
+                chunk = src_f.read(min(BUF, remaining))
+                if not chunk:
+                    print(f"unexpected EOF reading {k} from {sp}", file=sys.stderr)
+                    sys.exit(2)
+                out.write(chunk)
+                remaining -= len(chunk)
+            if done % 100 == 0 or done == len(keys):
+                print(f"  [{done}/{len(keys)}] {k}  ({nbytes/1e6:.1f} MB)")
+    for fh in src_handles.values():
+        fh.close()
     print(f"[done] {out_path}  ({out_path.stat().st_size/1e9:.2f} GB)")
+
+    # Verify: round-trip-load 3 random tensors and compare bytes to source.
+    print("[verify] sampling 3 keys for round-trip byte-equality check...")
+    import random
+    rng = random.Random(0)
+    sample_keys = rng.sample(keys, min(3, len(keys)))
+    with open(out_path, "rb") as f_out:
+        hdr_len = struct.unpack("<Q", f_out.read(8))[0]
+        out_hdr = json.loads(f_out.read(hdr_len))
+        out_data_start = 8 + hdr_len
+        ok = True
+        for k in sample_keys:
+            sp, _, _, a, b = all_keys[k]
+            with open(sp, "rb") as f_src:
+                f_src.seek(shard_data_starts[sp] + a)
+                src_bytes = f_src.read(b - a)
+            oa, ob = out_hdr[k]["data_offsets"]
+            f_out.seek(out_data_start + oa)
+            out_bytes = f_out.read(ob - oa)
+            if src_bytes == out_bytes:
+                print(f"   OK   {k}  ({len(src_bytes)} bytes)")
+            else:
+                print(f"   FAIL {k}  (sizes {len(src_bytes)} vs {len(out_bytes)})")
+                ok = False
+        if not ok:
+            sys.exit(3)
 
 
 if __name__ == "__main__":
