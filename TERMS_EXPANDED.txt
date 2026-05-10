@@ -1,0 +1,88 @@
+projection types in a transformer block (the matrix-heavy weights):
+  q, k, v, o    = self_attn.{q,k,v,o}_proj.weight
+                  q/k = query/key projections (input -> per-head q/k vectors)
+                  v   = value projection (input -> per-head value)
+                  o   = output projection (concat-of-heads -> hidden)
+  gate, up, down = mlp.{gate,up,down}_proj.weight
+                   gate, up: hidden -> ffn_inter (the wide intermediate)
+                   down: ffn_inter -> hidden
+
+embedding-side:
+  embed_tokens   = the token embedding table (vocab x hidden)
+  lm_head        = the output projection to vocab (hidden x vocab);
+                   sometimes "tied" to embed_tokens (same weights),
+                   sometimes shipped as a separate matrix.
+
+normalisation-side:
+  input_layernorm        = the RMSNorm before each block's attention
+  post_attention_layernorm = the RMSNorm before each block's MLP
+  q_norm, k_norm         = Qwen3-specific per-head RMSNorms applied to
+                            q and k vectors before the attention dot-product
+  RMSNorm                = root-mean-square normalisation (a layer norm variant)
+
+format / numeric:
+  Q1_0_g128   = the deployed format: 1 sign bit per weight + 1 FP16 scalar
+                "scale" per group of 128 contiguous weights along the fast dim
+  GGUF        = the container format Q1_0 is shipped in (llama.cpp's "GPT-
+                Generated Unified Format")
+  FP16, BF16  = float16, bfloat16 floating-point formats
+  ULP         = unit in the last place; smallest representable spacing between
+                adjacent floats at a given magnitude
+  s_g         = the FP16 scale stored once per 128-element block in Q1_0
+                (every weight in that block has magnitude exactly s_g)
+
+terms I keep using:
+  formula     = the deterministic naive Q1_0 quantisation of a weight matrix:
+                w' = sign(w_base) · mean(|w_base|_per_128_block)
+  naive Q1_0  = same as "formula"
+  RMSE-optimal = the scalar that minimises L2 distance "‖s·sigma - w_base‖²"
+                 for a fixed sign pattern sigma; equals mean(sigma · w_base)
+  RMSE        = root-mean-square error (L2-distance flavour)
+  L0..L35     = layer indices (Bonsai-8B has 36 transformer blocks, 0..35)
+  r²          = coefficient of determination from a linear regression
+  joint r²    = r² of a multi-feature regression predicting one quantity
+  sign-match  = fraction of nonzero positions where sign(W_bonsai) == sign(W_base)
+
+algorithms / concepts from prior art:
+  LoRA        = Low-Rank Adaptation (a small additive fine-tune)
+  SGD         = stochastic gradient descent
+  STE         = straight-through estimator (used in QAT)
+  QAT, PTQ    = quantisation-aware training / post-training quantisation
+  KD          = knowledge distillation (student-teacher)
+  OBC, GPTQ, BiLLM, OneBit, PTQ1.61, BinaryLLM, STBLLM, Radio = prior-art
+                techniques each digested by a sub-agent; see
+                reports/PRIOR_ART_VERDICT_MATRIX.md for one-line summaries
+  ℓ∞          = ell-infinity / max-norm regulariser
+  δ/λ         = the "boundary value" in Hassibi 2402.10474 — the magnitude
+                weights concentrate at under ℓ∞-min-norm at large λ
+  NLC         = negative log cosine (PTQ1.61's angular-alignment loss term)
+
+variables in my analysis:
+  W_b         = the teacher (Qwen3) weight matrix
+  W_bonsai    = Bonsai's deployed weight matrix (after dequant from GGUF)
+  g_b, g_bonsai = the same matrices reshaped (rows, n_blocks, 128) for
+                   per-128-block analysis
+  s_formula   = mean(|W_b|_per_block)  (the naive Q1_0 scale)
+  s_bonsai    = mean(|W_bonsai|_per_block)  (Bonsai's deployed scale; same
+                 thing as the FP16 number stored in Q1_0)
+  formula_w   = sign(W_b) · s_formula  (the byte-equivalent of naive Q1_0
+                 applied to the teacher)
+
+people / labs:
+  PrismML     = the company that released Bonsai
+  Hassibi     = Babak Hassibi, Caltech EE prof, PrismML CEO, author of two
+                of the most-relevant 1-bit theory papers
+  Caltech IP  = the unspecified "proprietary intellectual property" the
+                Bonsai whitepaper credits but doesn't describe
+  Akhtiamov, Ghane = Hassibi's co-authors on the relevant 1-bit papers
+
+repo internals:
+  H1..H4      = our local hypothesis labels for the four byte-level questions
+                we set out to answer (lossless dequant; no channel
+                permutation; sign-sortedness inside a block; input-column
+                permutation). See GLOSSARY.md for the long form.
+  digester    = a worktree-isolated fresh-context sub-agent given one PDF
+                and a list of byte facts, returning a verdict on whether
+                the paper's algorithm matches those facts
+  audit       = a script that walks every Q1_0 tensor and computes match
+                metrics vs the formula
