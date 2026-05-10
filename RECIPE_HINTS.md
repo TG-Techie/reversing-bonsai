@@ -761,3 +761,36 @@ spike at all sizes uniformly has the wrong mechanism even if its
 - Mid-layer modest plateau.
 
 These are size-invariant signatures of the recipe.
+
+### Teacher-structure confound on L1-3 spike (4th catch, see `local-8B/45_*`)
+
+Late in the session, a teacher-side confound was discovered. At
+8B, Qwen3-8B's `mlp.gate_proj` teacher weights at L1-3 have ~10×
+higher cross-block CV of `mean(|w|)` and ~30× higher within-block
+CV variability than at other depths. q_proj and ffn_down teacher
+weights are uniform across all depths.
+
+Random Gaussian noise applied to L1 teacher (calibrated to L1's
+flip rate) gives over-dispersion ~13, even at high rank. So
+**most of Bonsai's L1-3 over-dispersion of 10-13 is intrinsic to
+the teacher**, not a recipe choice.
+
+But Bonsai's L1 actual over-dispersion is 10.27, which is LESS
+than 13. So Bonsai's recipe at L1-3 is partially **compensating**
+for the teacher heterogeneity — likely via per-block scale (s_g)
+tuning that reduces effective flip-difficulty differences across
+blocks.
+
+The recipe-attributable signals at L1-3 MLP are:
+1. **Elevated flip rate** (0.32-0.38 vs 0.24-0.28 baseline). Real
+   recipe-driven elevation.
+2. **Slightly elevated rank-128 %** (10-12% vs 7.5-8% baseline).
+   Real recipe-driven structure.
+3. **Partial smoothing** of teacher-natural over-dispersion (Bonsai
+   10.27 vs random Gaussian 13). Real recipe-driven scaling.
+
+The earlier "L1-3 has block-coherent recipe decisions" framing is
+wrong. The recipe at L1-3 is doing the OPPOSITE: producing flips
+that are *less* block-coherent than the teacher would naturally
+produce, by compensating per-block scaling. A reproduction recipe
+should reproduce all three signals above.
