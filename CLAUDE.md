@@ -257,9 +257,17 @@ whitepapers and `RECIPE_HINTS.md` before doing anything else.
 you a multi-hour window they explicitly do not want to be the driver.
 "Should I continue or wind down?" "Should I do A or B?" — these halt
 their ability to do other things. Pick the higher-leverage option
-and act; if the user disagrees they will course-correct. Halting on
-binary questions wastes the grant. This is not the same as
-silent-action — see "communication pacing" below.
+and act; if the user disagrees they will course-correct.
+
+**In autonomous-grant mode, the ONLY reason to stop is the budget
+running out.** If you finish a batch and find yourself about to ask
+"which direction next?" — don't. Pick one (or more in parallel) and
+execute. The user can always redirect mid-flight; you cannot recover
+from minutes spent waiting for them. Asking-for-direction at
+batch-boundaries is the most common failure mode for a grant; if
+you're tempted, re-read this paragraph. Halting on binary questions
+wastes the grant. This is not the same as silent-action — see
+"communication pacing" below.
 
 **Communication pacing: concrete findings, not narration.** The user
 is on mobile, often watching the transcript stream while doing other
