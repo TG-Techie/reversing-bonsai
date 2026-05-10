@@ -1,0 +1,64 @@
+## ℓ∞ per-row scale clustering test (8B)
+##
+## Hassibi-group (Akhtiamov-Ghane-Hassibi 2024, arXiv:2402.10474) shows
+## that ℓ∞-min-norm classifiers concentrate weights at the magnitude
+## bound. A natural prediction in a transformer setting: per-output-row
+## block scales should cluster tighter within-row than across-rows
+## under ℓ∞-style regularisation.
+##
+## Test: for each tensor, compute σ_within = mean over rows of std of
+## the row's per-block scales, and σ_across = std of all per-block
+## scales (regardless of row). Ratio σ_within / σ_across < 1 means
+## per-row clustering exists. If Bonsai ratio is materially smaller
+## than base ratio, the technique IMPOSED additional per-row clustering
+## on top of base.
+
+  tensor                              Bonsai ratio  Base ratio  Bonsai/Base
+  L0.q_proj          (4096, 4096)        0.253        0.277       0.91
+  L0.v_proj          (1024, 4096)        0.698        0.657       1.06
+  L0.o_proj          (4096, 4096)        0.884        0.811       1.09
+  L0.mlp.gate_proj   (12288, 4096)       0.618        0.578       1.07
+  L18.q_proj         (4096, 4096)        0.275        0.253       1.09
+  L35.q_proj         (4096, 4096)        0.368        0.353       1.04
+  L35.mlp.gate_proj  (12288, 4096)       0.214        0.405       0.53
+
+## Reading
+
+For 6 of the 7 tensors tested, Bonsai's ratio ≈ base's ratio — i.e.
+the technique inherited whatever per-row scale clustering Qwen3-base
+already had, but did not add new per-row clustering on top.
+
+L35.mlp.gate_proj is the exception: Bonsai's ratio is 0.21 vs base's
+0.41 — roughly half. That tensor alone shows materially tighter
+per-row scale clustering in Bonsai than in base. Could be coincidence
+in a single tensor, or could be a localised ℓ∞-regularisation
+effect specifically there. Worth widening the depth × type sweep
+before treating as signal.
+
+## Implication for the ℓ∞-as-Caltech-IP hypothesis
+
+Falsifies the simplest reading: "the technique applies ℓ∞-style
+min-norm regularisation that pushes scales toward per-row uniformity".
+That would have produced lower Bonsai ratios than base ratios across
+the board — we see the opposite (close to 1.0 ratios) almost
+everywhere.
+
+Does NOT falsify the broader Hassibi 2402.10474 result that the
+binary lattice with inflated magnitudes is the ℓ∞ fixed point.
+The fixed point doesn't require row-uniformity; it requires that
+WITHIN a block, weights are at ±s_g (which is forced by the format
+anyway) and that across blocks, magnitudes are inflated relative to
+RMSE-optimal (which we still observe at ~2× ratio).
+
+So: the 'inflated-magnitude' prediction is consistent with Bonsai;
+the 'row-uniform-scales' prediction is not. ℓ∞ as a precise recipe
+ingredient is therefore narrower than a naive reading would suggest.
+
+## Recipe constraint refinement
+
+A reproduction targeting Bonsai-style behaviour does NOT need to
+impose per-row scale uniformity as a regularisation choice. Per-row
+variation of block scales is roughly what Qwen3-base has, and the
+technique preserves that. The technique's signature is in the
+*magnitude-amplification* of scales (~2× RMSE-optimal) and the
+specific sign choices, not in row-clustering geometry.
