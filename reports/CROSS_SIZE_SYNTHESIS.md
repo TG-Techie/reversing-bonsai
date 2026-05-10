@@ -5,6 +5,22 @@
 > `reports/local-{1.7B,4B,8B}/*` plus `reports/figures/*`. Plots in
 > `reports/figures/` overlay all three sizes for visual cross-comparison.
 
+> **Important framing update.** Inference at `temp=0` with an empty
+> system prompt and a single bare-prompt user turn (`Who are you?`)
+> shows all three Bonsai sizes self-identifying as
+> *"Bonsai, a 1-bit AI model developed by PrismML"*, with the 1.7B
+> attributing its creation to *Professor Babak Hassibi of Caltech in
+> Pasadena, California*. Pure sign-quantisation of Qwen3 would have
+> preserved Qwen3's self-identification. **There is at least one
+> step beyond QAT in the pipeline — a post-quantisation instruction-
+> tune / branding fine-tune of some kind.** The byte-level findings
+> below remain accurate as descriptions of *what the deployed
+> artifact looks like*, but the causal recipe split between
+> "QAT pressure" and "post-tune drift" is not recoverable from the
+> bytes alone. Statements that previously read "the QAT recipe pushed
+> X" should be read as "the *combined* QAT + post-tune pipeline
+> produced X" — we cannot apportion between the two.
+
 ## Scope
 
 - **Sizes:** 1.7B (28 layers, hidden 2048, ffn 6144, 16 q-heads × 8 kv-heads), 4B (36 layers, hidden 2560, ffn 9728, 32×8), 8B (36 layers, hidden 4096, ffn 12288, 32×8).
