@@ -356,8 +356,9 @@ jobs:
           done
 
           # Sha256 sums per chunk (and per joined file). Useful for
-          # client-side verification after `cat`-joining.
-          (cd staging && sha256sum -- * 2>/dev/null) > SHA256SUMS.staged.txt || true
+          # client-side verification after `cat`-joining. The redirect target
+          # is INSIDE staging/ on purpose so the upload step finds it there.
+          (cd staging && sha256sum -- * > SHA256SUMS.staged.txt) || true
 
           # Mobile-readable notes
           {
@@ -383,21 +384,22 @@ jobs:
             echo "Verify chunks against \`SHA256SUMS.staged.txt\` after download."
           } > release-notes.md
 
-          gh release create "$TAG" \
-            --title "Bonsai $FAMILY $SIZE models (run #${{ github.run_number }})" \
-            --notes-file release-notes.md \
-            --target "$REF" \
-            staging/SHA256SUMS.staged.txt 2>/dev/null || \
+          # Create the release first (no assets), then upload everything in
+          # one pass. Tolerate the SHA256SUMS file being missing (set +e
+          # around its upload) so a hash glitch doesn't sink the whole step.
           gh release create "$TAG" \
             --title "Bonsai $FAMILY $SIZE models (run #${{ github.run_number }})" \
             --notes-file release-notes.md \
             --target "$REF"
 
-          # Upload assets (in batches to avoid command-line length issues)
           for f in "${assets[@]}"; do
             gh release upload "$TAG" "$f" --clobber
           done
-          gh release upload "$TAG" "staging/SHA256SUMS.staged.txt" --clobber
+          if [ -f staging/SHA256SUMS.staged.txt ]; then
+            gh release upload "$TAG" "staging/SHA256SUMS.staged.txt" --clobber || true
+          else
+            echo "[warn] staging/SHA256SUMS.staged.txt missing; skipping hash upload"
+          fi
 
           # Drop a small index file into reports/ so the repo links to the
           # release. Keeps everything navigable from GH mobile app.
