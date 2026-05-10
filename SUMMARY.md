@@ -196,6 +196,15 @@ Each of these is inconsistent with at least one byte signature:
   graded flips.
 - **OBC-style activation-aligned sign assignment**: signs chosen to
   minimise layer-output error given calibration activations.
+- **A SwiGLU-sensitivity-weighted parallel pass** (suggested by
+  verifier-3): a parallel-per-block recipe with a loss weighted by
+  SwiGLU's input-gradient amplification would over-correct gate/up
+  at early layers naturally, without requiring sequential ordering.
+- **MLP-only small-rank LoRA (r=8-32) component plus a per-element
+  step**: rank-16 fraction at L1-3 MLP is 2-3× the L0 baseline,
+  consistent with a small LoRA component active there. Combined with
+  full-rank SGD, the full delta would still look approximately
+  full-rank.
 
 The bytes don't discriminate among these alternatives. The strongest
 *theoretical* anchor is the Hassibi-Akhtiamov-Ghane ℓ∞ result
@@ -218,19 +227,47 @@ it is unspecified by the published theory.
 ## What this repo provides for someone trying to recreate Bonsai
 
 1. A reproduction skeleton (`reports/REPRODUCTION_SKELETON.md`)
-   with 7 falsifying tests for the byte fingerprint.
+   with **12 falsifying tests** for the byte fingerprint (tests 8-12
+   added in this batch from over-dispersion findings).
 2. A per-tensor-type fingerprint (`reports/PER_TENSOR_TYPE_FINGERPRINT.md`)
    with target numbers for each projection type.
 3. A nine-paper prior-art verdict matrix
-   (`reports/PRIOR_ART_VERDICT_MATRIX.md`) showing which published
-   techniques' algorithms match the bytes (PTQ1.61 broadly does;
-   8 others don't).
-4. Streaming audit tools (`scripts/streaming_formula_audit.py`)
-   that re-measure all the byte-level claims from a fresh GGUF +
-   teacher safetensors trio.
-5. Quantitative reproduction targets (e.g. `σ ≈ 1.25× teacher
-   mean(|w|)` for the implied perturbation magnitude at 8B; 2×
-   amplification factor; magnitude-graded sign-flip pattern).
+   (`reports/PRIOR_ART_VERDICT_MATRIX.md`).
+4. Streaming audit tools (`scripts/streaming_formula_audit.py`,
+   `scripts/cross_tensor_overdisp.py`, `scripts/depth_overdisp_sweep.py`,
+   `scripts/depth_svd_mlp.py`, `scripts/teacher_sign_blockstruct.py`,
+   `scripts/attn_svd_l1l3.py`).
+5. Quantitative reproduction targets:
+   - `σ ≈ 1.25× teacher mean(|w|)` perturbation magnitude at 8B
+   - 2× amplification factor
+   - Magnitude-graded sign-flip curve (d1 ~0.47, d10 ~0.025)
+   - Per-block over-dispersion 1.2-3.4× at q L0 8B
+   - Full 36-layer over-dispersion depth profile (U-shaped at MLP)
+   - L1-3 MLP-asymmetric, 8B-specific spike (must NOT replicate at
+     1.7B uniformly)
+   - Approximately full-rank delta everywhere (rank-128 < 28%)
+6. **Eval-framework replication guide** (`reports/EVAL_REPLICABILITY.md`)
+   — how to run PrismML's published-numbers harness on M4 Max via
+   EvalScope + llama.cpp Metal + Gemini Flash Lite judge.
+
+## How a reproduction would be tested
+
+Given the verifier-3 corrections, the testable byte signature is:
+
+- All 12 tests in `REPRODUCTION_SKELETON.md` pass.
+- The reproduction's deployed Q1_0_g128 GGUF, run through the
+  EvalScope + Gemini-judge harness, lands within ~2pp of Bonsai-8B's
+  70.5 average (or matches the 8.8-pt gap to Qwen3-8B).
+- The reproduction's byte signature is **MLP-asymmetric and
+  depth-graded** matching Bonsai's, without producing the L1-3 spike
+  uniformly across all sizes.
+
+A reproduction that fails any byte-signature test has the wrong
+mechanism even if the eval numbers match. A reproduction that
+matches all byte-signature tests has *probably* recovered the
+recipe family — but the bytes don't uniquely select among several
+alternatives (see "Mechanisms still consistent with the bytes"
+above).
 
 A reproduction following PTQ1.61's recipe (minus the 4-bit
 salient-channel tier) on a different base, with appropriate
