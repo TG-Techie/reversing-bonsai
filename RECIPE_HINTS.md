@@ -242,3 +242,132 @@ recipe. Differs from v1 in being informed by the 8B + audit work.
 
 These would each take experimental verification beyond byte-level
 inspection.
+
+## v3 update (May 2026, post 9-paper prior-art digestion)
+
+Nine published 1-bit / sub-2-bit techniques were evaluated against the
+6 strongest empirical findings (`reports/PRIOR_ART_VERDICT_MATRIX.md`).
+Five are structurally ruled out by format or by direct contradiction.
+Two are partially compatible. **PTQ1.61 (arXiv 2502.13179) is the only
+broadly-consistent algorithmic match (5/6 dimensions)** — with its
+4-bit salient-channel tier *dropped* (precluded by Q1_0_g128's
+uniform 1-bit storage). Hassibi 2402.10474 is the theoretical
+anchor (no algorithm).
+
+### Sharpened reproduction recipe (post-digestion)
+
+Differs from v2's sketch in being informed by what the prior-art
+analysis specifically rules in or out. Each step is now anchored to
+a paper that predicts that signature, where one exists.
+
+1. **Pre-quant restorative LoRA fine-tune of the teacher** on a
+   small calibration corpus. *Source: PTQ1.61's preprocessing step.*
+   *Predicts:* the teacher-vs-Bonsai 25% sign drift is explained by
+   the LoRA having shifted teacher weights *before* sign+scale
+   extraction. The deployed signs match `sign(W_LoRA-shifted)` not
+   `sign(W_raw_teacher)`. *Bonsai bytes:* sign agreement 75-80% on
+   matrix-heavy weights — consistent.
+
+2. **Closed-form Q1_0 of the LoRA-shifted teacher embedding.** Apply
+   the deterministic formula `w' = sign(W_LoRA) · mean(|W_LoRA|_g)`
+   to the embedding once and ship it. *Bonsai bytes:* embed=formula
+   byte-equal at 8B (99.94%) and at 1.7B (99.93%). Confirmed.
+
+3. **Per-128-block scale optimisation by SGD against an
+   activation-output-cosine + MSE objective.** *Source: PTQ1.61's
+   α-learning, with calibration data driving the optimisation.*
+   *Predicts:* deployed `s_g` is data-dependent, not a function of
+   `mean(|W|_g)`; magnitude is amplified beyond RMSE-optimal because
+   the NLC term values angular alignment over distance minimisation.
+   *Bonsai bytes:* `s_g ≠ mean(|W_base|_g)` for 0/53 matrix-heavy
+   tensors; median ratio ~2× the RMSE-optimal value. Confirmed.
+
+4. **Layer-by-layer forward processing with OBC-style error
+   compensation.** *Source: BiLLM/GPTQ inheritance.* *Predicts:*
+   per-block scale predictability from base statistics is erratic
+   across depth (because each layer's optimisation target depends on
+   accumulated activation distortion from already-quantised earlier
+   layers). *Bonsai bytes:* attention r² stable 0.45-0.80 across
+   depth; MLP r² bounces 0.02-0.86 non-monotonically. Confirmed.
+
+5. **lm_head receives the full Q1_0 + SGD-α treatment.** *Source:*
+   Hassibi 2510.16250 explicitly says the last layer should NEVER be
+   quantised. Bonsai violates this. *Bonsai bytes:* lm_head at 8B is
+   Q1_0 with 89.9% sign-match to base + recomputed scales (0.16%
+   byte-equal to formula). The unpublished Caltech IP must include
+   machinery letting the last layer survive — plausibly the LoRA
+   pre-fine-tune + the SGD calibration are strong enough to absorb
+   the loss the random-features-model paper warned about. **This is
+   the recipe-extraction's largest open question.**
+
+6. **input_layernorm trainable, peak update at L0.** *Predicts:*
+   layer 0's input_ln gets the most disturbance because that's where
+   the first round of accumulated activation drift is registered;
+   later layers absorb less because the SGD-α has already compensated
+   upstream. *Bonsai bytes:* input_ln peak excess 53× BF16 ULP at L0,
+   gradual decay through depth, identical to base by L35. Consistent
+   with this story; no published paper specifically predicts it.
+
+7. **Identity-shaping via the LoRA fine-tune corpus content.** The
+   LoRA in step 1 likely uses a corpus that includes
+   "Bonsai/PrismML/Caltech" identity instructions (or this is layered
+   on as a post-quant fine-tune; the bytes can't disambiguate).
+
+### What this rules in vs. v2
+
+- **The LoRA-preprocess interpretation is now the leading candidate
+  for the "Caltech IP".** v2 left this open; v3 has PTQ1.61's
+  preprocessing step as the strongest published precedent matching
+  the 25%-sign-drift signature.
+- **The OBC-style sequential error compensation is ruled in.** It is
+  the only piece of BiLLM consistent with Q1_0 format constraints,
+  and is ALSO the only thing that explains the depth-erratic
+  predictability.
+- **A NLC-flavoured SGD objective is ruled in.** Pure MSE would not
+  produce 2× RMSE-optimal scales; PTQ1.61's `MSE + (-log cos)` joint
+  objective naturally pushes magnitudes larger than MSE-only.
+
+### What this rules out vs. v2
+
+- v2 had said "QAT with STE against logits" was the simplest sketch.
+  The prior-art digestion shows STE-style QAT (BinaryLLM) is only
+  partially consistent — the per-row scale parameterisation is wrong
+  for Q1_0_g128.
+- v2 left the Hassibi ℓ∞ result as a recipe ingredient. v3 demotes it
+  to "theoretical motivation only" — the algorithm to actually
+  produce ℓ∞-consistent weights is unspecified by the paper.
+- v2 left the "row-uniformity" reading of ℓ∞ as plausible. The
+  per-row clustering test (`reports/local-8B/18_*`) ruled it out.
+
+### Reproduction priorities for someone trying this on a different base
+
+If you actually want to recreate Bonsai-style compression:
+
+1. Implement PTQ1.61's pipeline first (LoRA preprocess + SGD-α).
+2. Drop their salient-channel tier (force one bit everywhere).
+3. Use Q1_0_g128 as the storage format and ggml's reference encoder
+   as the deployment kernel.
+4. Skip embed and norms in the SGD pass; quantise embed by closed-
+   form formula on the LoRA-shifted teacher; copy q_norm / k_norm
+   from teacher; allow input_layernorm to drift during SGD.
+5. Treat lm_head with the same machinery as the rest of the matrix-
+   heavy weights (resist the published "don't quantise last layer"
+   advice; the fine-tune is doing the heavy lifting that lets it
+   survive).
+6. Layer training data with identity-shaping examples if you want a
+   specific persona; otherwise omit.
+
+### Open questions remaining for a future session
+
+- Direct test of the LoRA-restorative interpretation: small fine-
+  tune on Qwen3-0.5B → naive Q1_0 → see if signs deviate ~25% from
+  raw teacher with similar per-projection ordering.
+- 4B byte-level confirmation that the per-projection ordering and
+  layer-1-3-MLP-pushed-hardest pattern from 8B holds cross-size.
+- What activation-distortion accumulation actually looks like through
+  a partially-quantised model — would require running inference,
+  which we haven't done.
+- Whether PrismML's specific Caltech IP is one of the
+  Hassibi-Akhtiamov-Ghane group's more-recent unpublished extensions
+  rather than 2402.10474 directly. Worth tracking new arXiv drops
+  from this group.
