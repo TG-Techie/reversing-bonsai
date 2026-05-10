@@ -510,7 +510,7 @@ constraints (8B-specific where measured):
 ### Falsifying tests for v4
 
 In `REPRODUCTION_SKELETON.md` Section 5 already lists 4 falsifying
-tests. v4 adds two more:
+tests. v4 adds three more:
 
 5. After step 3 on a representative MLP gate/up tensor, is the
    per-row mean(deployed alpha) NOT strongly correlated (Pearson <
@@ -521,3 +521,30 @@ tests. v4 adds two more:
    row (1.5-22% of rows) and approximately uniform across columns?
    If columns are also concentrated, the optimisation isn't matching
    Bonsai's per-output-channel amplification signature.
+
+7. **Magnitude-graded sign flips (the tightest reproduction target).**
+   Bin teacher weights by |w| decile; measure flip-rate per bin. The
+   pattern in Bonsai is monotone: ~46% flip rate at d1 (smallest
+   |w_teacher|), 0.3-2.5% at d10 (largest), smooth gradient between.
+   Size-invariant (1.7B and 8B both show this). A reproduction's flip
+   pattern must be magnitude-graded; if d1 is far from 0.5 OR d10 is
+   far from 0.0, the recipe is not matching Bonsai's information-
+   theoretic compression behaviour.
+
+### What the magnitude-graded sign-flip pattern implies for step 1
+
+The d1-near-0.5 / d10-near-0.0 sign-flip pattern is exactly what a
+small-magnitude additive perturbation of the teacher (e.g. a LoRA
+delta) would produce: where `|w_teacher|` is comparable to `|delta|`,
+sign of `w_LoRA-shifted` is essentially randomised; where
+`|w_teacher| >> |delta|`, sign is preserved. The transition zone
+in Bonsai's data (where flip rate crosses 0.25-0.30) is around
+`|w_teacher|` ≈ 0.015-0.020 at 8B q_proj and similar at other
+tensors. This implies the LoRA delta in step 1 has typical magnitude
+~0.015-0.020 — roughly comparable to the median `mean(|w_teacher|_g)`
+of the larger weights.
+
+This is the cleanest indirect evidence yet that step 1 (LoRA pre-
+quant restore) is in the pipeline. Other mechanisms can produce
+magnitude-graded flips, but a small-magnitude additive LoRA is the
+most natural explanation given the rest of the byte fingerprint.
