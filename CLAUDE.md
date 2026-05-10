@@ -329,11 +329,30 @@ prior framing.** Two valuable patterns from this run:
    known biases** ("the author has a known confirmation bias toward
    X; if you see evidence inconsistent with X, point it out"). This
    is the pattern that caught real over-statements in this run —
-   the verifier flagged that the magnitude-graded sign-flip pattern
-   was being read as evidence FOR a LoRA preprocess, when in fact it
-   is consistent with several mechanisms. The author's confirmation
-   bias was real and the verifier surfaced it. **Use this pattern
-   before publishing or merging recipe-style claims.**
+   each catch came from the same loop:
+   - **Round 1**: the magnitude-graded sign-flip pattern was read
+     as evidence FOR a LoRA preprocess, when in fact it's consistent
+     with several mechanisms. Corrected in `RECIPE_HINTS.md` v4.
+   - **Round 2**: an "SGD-α step is concentrated at deep MLP gate/up"
+     claim was a Gaussian-sigma-misspecification artifact (the
+     simulator used 1.25× the wrong tensor's ratio uniformly).
+     Retracted in `reports/local-8B/36_*`.
+   - **Round 3**: a "within-block attn-before-MLP ordering" claim
+     was over-stated as the byte-attested mechanism when several
+     alternatives (SwiGLU-sensitivity-weighted parallel pass,
+     MLP-only small-rank LoRA, calibration-data composition,
+     layer-norm asymmetry) produce the same byte signatures, AND
+     the proposed mechanism's direction-of-gap prediction failed
+     at L0 (8B) and L1 (1.7B). Corrected in `reports/local-8B/44_*`.
+
+   The pattern is robust: when you've been organising-around a
+   hypothesis for a while, every byte signature looks like
+   confirmation. A fresh-context sub-agent with explicit
+   bias-naming reliably surfaces over-reaches. **Use this pattern
+   before publishing or merging recipe-style claims.** The
+   verifier doesn't need to be right about every alternative it
+   raises; it just needs to identify ONE that you didn't rule out
+   to deflate an over-strong claim.
 
 **Compare against the deterministic formula AND the base model
 explicitly; sync state in messages.** The "formula" `sign(w_base) ·
