@@ -1,155 +1,206 @@
 # Working notes for agents in this repo
 
-> Living notes from agents reverse-engineering Bonsai. Read this first.
-> Two halves: (1) discipline — *how* to do this work, since it's
-> empirical science not coding; (2) sandbox quirks — concrete VM/env
-> traps that aren't obvious from the surface.
+> You are a fresh agent reading this with no prior context. The goal of
+> these notes is to **transfer the *why*** behind how we work here, not
+> to give you a checklist. Reason about the underlying problem; the
+> rules are illustrations of what reasoning produces.
 
-## Scientific discipline (don't skip)
+## What this repo is actually doing
 
-This repo is reverse-engineering a model artifact. That's empirical
-science, and it's easy to slip into coding mode where a script run
-becomes a "finding." A few rules to stay honest:
+PrismML released "1-bit Bonsai" — a Qwen3 child model where every
+matrix-heavy weight has been quantized to 1 sign bit + a shared FP16
+scale per group of 128 weights (the `Q1_0_g128` format). The
+whitepaper attributes the quality preservation to "proprietary Caltech
+IP" but never describes the training procedure.
 
-- **Pre-register what you're measuring.** Before running a script,
-  state in one sentence: what tensor/layer/axis is being compared,
-  with what statistic, against what null. Vague "compare Bonsai vs
-  base" produces vague conclusions.
-- **A finding is a claim about the bytes; pause and stress-test it
-  before writing it down.** Useful prompts to ask yourself:
-  *what assumption did I make? what would a skeptical reader ask? is
-  the trend genuinely monotonic, or did I read the tail?*
-- **Distinguish observation from inference, in your own head and on
-  the page.** "the bytes show X" is observed; "Bonsai's recipe
-  therefore did Y" is inferred. Don't blur them. Use the existing
-  *force-by-format* / *force-by-data* / *suggestion* labels.
-- **Match methodology when comparing across sizes.** A "row cosine
-  0.45 at 4B vs 0.50 at 1.7B" is only meaningful if both numbers came
-  from the same script with the same arguments on the same kind of
-  tensor list. Re-run the smaller size locally rather than citing
-  remembered numbers from a doc.
-- **Spot-check, don't trust.** When comparing two arrays, eyeball a
-  few rows by hand: shape, dtype, sample values. The most common bug
-  here is a silent slice misalignment (vocab trim, GGUF shape
-  reversal, BF16 vs FP16 cast).
-- **Use a low-context judge for headline claims.** Spawn a fresh
-  sub-agent with no prior context, give it the data and the claim,
-  and let it independently sanity-check. Anything that survives that
-  is more trustworthy than your own conviction.
-- **Numbers without uncertainty are aspirations.** Report a range
-  (min/max across the layers measured), not just a mean — and say
-  *how many layers* the mean averages over.
-- **"Storage precision ≠ training freezeness."** Just because a
-  tensor is stored in F32 doesn't mean it was held fixed during QAT.
-  Check value-level deviation before claiming "preserved verbatim."
+This repo's job is to **read the deployed bytes carefully enough that
+we can constrain what that procedure must have looked like.** We are
+not retraining. We are not building a fork. We are doing forensic
+reverse-engineering: every claim is something the bytes attest to,
+and the constraints those claims put on a hypothetical reproduction
+add up to a recipe sketch.
 
-If a session is short on time, write fewer findings and back each one
-harder, instead of pushing more half-checked claims.
+The audience for findings is whoever later tries to recreate
+Bonsai-style compression on a different model. They need to know
+*what's load-bearing about the format vs. the recipe*, because if you
+copy the format and miss the recipe you get post-training-quant noise,
+and if you copy the recipe and miss a format constraint you get an
+inference-time failure. So the discipline below isn't aesthetic — it's
+to keep that distinction sharp.
 
-## Agent discipline
+## Why this is empirical science, not coding
 
-How to use sub-agents and how to manage your own session liveness.
+A normal codebase rewards "I ran it, it worked, ship it." Here the
+artifacts are the truth, the scripts are just lenses, and a sloppy
+reading of a lens output produces a wrong recipe constraint that
+someone later spends compute trying to reproduce. Concretely the
+common failure modes:
 
-- **Sub-agents are short-lived and isolated.** When you need a fresh
-  pair of eyes (e.g. independent verification of a claim), spawn one
-  with `isolation: "worktree"` so it works on its own copy of the repo
-  and can't step on your live files. Brief it like a smart colleague
-  with no prior context, give it the data and the claim, ask for a
-  bounded report. Don't keep them around — they should terminate.
-- **Top-level agents must keepalive when work is async.** When a
-  download / analysis / sub-agent is running, the conversation turn
-  needs a foreground `sleep` to stay alive. Announce the keepalive
-  ("Doing a 60s keepalive while …") *before* sleeping; it's a
-  traceability win for the user and for future you reviewing the
-  transcript. **60s is usually enough**; analyses on this VM finish
-  in under 60s when run in parallel.
-- **Don't trust just one keepalive.** If you can, also leave a
-  second-cheaper signal that will wake you (a status file timestamp,
-  a webhook subscription, a follow-up Bash poll). Defense in depth
-  against the keepalive-sleep itself failing or being suspended.
-- **The user values traceability.** Announce intent before action;
-  surface what changed and what's next; keep tidy disk hygiene so
-  you don't hit VM limits mid-task.
+- **A script ran successfully → I have a finding.** The output is
+  numbers; whether they say what you think requires you to specify
+  *what was being compared, with what statistic, against what null*
+  before you started. Otherwise the post-hoc story is whatever feels
+  satisfying — which is the definition of confirmation bias.
+- **Reading the tail and projecting a trend.** "Layer 35 is 30% and
+  layer 0 was 21%, so it's monotonically rising" is true on average
+  but if layers 4–15 are flat the recipe story is different (a
+  middle-layer plateau suggests early/late regions get different
+  treatment). The mean hides the shape.
+- **"Storage precision" mistaken for "trainability".** A tensor
+  stored in F32 (vs the Q1_0 1-bit format) is *format-preserved*. It
+  may still have been trained during QAT — and the diff vs the
+  teacher tells us. Don't infer freezeness from format.
+- **Comparing across sizes by remembered numbers.** A "row cosine
+  0.45 at 4B vs 0.50 at 1.7B" is meaningful only if the same script
+  with the same arguments produced both. Mixing your local 4B run
+  with a 1.7B number from a doc that may have used a different
+  layer-set or aggregation is a category error you won't notice
+  unless you re-run the smaller size locally.
 
-## Sandbox VM execution notes
+The mental move that helps is to *pre-register the experiment in one
+sentence* — what tensor, what axis, what statistic, what null — and
+then write the result with **uncertainty** (range across measured
+items, n in the average). If you find yourself reaching for prose to
+explain a number rather than a tighter statistic, that's a signal to
+rerun with better methodology.
 
-> Empirical observations from running this repo's analyses inside a fresh
-> Claude Code-on-the-web session, May 2026. Things that surprised me are
-> here so the next agent can plan around them without rediscovering them.
+The repo's findings docs already separate **observed** (reproducible
+from the bytes) from **inferred** (consistent with the data, not
+proven), and tag each implication as **force-by-format**,
+**force-by-data**, or **suggestion**. That separation is load-bearing
+because the reproducer can rely on the first, must verify the second.
 
-## Disk
+## Why use a sub-agent as judge, and how
 
-- `df -h /` reports **252 GB total**, but only roughly **30 GB is actually
-  allocatable** (the rest is reserved blocks). Hitting the cap surfaces as
-  `ENOSPC` in tools or, more confusingly, as `bash: exit code 1` with
-  zero output — `bash` itself can't fork when the disk is full.
-- The 1.7B trio is ~7 GB and is comfortable. The 4B trio is ~16 GB and
-  fits with margin. The **8B trio at ~33 GB does not fit** alongside the
-  uv venv (~5 GB after first sync); free one before pulling the next.
-- `/tmp` is on the same filesystem, but typically only ~30 MB in use —
-  it's not the squeeze. The squeeze is the models directory.
+Your own confirmation bias is real and you can't introspect past it.
+A fresh sub-agent with no prior context, given the data and the
+specific claim, is the cheapest way to surface assumptions you slid
+past. Use the `general-purpose` agent type with `isolation:
+"worktree"` — the worktree matters because:
 
-## Reassembling chunked release assets
+- it gives the sub-agent its own copy of the repo so concurrent
+  edits between you and it don't race,
+- it forces the verification to be self-contained: the sub-agent has
+  to reproduce results from the artifacts on disk, not lean on your
+  framing.
 
-`scripts/fetch_models_from_release.sh`'s reassembly step does
-`cat *.part-* > <name>.tmp && mv <name>.tmp <name>` for atomicity. That
-**doubles peak transient disk usage** for the duration of the cat, which
-is what blew up the 4B fetch in this session — both the chunks and the
-in-progress `.tmp` were on disk simultaneously. Two safer patterns:
+Brief them like a smart colleague who walked into the room cold:
+state the claim, hand over the data path, ask for *the numbers they
+themselves measured* and a HOLDS / WEAKER / DOESN'T HOLD verdict with
+caveats. Bound the report length. Don't treat their assessment as
+authoritative — treat it as the second eye on the same data, which
+is enough to catch most assumption slips.
 
-1. Reassemble in place, deleting chunks before continuing: `cat *.part-* > <name> && rm *.part-*`. This is what I did once the script's first
-   pass had OOM'd.
-2. Stream & remove per chunk:
-   `for p in *.part-*; do cat "$p" >> "$name" && rm "$p"; done`.
-   Lower peak usage, no `.tmp`.
+Sub-agents *terminate*. They are checks, not collaborators. Don't
+keepalive them, don't chain them.
 
-Either way the **`.tmp` intermediate is the trap**.
+## Why keepalive (and announce it)
 
-## Release-asset download speeds
+The CC-on-the-web harness suspends turns that have no foreground
+work. If you kicked off `nohup ... &` and ended your turn, the
+harness can pause the session and your background process can finish
+without you ever seeing the result. The pattern that works is:
 
-Empirically ~**50 MB/s** from `release-assets.githubusercontent.com` on
-this VM. Useful conversions for sizing keepalives:
+1. Start the long-running work as a true background process
+   (`nohup ... &`, **not** `run_in_background: true` on the harness
+   — the harness wrapper has been observed to lose work across
+   suspends).
+2. Hold the turn open with a foreground `sleep` of duration matched
+   to expected work-time (~60 s for typical analyses on this VM).
+3. Check completion in a *separate* Bash call afterward.
 
-- 1.9 GB chunk: **~35–40 s**
-- 4B unpacked (7.6 GB across 3 chunks): **~150 s**
-- 4B base (7.6 GB across 3 chunks): **~150 s**
-- Full 4B trio (16 GB): **~5–6 min wall-clock net**
-- Full 8B trio (33 GB): **~10–12 min wall-clock net**
+The "**announce before sleeping**" part — saying "Doing a 60s
+keepalive while H2 finishes" — is for the user (who's often on
+mobile and watching the transcript stream) and for future-you reading
+the transcript later. A bare `sleep 60` looks indistinguishable from
+the agent dying. The announcement makes the intent legible.
 
-Add ~30 s/shard for the cat-reassembly step. So a fresh 4B fetch is
-realistically a **~7-minute** end-to-end operation.
+If a single `sleep` is the only thing keeping the session alive,
+that's a single point of failure. Where you can, also drop a
+secondary signal — a status file you're watching, a webhook
+subscription, a follow-up poll — so the harness can't strand you on
+one bad sleep.
 
-## uv first-run sync
+This *only* applies to the top-level agent. Sub-agents should run
+their assigned task and exit; making them keepalive defeats the
+short-lived-judge purpose.
 
-`uv run python ...` on a fresh checkout pulls the project's dependency
-graph into a new `.venv/`. The current `pyproject.toml` brings in a
-**CUDA-flavoured torch** (cudnn, cublas, cusparse, cufft, nccl, …) even
-though this VM is CPU-only. That's about **5 GB of disk** spent on
-binaries that never run. A future cleanup could pin a CPU-only torch
-extras-set; not urgent, just a footprint observation.
+## Why mind disk
 
-After first sync, subsequent `uv run` calls use the cached venv and are
-fast.
+`df -h /` here reports 252 GB total but only ~30 GB is actually
+allocatable (the rest is reserved blocks). When you hit the cap, the
+failure mode is **bash itself returning exit code 1 with no
+output** — bash can't fork when the disk is full. That looks like the
+agent is broken, but it's just disk pressure. Cleaning model files
+restores normal operation.
 
-## Repo split for shared-folder release assets
+The classic trap is `cat *.part-* > file.tmp && mv file.tmp file` —
+the `.tmp` intermediate doubles peak transient usage. With ~16 GB of
+chunks in flight and only ~15 GB headroom that's a guaranteed OOM.
+Either reassemble in place (`cat *.part-* > file && rm *.part-*`)
+or stream-and-delete (`for p in *.part-*; do cat "$p" >> file && rm
+"$p"; done`).
 
-Release `models-bonsai-4B-r11` (and equivalents) packs **both** the
-unpacked Bonsai shards and the base Qwen3 shards into the same release
-asset list. They land in the same directory and the
-`model.safetensors.index.json` from one set overwrites the other.
-The comparator scripts iterate every `*.safetensors` in a directory,
-so dropping the shards into `unpacked/` and `base/` subdirectories
-disambiguates them and lets `compare_*.py` do the right thing without
-modification.
+Empirical sizes / speeds for keepalive sizing:
+- 252 GB nominal, ~30 GB allocatable, ~5 GB used by uv's first sync.
+- 1.7B trio ~7 GB, 4B trio ~16 GB, 8B trio ~33 GB. **8B does not fit
+  alongside another size**; free one before pulling the next.
+- Release-asset download ~50 MB/s. 1.9 GB chunk = 35–40 s. Full 4B
+  trio = ~5–6 min net. Full 8B = ~10–12 min net.
+- Add ~30 s/shard for cat-reassembly.
+- uv first-run sync pulls a CUDA-flavoured torch (~5 GB) we don't
+  use; cached after first sync.
 
-## Polling pattern that actually works
+## Quirks of the artifact layout
 
-(Reconfirms the HANDOFF.) Use `nohup ... &` for true background work,
-keep the conversation turn alive with a foreground `sleep`, and check
-progress with separate Bash calls. **Announce the poll** before starting
-the keepalive — the user values traceability.
+- Release `models-bonsai-{size}-r{N}` packs **both** Bonsai-unpacked
+  shards and Qwen3-base shards into the same flat asset list. They
+  share the same `model.safetensors.index.json` filename, which one
+  set overwrites the other on download. Move them into `unpacked/`
+  and `base/` subdirectories before running comparators.
+- HuggingFace egress is blocked at the sandbox proxy
+  (`x-deny-reason: host_not_allowed`). `release-assets.githubusercontent.com`
+  is allowed. Plan downloads accordingly: prefer release-asset
+  fetches via the workflows in `.github/workflows/` over direct HF
+  pulls.
+- The Bonsai-unpacked safetensors file carries no information beyond
+  the GGUF — `dequantize_row_q1_0(GGUF) ≡ Bonsai-unpacked` to FP16
+  storage precision (H1, validated at 1.7B and 4B). For new sizes
+  you can download just the GGUF + base and derive the unpacked
+  on-demand. The `fetch-bonsai-8b.yml` workflow uses this trick to
+  fit inside the 60-min runner cap.
+- `main` is branch-protected; pushes from runners go to `claude/**`
+  branches.
 
-`run_in_background: true` on the harness is fine for short-lived
-foreground commands accidentally backgrounded, but the user explicitly
-prefers `nohup` for long-running work to avoid the harness losing the
-process across session suspends.
+## What the existing scripts do (one-liner each)
+
+- `src/q1_0.py` — pure-Python Q1_0 codec; round-trips byte-identical
+  vs `ggml-quants.c`.
+- `src/gguf_inspect.py` — GGUF metadata + tensor inventory.
+- `src/analyze_q1_0.py` — H3: per-block sign / scale statistics.
+- `src/compare_q1_dequant_vs_unpacked.py` — H1 bridge: dequant(Q1_0)
+  vs Bonsai-unpacked.
+- `src/compare_unpacked_vs_qwen3.py` — H2: identity row cosine + greedy
+  best-row-perm; multi-shard aware.
+- `src/compare_magnitudes.py` — magnitude follow-up; per-block, per-row,
+  per-col stats.
+- `src/test_column_permutation.py` — H4: per-input-column statistics
+  vs base.
+- `src/sign_disagreement.py` — per-tensor flip rate vs Qwen3-base.
+- `src/ptq_baseline_v2.py` — calibration: PTQ-quant Qwen3 directly,
+  measure cos vs original.
+- `src/joint_permutation_search.py` — joint cross-tensor residual-stream
+  permutation search.
+- `scripts/fetch_models_from_release.sh` — fetch + reassemble from a
+  release tag.
+- `scripts/independent_verify.py` — sample of how a verification
+  sub-agent reproduced H1/H2/PTQ/norms claims independently.
+
+## Why all of this is in CLAUDE.md and not a comment in some script
+
+Because future agents arrive cold. They need the model of *what we're
+trying to learn and why this discipline is the right discipline*
+before they can usefully run the next experiment. The rules above are
+illustrations; what we actually want is for the next agent to be able
+to derive them from the situation when our specific examples don't
+apply. Reason about the problem space first; the rules will follow.
