@@ -1,0 +1,60 @@
+## RMSE-optimal scale hypothesis test (8B)
+##
+## Q: given Bonsai's chosen signs σ per 128-block, is the deployed s_g
+## the RMSE-optimal scale for those signs onto Qwen3-base?
+##
+## Specifically: is s_g_bonsai equal to mean(σ_bonsai * w_base) per block?
+## (That value is the unique scalar that minimises ‖s·σ - w_base‖² over s.)
+##
+## Block alignment: identical positional mapping in both Bonsai and base.
+##   - Bonsai GGUF stores weights fast-dim-first (in × out); load_tensor
+##     reverses to HF orientation (out × in).
+##   - Reshape (out, n_blk, 128) on both Bonsai and base produces the
+##     same i-th weight at position (row, blk, i) — element-by-element
+##     positional correspondence.
+
+tensor                                              fit                                  median_ratio  max_block_diff
+  L0.q_proj                                          slope=1.078 int=0.0113 r²=0.598        1.8907           0.0304
+  L0.v_proj                                          slope=1.059 int=0.0195 r²=0.498        2.2589           0.0302
+  L0.mlp.gate_proj                                   slope=0.755 int=0.0207 r²=0.345        2.1899           0.0403
+  lm_head                                            slope=0.890 int=0.0077 r²=0.264        1.1712           0.0430
+  embed_tokens                                       slope=1.000 int=0.0000 r²=1.000        1.0000           0.0001
+
+## Reading
+
+embed_tokens: r²=1.000, slope=1, intercept=0, median ratio = 1.0, max
+diff 1e-4. So Bonsai's embed s_g IS exactly mean(σ_bonsai · w_base) per
+block. Combined with the earlier finding that the SIGNS of Bonsai.embed
+match Qwen3-base byte-for-byte (99.94% sign agreement), the embed is
+fully described by: take Qwen3-base.embed, replace each weight with
+sign(w) * mean(|w|_per_block). That's the formula.
+
+lm_head: r²=0.264 — fit is mediocre. Median ratio of stored s_g to
+RMSE-optimal value = 1.17 — so Bonsai's lm_head scales are slightly
+larger than RMSE-optimal vs base.
+
+q_proj/v_proj/mlp.gate: r² = 0.34-0.60, median ratio 1.9-2.3.
+Bonsai's matrix-heavy scales are roughly *2× the RMSE-optimal value*
+for the chosen signs onto base. So: even given σ_bonsai (whatever
+optimisation chose those signs), the deployed scales are NOT
+minimising distance to Qwen3-base. They're amplified by ~2× past
+that minimum.
+
+What this rules out:
+- "Scale = mean(|w_base|_g) directly" (we already saw 0% scale match).
+- "Scale = RMSE-optimal projection of σ_bonsai onto w_base" (median
+  ratio is 1.9-2.3, not 1.0).
+
+What's still consistent:
+- Scale was learned to minimise *some other objective* — distillation
+  loss on activations, KL on output logits, etc. — where preserving
+  activation magnitude past the matmul matters more than minimising
+  ‖weight - teacher_weight‖.
+- Scale was set to maintain output norms across the layer post-quant
+  (a 'magnitude calibration' step rather than a per-weight fit).
+
+Recipe constraint for a reproduction:
+- Pure formula init for embed (and probably q_norm/k_norm).
+- Matrix-heavy: any reproduction that fits scales by L2 distance to
+  the base weights will land too quiet by ~2x. The technique used a
+  loss that *valued amplification* — likely activation-output-driven.
