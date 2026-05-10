@@ -107,24 +107,24 @@ So the difference is real value drift, not row reordering. At 4B:
 At 1.7B and 8B, both sign-match and byte-match are 0.999+ — so those
 two embeddings ARE the deterministic formula(raw teacher) byte-equal.
 
-**Reading:** at 4B, the deployed embed is *not* `formula(raw teacher)`;
-it is more consistent with `formula(LoRA-shifted teacher)` — i.e.
-the 4B model received a heavier embed-side preprocess (or a longer
-pre-quant fine-tune) than the 1.7B and 8B models. This is a **real
-cross-size recipe difference**.
+**Reading (force-by-data part):** at 4B, the deployed embed is
+*not* `formula(raw teacher)` — sign-match 0.93, byte-match 0.89.
+At 1.7B and 8B, the deployed embed *is* `formula(raw teacher)` to
+within FP16 round-trip noise. So the embed-side processing is not
+uniform across Bonsai sizes.
 
-What this implies for a reproduction: the LoRA preprocess strength
-was *not* uniform across Bonsai sizes. PrismML may have tuned the
-preprocess per-size, with 4B getting more / different LoRA than the
-other two. A reproduction targeting Bonsai-style outputs at 4B will
-need to match this stronger preprocess; targeting 1.7B or 8B can use
-a lighter (or skipped) LoRA on the embedding specifically.
+**Hypothesis (consistent with the bytes; not byte-attested):** the
+4B embed is `formula(some-shifted-teacher)`. The shift could come
+from a pre-quant LoRA fine-tune (PTQ1.61-style; see
+`HASSIBI_LINF_RECIPE_NOTE.md` and `REPRODUCTION_SKELETON.md`) that
+was applied at 4B but not at 1.7B and 8B, or that was applied at
+all three sizes but at different strengths. The bytes alone do not
+distinguish "stronger LoRA at 4B" from "different LoRA target
+modules at 4B" from "different calibration corpus at 4B".
 
-Still open: *why* would 4B specifically need more preprocess than its
-siblings? One speculation: 4B sits at the awkward middle of the
-size-vs-quality tradeoff — small enough to need help, large enough
-that a shorter recipe doesn't get all the way there. But this is
-post-hoc rationalisation, not byte-attested.
+**Recipe constraint for someone reproducing:** test the embed-side
+processing per-size. Don't assume the same preprocess strength
+works at all three Bonsai sizes.
 
 ### Magnitude of cross-size sign-match drift
 
