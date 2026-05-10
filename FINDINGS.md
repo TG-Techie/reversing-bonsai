@@ -119,6 +119,78 @@ IP." The empirical picture matches exactly that:
   would require either a calibration corpus + their loss schedule, or
   white-box gradient observation, neither of which we have.
 
+## Magnitude follow-up — does QAT preserve Qwen3's |w| profile?
+
+The H1/H2/H3 results say *what* Bonsai is (binary lattice, no permutation,
+re-learned signs), but they don't say whether the magnitudes themselves
+inherit anything from Qwen3. We added `src/compare_magnitudes.py` to look at
+three cuts:
+
+  * **Per-128-block.** Pearson correlation between Bonsai's per-block scale
+    `s_g` and four base statistics over the corresponding group of Qwen3
+    weights: `mean(|w|)`, `median(|w|)`, `max(|w|)`, `std(|w|)`.
+  * **Per-output-row** and **per-input-column.** Row/column-wise mean `|w|`
+    in Bonsai-unpacked vs base.
+  * **Global distribution.** Two-sample KS statistic between sampled
+    `{|w_bonsai|}` and `{|w_base|}`.
+
+Aggregates over all 7 Q1_0 tensors in three representative blocks:
+
+```
+                                  block 0     block 13    block 27
+corr s_g vs base mean(|w|):         +0.67       +0.65       +0.37
+corr s_g vs base median(|w|):       +0.58       +0.60       +0.32
+corr s_g vs base max(|w|):          +0.49       +0.52       +0.28
+corr s_g vs base std(|w|):          +0.66       +0.64       +0.36
+corr per-row   mean|w|:             +0.68       +0.66       +0.43
+corr per-col   mean|w|:             +0.12       +0.06       +0.05
+KS(|w_bonsai|, |w_base|):           0.67        0.76        0.71
+ratio s_g / base_mean (median):     1.94        2.38        2.02
+```
+
+Three things stand out:
+
+1. **Block scales are correlated with, but not copied from, Qwen3's
+   per-group magnitude.** Pearson `corr(s_g, mean(|q_g|)) ≈ 0.65` on
+   early/middle layers, dropping to ~0.37 on the last block. So Bonsai's
+   QAT *uses* Qwen3 as a magnitude prior but learns its own scales —
+   especially in later layers, which mirrors the row-cosine drop reported
+   under H2. Naive `s_g = mean(|q_g|)` would yield correlation ≈ 1.0.
+
+2. **Row magnitudes are preserved; column magnitudes are washed out.**
+   Per-output-row `mean|w|` correlates strongly between Bonsai and base
+   (~0.68 → 0.43 across depth), but per-input-column `mean|w|` correlates
+   almost not at all (≤ 0.12). This is structural: Q1_0 stores one scale per
+   128-element block along the input dim, so within a block all 128 input
+   columns share the same magnitude. Bonsai *cannot* represent fine-grained
+   per-input-channel magnitude variation; Qwen3 can. QAT seems to have
+   accepted that loss rather than fighting it.
+
+3. **Bonsai is louder than Qwen3.** Median `s_g / mean(|q_g|)` is ~2× across
+   tensors, peaking at 3× for `attn_v` projections. That's expected:
+   collapsing onto a binary lattice throws out magnitude information, and
+   the surviving scales have to amplify to keep the layer's output norm
+   roughly comparable to the FP16 baseline. Pure L2-optimal sign-quant of a
+   Gaussian would yield ratio `sqrt(π/2) ≈ 1.25`; the observed ~2× suggests
+   QAT pushes magnitudes harder still, which is consistent with re-learning
+   under a binary constraint.
+
+Combined with H2, the picture is coherent: early layers stay close to
+Qwen3 in *both* sign patterns and per-group magnitudes; later layers
+diverge in both. QAT is doing more work in late layers — exactly where you
+want it, since later residual-stream features are the most task-specific
+and the most sensitive to compression.
+
+Raw report: `reports/bonsai-1.7B/06_magnitudes.txt`. Reproduce:
+
+```sh
+uv run python src/compare_magnitudes.py \
+    models/q1/Bonsai-1.7B-Q1_0.gguf \
+    models/unpacked/model.safetensors \
+    models/base/model-00001-of-00002.safetensors \
+    --filter "blk.0\\."   # also blk.13, blk.27
+```
+
 ## Open questions
 
 1. **Sign agreement vs Qwen3 per layer.** We have row cosine; the next step
@@ -172,6 +244,7 @@ reports as a tagged release.
 | H1 — dequant ≡ unpacked | `src/compare_q1_dequant_vs_unpacked.py` |
 | H2 — channel permutation vs Qwen3 | `src/compare_unpacked_vs_qwen3.py` |
 | H3 — sign / scale sortedness | `src/analyze_q1_0.py` |
+| Magnitude follow-up | `src/compare_magnitudes.py` |
 | Format primer / Q1_0 codec | `src/q1_0.py` |
 | GGUF metadata + tensor inventory | `src/gguf_inspect.py` |
 
