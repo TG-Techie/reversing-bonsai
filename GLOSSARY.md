@@ -138,3 +138,57 @@ prove which specific recipe was used.
   the residual stream across embedding output, every Wq/Wk/Wv/Wo input
   column, every layer-norm, every MLP input column, and the LM head
   input.
+
+## Terms added during the recipe-extraction work (May 2026)
+
+- **formula** / **naive Q1\_0** — the deterministic Q1\_0 quantisation of
+  a weight matrix: `w' = sign(w_base) · mean(|w_base|_per_128_block)`.
+  When we say "Bonsai vs formula" or "Bonsai vs naive-quant" we mean the
+  same thing.
+- **RMSE-optimal scale** — for a fixed block sign pattern σ ∈ {±1}^128,
+  the scalar `s* = mean(σ · w_base)` that minimises `‖s · σ - w_base‖²`.
+  For matrix-heavy Bonsai blocks, `s_bonsai ≈ 2 · s*` — i.e. ~2× larger
+  than what would minimise distance to base. Force-by-data; rules out
+  any recipe that fits scales by L2 distance to teacher.
+- **NLC** — *Negative Log Cosine*. The angular-alignment loss term
+  `-log(cos(ŷ, y))` PTQ1.61 adds alongside MSE. Predicts inflated scales
+  past the RMSE-optimum; consistent with our 2× ratio.
+- **digester** — a worktree-isolated, fresh-context sub-agent given one
+  prior-art PDF and the §1 byte facts, returning a verdict on whether
+  the paper's algorithm matches those facts. See
+  `reports/PRIOR_ART_VERDICT_MATRIX.md`.
+- **streaming audit** — the OOM-safe pattern for full-network
+  per-tensor analysis at 8B+: walk each base safetensors shard once;
+  for each tensor in the shard, dequantise the corresponding Bonsai
+  Q1\_0 from the GGUF on demand; compute metrics; free immediately.
+  Peak memory is one tensor pair (~2GB at 8B) instead of all-tensors-
+  at-once (which OOM'd this VM at 17GB).
+- **autonomous-grant mode** — a multi-hour time window the user grants
+  for self-directed work. The discipline is: pick a direction and
+  execute, only stop when the budget runs out, periodic concrete-
+  finding check-ins, and never ask "which direction next?" at batch
+  boundaries. See CLAUDE.md.
+
+### Algorithms / techniques referenced from prior art (NOT empirically attested in Bonsai's pipeline)
+
+- **LoRA** — *Low-Rank Adaptation*. Add-and-train two low-rank matrices
+  alongside frozen teacher weights. Used in PTQ1.61 as a pre-quant
+  restorative step on a small calibration corpus.
+- **STE** — *Straight-Through Estimator*. Replace a discontinuous
+  (e.g. sign) function with its identity in the backward pass so
+  gradients can flow through during training. Standard QAT machinery.
+- **ℓ∞ / ℓ\_∞** — the max-norm regulariser. Hassibi-Akhtiamov-Ghane
+  (arXiv:2402.10474) prove that under ℓ∞-min-norm regression with large
+  λ, weights concentrate at two opposite-sign extreme values `±δ/λ`,
+  giving a 1-bit-friendly fixed point with magnitude inflation past
+  RMSE-optimal. The paper's setting is single-layer linear classifiers
+  on Gaussian-mixture data; extending to deep transformers is the
+  unpublished step that's likely the "Caltech IP".
+- **OBC / GPTQ / BiLLM / OneBit / PTQ1.61 / BinaryLLM / STBLLM /
+  Output-alignment / Radio** — published 1-bit / sub-2-bit quantisation
+  techniques. Each has been digested by a sub-agent and scored against
+  Bonsai's bytes. See `reports/PRIOR_ART_VERDICT_MATRIX.md` for verdicts;
+  `reports/related_papers/` for PDFs.
+- **calibration corpus** — a small sample of input text used by PTQ
+  techniques to compute layer-wise activation statistics. Choice of
+  corpus matters less than its diversity.
