@@ -1,0 +1,161 @@
+name: Fetch Bonsai-8B trio (incremental upload)
+
+# Goal: get the 8B GGUF + base safetensors uploaded to a GitHub Release
+# *eagerly* — i.e. each artifact is pushed as soon as it's downloaded, so
+# a 60-min runner timeout doesn't kill an already-completed download.
+#
+# Skips the unpacked safetensors entirely. Per analyses on 1.7B and 4B,
+# `dequant(Q1_0_GGUF) == unpacked` to <= 1 FP16 ULP elementwise, so the
+# unpacked file carries no information beyond the GGUF; we can derive it
+# locally if needed.
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+      - claude/**
+    paths:
+      - ".github/workflows/fetch-bonsai-8b.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Free disk
+        run: |
+          sudo rm -rf /usr/share/dotnet                || true
+          sudo rm -rf /usr/local/lib/android           || true
+          sudo rm -rf /opt/ghc                         || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL      || true
+          sudo rm -rf /usr/local/share/boost           || true
+          sudo rm -rf /usr/local/share/powershell      || true
+          sudo rm -rf /usr/local/share/chromium        || true
+          sudo rm -rf /usr/share/swift                 || true
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"          || true
+          sudo apt-get autoremove --purge -y           >/dev/null 2>&1 || true
+          sudo apt-get clean                           >/dev/null 2>&1 || true
+          sudo docker system prune -af                 >/dev/null 2>&1 || true
+          df -h /
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with: { enable-cache: true }
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install minimal deps for download
+        run: |
+          uv pip install --system huggingface_hub hf_transfer
+
+      - name: Compute tag
+        id: tag
+        run: |
+          tag="models-bonsai-8B-fetch-r${{ github.run_number }}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Create empty release (idempotent target for incremental uploads)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF: ${{ github.ref_name }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" \
+              --title "Bonsai 8B fetch (run #${{ github.run_number }})" \
+              --notes "Eager incremental fetch of 8B GGUF + base safetensors. Unpacked skipped (== dequant(GGUF) per H1)." \
+              --target "$REF"
+          fi
+
+      - name: Download GGUF (small)
+        env:
+          HF_HUB_ENABLE_HF_TRANSFER: "1"
+        run: |
+          python -c "
+          from huggingface_hub import snapshot_download
+          snapshot_download(
+              repo_id='prism-ml/Bonsai-8B-gguf',
+              local_dir='models/gguf',
+              allow_patterns=['*Q1_0*.gguf', '*.json', 'README*'],
+          )
+          "
+          ls -lh models/gguf
+
+      - name: Stage + upload GGUF eagerly
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -e
+          mkdir -p staging
+          for f in models/gguf/*; do
+            [ -f "$f" ] || continue
+            base=$(basename "$f")
+            ln -sf "$(realpath "$f")" "staging/$base"
+            gh release upload "$TAG" "staging/$base" --clobber
+          done
+
+      - name: Download base Qwen3-8B (the big one)
+        env:
+          HF_HUB_ENABLE_HF_TRANSFER: "1"
+        run: |
+          python -c "
+          from huggingface_hub import snapshot_download
+          snapshot_download(
+              repo_id='Qwen/Qwen3-8B',
+              local_dir='models/base',
+              allow_patterns=['*.safetensors', '*.json', 'README*'],
+          )
+          "
+          ls -lh models/base
+          du -sh models/base
+
+      - name: Split + upload base shards eagerly
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -e
+          mkdir -p staging
+          MAX=$((1900 * 1024 * 1024))
+          for src in models/base/*; do
+            [ -f "$src" ] || continue
+            base=$(basename "$src")
+            sz=$(stat -c%s "$src")
+            if [ "$sz" -le "$MAX" ]; then
+              ln -sf "$(realpath "$src")" "staging/base-$base"
+              gh release upload "$TAG" "staging/base-$base" --clobber
+            else
+              echo "[i] splitting $base ($(du -h "$src" | cut -f1))"
+              split -b 1900M -d --suffix-length=3 \
+                    "$src" "staging/base-${base}.part-"
+              for chunk in staging/base-${base}.part-*; do
+                gh release upload "$TAG" "$chunk" --clobber
+                rm "$chunk"  # save disk after upload — chunk is on the release
+              done
+            fi
+          done
+
+      - name: Compute SHA256SUMS for everything we uploaded
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          # Re-list assets in the release and write a sums file from the
+          # local staging copies that still exist (chunks were rm'd post-
+          # upload to save runner disk; their sums are computed inline
+          # by the splitter step in `analyze-bonsai-8b.yml` for re-fetches).
+          (cd staging && sha256sum -- * 2>/dev/null > SHA256SUMS.staged.txt) || true
+          if [ -s staging/SHA256SUMS.staged.txt ]; then
+            gh release upload "$TAG" "staging/SHA256SUMS.staged.txt" --clobber || true
+          fi
+          gh release view "$TAG"
