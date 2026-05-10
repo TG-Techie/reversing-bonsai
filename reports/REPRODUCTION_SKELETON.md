@@ -169,25 +169,57 @@ identity simply omits this step.
 ## Falsifying tests for the skeleton itself
 
 The recipe is a *hypothesis*. To falsify it (or strengthen
-confidence), reproduce on a small test base and check:
+confidence), reproduce on a small test base and check. The tests
+below check NECESSARY signatures of Bonsai's bytes, but most are
+not SPECIFIC to the candidate recipe — many alternative mechanisms
+(pure QAT with STE, OBC-style activation-aligned sign assignment,
+calibration-gradient sign sampling) would produce the same byte
+signatures.
 
 1. After step 1 (LoRA-only, no quant), is `sign(LoRA-shifted) ==
    sign(teacher)` on ~75% of nonzero positions per matrix-heavy
-   weight? If yes, step 1 explains the 25% sign drift cleanly.
+   weight? If yes, step 1 produces the right amount of sign drift.
+   **Caveat**: this test alone doesn't validate that LoRA is the
+   mechanism — pure QAT with output loss also produces this rate.
+
 2. After step 2 (formula-only, no SGD), does `dequant(Q1_0) ==
    formula(LoRA-shifted)` byte-equal? Should be yes by construction.
+
 3. After step 4 on one layer, are the per-block scales **larger**
    than `mean(|W_LoRA|_per_block)` by ~2× median? If so, the
-   NLC-augmented objective is reproducing Bonsai's inflation
+   activation-output objective is reproducing Bonsai's inflation
    pattern. If not, step 4 is wrong.
+
 4. Across all 36 layers post-step-4, does the joint r² of base
    features predicting α come out *erratic with depth* (q/k/v/o
-   stable; MLP bouncing)? If so, the forward-sequential order is
+   stable; MLP bouncing)? If so, the forward-sequential ordering is
    reproducing Bonsai's signature. If not, step 4 ordering is wrong.
 
-These four tests are the minimum to claim "this skeleton matches
-Bonsai's bytes". A reproduction that fails any of them needs
-adjustment.
+5. After step 3 on a representative MLP gate/up tensor at MULTIPLE
+   depths: does per-row Pearson(deployed alpha, mean(|w_teacher|))
+   *decrease with depth*? Bonsai shows ~0.6 at L0, ~0.42 at L18,
+   ~0.21 at L35 for gate. A reproduction that gives a flat-with-
+   depth Pearson at MLP isn't reproducing Bonsai's depth-conditioning
+   of the per-row choice deviation.
+
+6. After step 4 on the full network, are top-1% blocks clustered by
+   row (1.5-22% of rows) and approximately uniform across columns?
+   If columns are also concentrated, the optimisation isn't matching
+   Bonsai's per-output-channel amplification signature.
+
+7. **Magnitude-graded sign flips.** Bin teacher weights by |w|
+   decile; flip rate should be smooth monotone d1 ~0.47 → d10 ~0.025
+   at 8B (slightly looser at smaller sizes). **Caveat**: any sign-
+   quantisation-with-output-loss procedure produces this curve;
+   passing this test confirms the family but not the specific
+   mechanism.
+
+These tests are the minimum to claim "this skeleton's *byte
+signature* matches Bonsai's". A reproduction that fails any of them
+needs adjustment. A reproduction that passes all of them has matched
+Bonsai's byte fingerprint, but that's compatible with several
+mechanism families — not exclusively the LoRA + SGD-α path
+described above.
 
 ## Why this skeleton is worth taking seriously
 
