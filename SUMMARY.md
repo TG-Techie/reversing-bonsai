@@ -116,11 +116,19 @@ section is anchored to a specific report under `reports/local-*/`.
     is *smaller* than at L0. Cross-size at 1.7B
     (`local-1.7B/42_*`) shows the spike does NOT replicate: 1.7B's
     L1 MLP over-dispersion is only 1.5-2.5. So a separate L1-3
-    rewrite step (uniformly applied across sizes) is RULED OUT. The
-    spike is a size-specific *output* of the recipe interacting with
-    Qwen3-8B's specific weight distribution — most consistent with
-    OBC-style sequential where accumulated activation error compounds
-    more strongly when more layers follow the early ones.
+    rewrite step (uniformly applied across sizes) is RULED OUT.
+23. **The L1-3 spike is MLP-specific** — attention at L1-3 shows no
+    spike in either over-dispersion (`40_*`: q ~1.7-2.1, in line
+    with q's 1.7-3.2 across all depths) OR rank-concentration
+    (`43_*`: q rank-128 = 13.27-14.68% across all 6 probed depths,
+    1.4pp spread). The asymmetric MLP-only spike is most easily
+    explained by OBC-style sequential quantisation that processes
+    attention BEFORE MLP within each layer block: MLP at L1 sees
+    extra accumulated error from L1-attention's quantisation that
+    attn at L1 doesn't, and this within-block extra-error is
+    proportionally biggest at early layers (where total accumulated
+    error is smallest). This is a testable prediction on
+    reproductions.
 
 ## What we INFER (not byte-attested, but consistent)
 
