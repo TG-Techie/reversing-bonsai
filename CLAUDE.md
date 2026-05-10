@@ -322,6 +322,18 @@ prior framing.** Two valuable patterns from this run:
    behind this artifact and their own publications". Do not combine —
    the search strategies are different and the second is much more
    constrained. (See `reports/RELATED_RESEARCH.md` for output.)
+3. *Recipe-as-written verification.* When you have a candidate recipe
+   you've spent hours building up, spawn a sub-agent and give it the
+   recipe + the data path. Tell it to *independently measure* the
+   recipe's claims and report numbers. **Specifically tell it your
+   known biases** ("the author has a known confirmation bias toward
+   X; if you see evidence inconsistent with X, point it out"). This
+   is the pattern that caught real over-statements in this run —
+   the verifier flagged that the magnitude-graded sign-flip pattern
+   was being read as evidence FOR a LoRA preprocess, when in fact it
+   is consistent with several mechanisms. The author's confirmation
+   bias was real and the verifier surfaced it. **Use this pattern
+   before publishing or merging recipe-style claims.**
 
 **Compare against the deterministic formula AND the base model
 explicitly; sync state in messages.** The "formula" `sign(w_base) ·
