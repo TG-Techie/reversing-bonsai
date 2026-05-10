@@ -25,32 +25,68 @@ DEST_ROOT=${DEST_ROOT:-models}
 
 API="https://api.github.com/repos/$REPO"
 
-resolve_tag() {
+# Prefer the in-tree models/MANIFEST.yaml (no network needed to discover
+# the tag + asset list). Fall back to GitHub API if the manifest's missing
+# or doesn't list the requested (family, size).
+read_manifest() {
+  local family="$1" size="$2"
+  python3 - "$family" "$size" <<'PY'
+import sys, pathlib
+fam, size = sys.argv[1], sys.argv[2]
+p = pathlib.Path("models/MANIFEST.yaml")
+if not p.exists():
+    sys.exit(3)
+try:
+    import yaml
+    data = yaml.safe_load(p.read_text()) or {}
+except Exception:
+    sys.exit(3)
+rel = (data.get("releases") or {}).get(f"{fam}-{size}")
+if not rel:
+    sys.exit(3)
+print(rel["tag"])
+for f in rel.get("files", []):
+    print(f["name"], f["url"])
+PY
+}
+
+resolve_tag_via_api() {
   local prefix="$1"
-  # Returns most recent release tag matching prefix
   curl -sL -m 10 "$API/releases?per_page=30" \
     | python3 -c "
 import json, sys
-prefix=$(printf '%s' "$prefix" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')
+prefix=sys.argv[1]
 data=json.load(sys.stdin)
 for r in data:
     t=r.get('tag_name','')
     if t.startswith(prefix):
         print(t); sys.exit(0)
-"
+" "$prefix"
 }
 
 TAG="${1:-}"
+ASSETS_FROM_MANIFEST=()
+
 if [ -z "$TAG" ]; then
   fam="${FAMILY:-bonsai}"
   sz="${SIZE:-1.7B}"
-  PREFIX="models-${fam}-${sz}-r"
-  TAG=$(resolve_tag "$PREFIX")
-  if [ -z "$TAG" ]; then
-    echo "ERROR: no release with tag prefix '$PREFIX' found in $REPO" >&2
-    exit 2
+  if mf=$(read_manifest "$fam" "$sz" 2>/dev/null); then
+    # First line is the tag; remaining lines are "<name> <url>".
+    TAG=$(printf '%s\n' "$mf" | head -1)
+    while IFS=' ' read -r name url; do
+      [ -z "$name" ] && continue
+      ASSETS_FROM_MANIFEST+=("$name|$url")
+    done < <(printf '%s\n' "$mf" | tail -n +2)
+    echo "[i] tag from manifest: $TAG (${#ASSETS_FROM_MANIFEST[@]} assets)"
+  else
+    PREFIX="models-${fam}-${sz}-r"
+    TAG=$(resolve_tag_via_api "$PREFIX")
+    if [ -z "$TAG" ]; then
+      echo "ERROR: no release with tag prefix '$PREFIX' in $REPO and no models/MANIFEST.yaml" >&2
+      exit 2
+    fi
+    echo "[i] tag from API: $TAG"
   fi
-  echo "[i] auto-resolved tag: $TAG"
 fi
 
 # Parse family + size from tag (models-<family>-<size>-r<n>)
@@ -63,14 +99,23 @@ cd "$DEST"
 
 echo "[i] release tag: $TAG  -> destination: $(pwd)"
 
-# Get list of asset URLs
-mapfile -t ASSETS < <(curl -sL -m 15 "$API/releases/tags/$TAG" \
-  | python3 -c "
+# Get list of asset URLs — prefer the manifest (1 file already on disk)
+# over the GitHub API (auth-light, rate-limited from anonymous IPs).
+declare -a ASSETS
+if [ "${#ASSETS_FROM_MANIFEST[@]}" -gt 0 ]; then
+  for entry in "${ASSETS_FROM_MANIFEST[@]}"; do
+    IFS='|' read -r name url <<< "$entry"
+    ASSETS+=("$url")
+  done
+else
+  mapfile -t ASSETS < <(curl -sL -m 15 "$API/releases/tags/$TAG" \
+    | python3 -c "
 import json, sys
 d=json.load(sys.stdin)
 for a in d.get('assets',[]):
     print(a['browser_download_url'])
 ")
+fi
 if [ "${#ASSETS[@]}" -eq 0 ]; then
   echo "ERROR: no assets attached to $TAG" >&2
   exit 1
@@ -78,7 +123,7 @@ fi
 
 # Download each asset
 for url in "${ASSETS[@]}"; do
-  name=$(basename "$url")
+  name=$(basename "$url" | sed 's/[?].*$//')   # strip any signed-URL query
   if [ -f "$name" ]; then
     echo "[skip] $name already present"
   else

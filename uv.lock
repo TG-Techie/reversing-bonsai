@@ -503,6 +503,7 @@ dependencies = [
     { name = "hf-transfer" },
     { name = "huggingface-hub" },
     { name = "numpy" },
+    { name = "pyyaml" },
     { name = "safetensors" },
 ]
 
@@ -512,6 +513,7 @@ requires-dist = [
     { name = "hf-transfer", specifier = ">=0.1.9" },
     { name = "huggingface-hub", specifier = ">=1.14.0" },
     { name = "numpy", specifier = ">=2.4.4" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "safetensors", specifier = ">=0.7.0" },
 ]
 

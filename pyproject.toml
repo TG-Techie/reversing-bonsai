@@ -7,5 +7,6 @@ dependencies = [
     "hf-transfer>=0.1.9",
     "huggingface-hub>=1.14.0",
     "numpy>=2.4.4",
+    "pyyaml>=6.0.3",
     "safetensors>=0.7.0",
 ]

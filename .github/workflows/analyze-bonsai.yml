@@ -73,14 +73,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Free disk
+      - name: Free disk (aggressive — needed for 8B FP16)
         run: |
-          # GH runners ship with ~14 GB free; full-precision Qwen3-8B is
-          # ~16 GB so we trim toolchains we don't need before downloads.
-          df -h /
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
-                      /opt/hostedtoolcache/CodeQL || true
-          df -h /
+          # GH runners ship with ~14 GB free on /. The 8B FP16 unpacked +
+          # base is 32 GB, so we wipe every preinstalled toolchain we don't
+          # need. After this we typically have ~50 GB free on /.
+          echo "== before =="; df -h /
+          sudo rm -rf /usr/share/dotnet                || true
+          sudo rm -rf /usr/local/lib/android           || true
+          sudo rm -rf /opt/ghc                         || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL      || true
+          sudo rm -rf /usr/local/share/boost           || true
+          sudo rm -rf /usr/local/share/powershell      || true
+          sudo rm -rf /usr/local/share/chromium        || true
+          sudo rm -rf /usr/share/swift                 || true
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"          || true
+          sudo apt-get autoremove --purge -y           >/dev/null 2>&1 || true
+          sudo apt-get clean                           >/dev/null 2>&1 || true
+          sudo docker system prune -af                 >/dev/null 2>&1 || true
+          echo "== after =="; df -h /
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
@@ -404,6 +415,101 @@ jobs:
             done
           } > "${{ steps.stage.outputs.dest }}/release.yaml"
 
+      - name: Update repo-level models/MANIFEST.yaml
+        if: ${{ steps.store.outputs.want_release == 'true' }}
+        env:
+          TAG: ${{ steps.store.outputs.tag }}
+          FAMILY: ${{ steps.paths.outputs.family }}
+          SIZE: ${{ steps.paths.outputs.size }}
+        run: |
+          set -e
+          # MANIFEST.yaml is a single tree-resident index of every model
+          # release this repo has ever produced. fetch_models_from_release.sh
+          # reads it to know which assets to download for which (family,size).
+          mkdir -p models
+          uv run python - <<'PY'
+          import os, re, subprocess, json, hashlib, pathlib, sys
+          tag    = os.environ["TAG"]
+          family = os.environ["FAMILY"]
+          size   = os.environ["SIZE"]
+          repo   = os.environ.get("GITHUB_REPOSITORY", "")
+          run_no = os.environ.get("GITHUB_RUN_NUMBER", "0")
+          commit = os.environ.get("GITHUB_SHA", "")
+
+          # Collect what was actually staged for upload.
+          staging = pathlib.Path("staging")
+          files = []
+          for p in sorted(staging.iterdir()):
+              if not p.is_file() or p.is_symlink() and not p.exists():
+                  continue
+              name = p.name
+              # Symlinks point at single (non-split) original; resolve their target size.
+              real = p.resolve() if p.is_symlink() else p
+              files.append({
+                  "name": name,
+                  "size_bytes": real.stat().st_size,
+                  "url": f"https://github.com/{repo}/releases/download/{tag}/{name}",
+                  "is_chunk": ".part-" in name,
+              })
+
+          # Try yaml; fallback to a tiny hand-rolled emitter if not installed.
+          try:
+              import yaml
+          except ImportError:
+              yaml = None
+
+          path = pathlib.Path("models/MANIFEST.yaml")
+          if path.exists() and yaml:
+              data = yaml.safe_load(path.read_text()) or {}
+          else:
+              data = {}
+          data.setdefault("releases", {})
+
+          # Index by (family, size). Newest run wins; earlier ones moved to history.
+          key = f"{family}-{size}"
+          existing = data["releases"].get(key)
+          if existing and existing.get("tag") != tag:
+              data.setdefault("history", []).append(existing)
+          data["releases"][key] = {
+              "family": family,
+              "size":   size,
+              "tag":    tag,
+              "release_url": f"https://github.com/{repo}/releases/tag/{tag}",
+              "run_number": int(run_no),
+              "commit":     commit,
+              "files":      files,
+          }
+
+          if yaml:
+              path.write_text(yaml.safe_dump(data, sort_keys=False))
+          else:
+              # Minimal yaml output sufficient for our reader
+              import io
+              buf = io.StringIO()
+              def emit(d, indent=0):
+                  for k, v in d.items():
+                      pad = "  " * indent
+                      if isinstance(v, dict):
+                          buf.write(f"{pad}{k}:\n"); emit(v, indent+1)
+                      elif isinstance(v, list):
+                          buf.write(f"{pad}{k}:\n")
+                          for item in v:
+                              if isinstance(item, dict):
+                                  first = True
+                                  for ik, iv in item.items():
+                                      prefix = "- " if first else "  "
+                                      buf.write(f"{pad}  {prefix}{ik}: {json.dumps(iv)}\n")
+                                      first = False
+                              else:
+                                  buf.write(f"{pad}  - {json.dumps(item)}\n")
+                      else:
+                          buf.write(f"{pad}{k}: {json.dumps(v)}\n")
+              emit(data)
+              path.write_text(buf.getvalue())
+          print("wrote", path)
+          PY
+          cat models/MANIFEST.yaml
+
       - name: Stage Q1_0 GGUF for LFS commit
         if: ${{ steps.store.outputs.want_lfs == 'true' }}
         run: |
@@ -435,6 +541,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Always stage reports.
           git add "${{ steps.stage.outputs.dest }}/"
+          # And the repo-level manifest (only present if we made a release).
+          [ -f models/MANIFEST.yaml ] && git add models/MANIFEST.yaml
           # If LFS mode is on, also stage the GGUF + .gitattributes.
           if [ "$WANT_LFS" = "true" ]; then
             git add .gitattributes \
