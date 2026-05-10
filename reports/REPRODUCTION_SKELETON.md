@@ -214,12 +214,72 @@ signatures.
    passing this test confirms the family but not the specific
    mechanism.
 
+8. **Per-block flip-count over-dispersion** (new, see
+   `local-8B/37_*`). Per-block flip counts should be over-dispersed
+   vs Binomial. Specifically:
+   - At q_proj L0 8B: deciles d1=2.74, d10=3.39, range 1.2-3.4.
+   - A pure-i.i.d.-element-wise-flip recipe gives ~1.0 (Binomial).
+   - A Gaussian-noise simulator matched to the marginal flip rate
+     also gives ~1.0 across deciles — so this is a tight
+     discriminator: the recipe's per-block decisions must produce
+     block-correlated flips (block-as-unit decision in the SGD-α
+     step is the natural mechanism).
+
+9. **Cross-grid over-dispersion at 8B** (new, `local-8B/38_*` and
+   `40_*`). Full 36-layer × 5-projection sweep should reproduce:
+   - q over-dispersion 1.7-3.2 across all 36 layers
+   - v rises monotonically 1.1 → 1.8 with depth
+   - mlp.gate/up: U-shaped (10-13 at L1-L3, 1.1-1.4 mid, 2.2 at L35)
+   - mlp.down stays modest 1.0-1.5 throughout
+   A reproduction that produces uniform over-dispersion across
+   (depth, type) doesn't match — there must be depth/type
+   conditioning in the mechanism.
+
+10. **Depth-resolved SVD on MLP gate/up** (new, `local-8B/39_*` and
+    `41_*`). Rank-128 % of squared-Frobenius-norm of `(W_bonsai -
+    W_teacher)`:
+    - Essentially flat across L0/L9/L18/L27/L35 (7.45-9.05%).
+    - Slightly elevated at L1-L2 (10-12%), but still NOT
+      LoRA-rank-128-dominated.
+    - The delta MAGNITUDE is SMALLER at L1-3 than at baseline
+      (||delta||F gate L1=152 vs L0=191).
+    A reproduction with depth-graded LoRA rank fails this — would
+    show rank-128 % rising substantially with depth.
+
+11. **L1-3 8B-specific spike, NOT replicated at 1.7B** (new,
+    `local-1.7B/42_*`). At 1.7B the L1 MLP over-dispersion is only
+    1.5-2.5 (vs 8B's 10-13). A reproduction that produces the L1-3
+    spike at all sizes uniformly has the wrong mechanism even if 8B
+    numbers match. The spike must emerge as a *side effect* of the
+    algorithm running on Qwen3-8B specifically — not as an explicit
+    L1-3 step.
+
+12. **Teacher-sign-blockstruct confound check** (new,
+    `local-8B/40_*`). Per-block teacher signs are i.i.d.
+    (over-dispersion ~1.0 with shuffle controls matching to ±0.014).
+    So the over-dispersion findings (8)-(11) are NOT inherited from
+    teacher structure — they're real recipe-step signatures. A
+    reproduction's teacher-signs-within-blocks should be similarly
+    uncorrelated.
+
 These tests are the minimum to claim "this skeleton's *byte
 signature* matches Bonsai's". A reproduction that fails any of them
 needs adjustment. A reproduction that passes all of them has matched
 Bonsai's byte fingerprint, but that's compatible with several
 mechanism families — not exclusively the LoRA + SGD-α path
 described above.
+
+The 38_*-42_* findings collectively narrow the mechanism family.
+**OBC-style sequential per-block reconstruction with layer-wise
+compounded activation error** is the most parsimonious fit:
+- Approximately full-rank delta across all (depth, type) (`34_*`,
+  `39_*`, `41_*`).
+- Block-correlated flips by construction (`37_*`, `38_*`).
+- Depth-growing block-coupling at MLP / monotonic rise at v
+  (compounded earlier-layer error feeds later-layer per-block
+  decisions) (`40_*`).
+- 8B-specific L1-3 spike emerging from the deeper architecture
+  amplifying L0's quantisation error into L1's input (`42_*`).
 
 ## Why this skeleton is worth taking seriously
 
