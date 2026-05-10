@@ -1,0 +1,180 @@
+## Full 36-layer over-dispersion sweep at 8B
+
+Refines `38_*` (3-depth probe) to all 36 layers × 5 matrix-heavy
+projections. Surfaces a much richer depth shape than the 3-depth
+probe could see.
+
+Also includes a teacher-sign-blockstruct confound check: per-block
+teacher signs are i.i.d. (over-dispersion ~1.0 with shuffle controls
+matching to ±0.014). So the over-dispersion in Bonsai-vs-teacher
+flip counts is NOT inherited from teacher structure.
+
+## Confound check (teacher-sign blockstruct)
+
+```
+location               p_pos     obs_overdisp   shuf_overdisp   excess
+L0  attn_q              0.5001    0.999          1.002           -0.003
+L0  attn_v              0.5001    0.998          0.992           +0.006
+L0  ffn_gate            0.5003    1.001          0.999           +0.002
+L0  ffn_up              0.4999    1.003          1.001           +0.002
+L0  ffn_down            0.4999    0.999          0.999           +0.000
+L18 attn_q              0.5000    1.010          0.999           +0.011
+L18 attn_v              0.5000    1.005          1.009           -0.004
+L18 ffn_gate            0.5000    0.997          0.998           -0.001
+L18 ffn_up              0.5001    1.002          0.997           +0.004
+L18 ffn_down            0.5001    1.002          1.002           +0.001
+L35 attn_q              0.5001    1.005          0.997           +0.008
+L35 attn_v              0.5003    1.003          0.989           +0.014
+L35 ffn_gate            0.4993    1.000          0.997           +0.003
+L35 ffn_up              0.5001    1.005          1.003           +0.002
+L35 ffn_down            0.5000    1.000          0.999           +0.002
+```
+
+Teacher signs are essentially i.i.d. within blocks at every probed
+(depth, type). Excess over uniform-shuffle baseline is at most +0.014.
+So our flip-count over-dispersion measurement is real, not a
+confound from teacher block structure.
+
+## Full 36-layer sweep (flip-rate p, over-dispersion ratio od)
+
+```
+L  |   q_p   q_od |   v_p   v_od |  gp_p   gp_od |  up_p   up_od |  dn_p   dn_od
+ 0 |0.2483  2.195 |0.1990  1.121 |0.2419   1.119 |0.2481   1.069 |0.1709   1.226
+ 1 |0.2379  1.782 |0.2015  1.269 |0.3449  10.268 |0.3712  11.063 |0.3217   1.495
+ 2 |0.2361  1.839 |0.2007  1.107 |0.3687  10.199 |0.3754  13.034 |0.3383   1.345
+ 3 |0.2288  2.097 |0.1994  1.298 |0.3251  12.110 |0.3412  10.370 |0.2957   1.086
+ 4 |0.2446  1.727 |0.1941  1.103 |0.2121   2.539 |0.2752   4.503 |0.1985   1.199
+ 5 |0.2472  1.785 |0.1988  1.356 |0.2246   2.006 |0.2533   1.077 |0.2009   1.061
+ 6 |0.2519  1.612 |0.1859  1.352 |0.2271   1.379 |0.2457   1.062 |0.1888   1.114
+ 7 |0.2468  1.902 |0.1882  1.784 |0.2378   1.177 |0.2493   1.075 |0.2018   1.116
+ 8 |0.2572  1.713 |0.1841  1.182 |0.2459   1.160 |0.2396   1.080 |0.1984   1.128
+ 9 |0.2583  2.083 |0.1904  1.437 |0.2424   1.469 |0.2386   1.133 |0.2029   1.210
+10 |0.2673  1.943 |0.1884  1.246 |0.2453   1.406 |0.2386   1.175 |0.2013   1.207
+11 |0.2659  1.840 |0.1899  1.273 |0.2517   1.224 |0.2416   1.158 |0.2051   1.262
+12 |0.2695  2.159 |0.1954  1.215 |0.2567   1.219 |0.2434   1.214 |0.2091   1.269
+13 |0.2575  2.370 |0.1977  1.148 |0.2611   1.237 |0.2456   1.280 |0.2139   1.254
+14 |0.2711  1.739 |0.1962  1.115 |0.2645   1.242 |0.2477   1.254 |0.2154   1.313
+15 |0.2674  2.314 |0.2050  1.084 |0.2704   1.234 |0.2546   1.246 |0.2224   1.389
+16 |0.2785  2.053 |0.2035  1.219 |0.2705   1.243 |0.2547   1.233 |0.2176   1.372
+17 |0.2743  2.505 |0.2098  1.074 |0.2740   1.264 |0.2587   1.251 |0.2273   1.383
+18 |0.2672  1.948 |0.1996  1.169 |0.2746   1.286 |0.2609   1.232 |0.2311   1.408
+19 |0.2854  2.347 |0.2069  1.272 |0.2770   1.360 |0.2624   1.291 |0.2331   1.344
+20 |0.2727  2.707 |0.2042  1.094 |0.2780   1.302 |0.2625   1.222 |0.2340   1.289
+21 |0.2735  2.177 |0.2085  1.295 |0.2829   1.371 |0.2651   1.290 |0.2363   1.205
+22 |0.2889  2.505 |0.2057  1.592 |0.2857   1.424 |0.2668   1.292 |0.2302   1.128
+23 |0.2780  2.156 |0.2030  1.564 |0.2836   1.395 |0.2686   1.214 |0.2244   1.194
+24 |0.2752  2.591 |0.2265  1.725 |0.2862   1.338 |0.2718   1.155 |0.2229   1.207
+25 |0.2920  1.726 |0.2170  1.489 |0.2850   1.305 |0.2722   1.117 |0.2232   1.212
+26 |0.2909  2.273 |0.2127  1.394 |0.2821   1.294 |0.2709   1.112 |0.2214   1.291
+27 |0.2974  2.222 |0.2261  1.377 |0.2800   1.298 |0.2694   1.107 |0.2203   1.327
+28 |0.2845  2.252 |0.2191  1.672 |0.2765   1.356 |0.2667   1.127 |0.2193   1.388
+29 |0.2860  2.820 |0.2473  1.628 |0.2743   1.295 |0.2652   1.108 |0.2152   1.444
+30 |0.3040  1.848 |0.2229  1.640 |0.2734   1.287 |0.2640   1.115 |0.2151   1.484
+31 |0.2996  2.100 |0.2289  1.570 |0.2728   1.275 |0.2622   1.102 |0.2164   1.497
+32 |0.2924  2.277 |0.2378  1.250 |0.2741   1.281 |0.2608   1.112 |0.2185   1.416
+33 |0.2859  2.835 |0.2296  1.729 |0.2787   1.379 |0.2612   1.175 |0.2186   1.218
+34 |0.2704  3.168 |0.2235  1.676 |0.2760   1.639 |0.2576   1.323 |0.2181   1.071
+35 |0.2738  2.666 |0.2368  1.836 |0.2415   2.157 |0.2195   2.248 |0.1887   1.035
+```
+
+## Reading
+
+The depth shape is much richer than the 3-depth probe (`38_*`)
+suggested. Five distinct patterns emerge:
+
+### 1. L1-L3 MLP "disturbance spike" — block coupling 10-13×
+
+`ffn_gate` and `ffn_up` at L1-3 show over-dispersion 10-13 — far
+higher than anywhere else in the model. Combined with the elevated
+flip rate (0.32-0.38 vs typical 0.24-0.28), this means per-block
+flip counts at L1-3 vary by ±17 positions around their mean of ~45
+(vs ±5 expected under Binomial). Many blocks flip >60 positions
+while many flip <30.
+
+This is the same "disturbance dip" zone where sign-match-vs-teacher
+also drops to 0.62-0.65 (older finding). Whatever rewrote L1-3 MLPs
+did so with extreme block-coherence.
+
+### 2. L4 transition — over-dispersion drops sharply but is still elevated
+
+L4 ffn_gate od=2.54, ffn_up od=4.50 — still elevated above L0 but
+tapering toward middle-layer pattern.
+
+### 3. L5-L30 middle plateau — modest coupling
+
+`ffn_gate` over-dispersion 1.16-1.43 (mean ~1.27). `ffn_up` is
+essentially Binomial through L5-L30 (1.06-1.30, mean ~1.16).
+Mid-layer `attn_q` stays elevated 1.7-2.8. `attn_v` rises gradually
+1.1-1.7 across this band.
+
+### 4. L33-L35 deep-MLP rise — second bump
+
+`ffn_gate`: 1.38 (L33) → 1.64 (L34) → 2.16 (L35).
+`ffn_up`:   1.18 (L33) → 1.32 (L34) → 2.25 (L35).
+`attn_q` peaks at 3.17 (L34) then 2.67 (L35).
+
+### 5. `attn_v` rises monotonically with depth
+
+L0 1.12 → L20 1.09 → L29 1.63 → L33 1.73. v is the
+"control" tensor (lightest perturbation), and even there block
+coupling rises with depth — though more gradually than at MLP.
+
+## Implication
+
+The depth shape is **U-shaped at MLP** (L1-3 spike + L33-35 rise +
+mid plateau), **gradually-rising at v**, and **uniformly elevated at
+q**. A single mechanism with a single depth-conditioned strength
+parameter cannot produce all three patterns simultaneously.
+
+The recipe must include:
+- An L1-3 MLP "rewrite" step with very high block-coherence — could
+  be a low-rank LoRA targeted at L1-3 specifically (rank << 128
+  would explain over-dispersion 10+); could be OBC-style sequential
+  with very high accumulated error at the early layers.
+- A depth-graded coupling for late MLP and v (consistent with
+  OBC-style sequential reconstruction-error compounding).
+- Mid-layer block-coupling that's modest but non-zero (especially
+  at q).
+
+## Combined with `39_*` (depth-resolved SVD)
+
+`39_*` showed rank-128 % of squared-Frobenius-norm of (W_bonsai -
+W_teacher) is essentially flat at MLP gate/up across L0/L9/L18/L27/L35
+(7.45-9.05%). But `39_*` did NOT probe L1-3 specifically.
+
+If L1-3 MLPs ARE heavy-rank-LoRA (which would naturally produce
+over-dispersion 10+), then the SVD at L1-3 should show
+substantially-higher rank-128 % than the L0/L9/L18/L27/L35 sample.
+This is a clear follow-up test (queued for a later commit).
+
+Conversely, if L1-3 SVD shows the same ~8% rank-128 fraction, then
+the L1-3 spike is ALSO not LoRA-rank-driven, and a single
+mechanism (OBC-style with very high accumulated error at early
+layers, or some other block-coherence mechanism unrelated to rank)
+becomes the more parsimonious explanation.
+
+## Recipe constraints
+
+A reproduction must produce ALL of:
+1. q_proj over-dispersion 1.7-3.2 across every depth
+2. v_proj over-dispersion rising from ~1.1 (early) to ~1.7-1.8 (deep)
+3. MLP gate/up: 10-13 at L1-3, dropping to ~1.1-1.4 in middle, rising
+   to 2.2 at L35
+4. ffn_down: modest (1.0-1.5) flat across depth
+5. flip rate at L1-3 MLP elevated (0.32-0.38) vs typical (0.24-0.28)
+
+A "single uniform LoRA rank" recipe cannot land all of these. A
+"single OBC pass" recipe with no per-layer parameter could hit (1),
+(2), and the L33-35 rise — but the L1-3 spike requires either:
+- An additional per-layer rewrite step at L1-3 specifically, or
+- A loss with sufficient L1-3-specific weight to drive the high
+  flip rate AND high block-coherence simultaneously.
+
+## Caveats
+
+- One model size (8B). The L1-3 spike was previously seen at 1.7B
+  (sign-match dip). Cross-size confirmation of the over-dispersion
+  spike at 1.7B/4B is a useful follow-up.
+- Single seed; no resampling-noise estimate. Mid-layer over-dispersion
+  fluctuations are within ±0.5; the L1-3 numbers (10-13) are
+  qualitatively distinct from anywhere else.
