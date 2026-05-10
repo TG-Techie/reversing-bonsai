@@ -38,8 +38,8 @@ on:
         description: "Substring filter for per-tensor analysis (e.g. blk.0., attn_q, ffn_down)"
         required: false
         default: ""
-      commit_reports:
-        description: "Commit the reports/ directory back to the triggering branch"
+      push_results:
+        description: "Push the analysis reports + models/MANIFEST.yaml back to the triggering branch"
         required: true
         default: true
         type: boolean
@@ -283,7 +283,7 @@ jobs:
           echo "dest=$DEST" >> "$GITHUB_OUTPUT"
           ls -lh "$DEST"
 
-      - name: Upload reports artifact (always — useful even when commit_reports=false)
+      - name: Upload reports artifact (always — useful even when push_results=false)
         uses: actions/upload-artifact@v4
         with:
           name: analysis-${{ steps.paths.outputs.family }}-${{ steps.paths.outputs.size }}
@@ -530,8 +530,10 @@ jobs:
           fi
           git lfs install --local
 
-      - name: Commit reports (and optional LFS-tracked Q1_0) back to branch
-        if: ${{ inputs.commit_reports != false && github.event_name == 'workflow_dispatch' }}
+      - name: Push results (reports + manifest, +LFS Q1_0 if set) to triggering branch
+        # On a workflow_dispatch run, respect the user's push_results choice.
+        # On a push-triggered run there are no inputs, so default to pushing.
+        if: ${{ (github.event_name != 'workflow_dispatch') || (inputs.push_results != false) }}
         env:
           REF: ${{ github.ref_name }}
           WANT_LFS: ${{ steps.store.outputs.want_lfs }}
