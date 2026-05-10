@@ -1,0 +1,60 @@
+## Per-layer scale-CV vs sign-match correlation at 8B
+
+For each (layer, projection_type) at 8B, compute:
+  - cv = per-block scale std / mean  (from GGUF, no dequant)
+  - sign-match = fraction of nonzero positions matching teacher sign
+                 (from reports/local-8B/20_full_36layer_audit.txt)
+
+Then correlate per-layer (cv, sign-match) for each projection type
+across the 36 layers.
+
+If cv and sign-match track the same underlying disturbance, the
+correlation should be NEGATIVE (high cv = low sign-match). If they
+are independent signals, correlation ~0.
+
+```
+type    n    pearson(cv, sign-match)
+----    --   ----------------------
+gate    36     -0.69
+up      36     -0.90    ← strongest signal
+down    36     -0.31
+q       36     -0.48
+k       36     -0.23
+v       36     -0.49
+o       36     +0.17    ← anomalous
+```
+
+## Reading
+
+Six of seven projection types show NEGATIVE correlation: per-block
+scale variability and sign-disagreement-with-teacher track each other
+across depth. Layers that are "disturbed" (low sign-match-vs-base)
+also show wide per-block scale distributions; layers that are "near
+teacher" (high sign-match) show tight scale distributions. Same
+underlying disturbance signal, different metric.
+
+`up_proj` is the strongest example: Pearson -0.90 across 36 layers
+between per-block scale-CV and sign-match. The L1-3 MLP-up dip in
+sign-match (0.62, 0.63, 0.66) coincides with high CVs at those layers
+(0.51, 0.53, 0.40). Same with `gate_proj` (-0.69) and the q/v
+attention projections (-0.48 / -0.49).
+
+`o_proj` is the lone exception (+0.17). Possible structural reason:
+o_proj's rows index hidden-dim (not head-dim like q/k/v), so its
+per-block scale distribution sits in a different space than the
+other three attention projections. The technique's disturbance
+signal apparently doesn't show up in o_proj scale-CV the way it does
+in q/k/v.
+
+## Recipe constraint
+
+A reproduction targeting Bonsai-style behaviour can use either
+metric — per-block scale-CV OR sign-match-vs-teacher — to predict
+which layers received the strongest disturbance. The two metrics
+collapse onto a single per-layer "disturbance" axis for MLP and for
+q/k/v. For o_proj specifically, a separate metric is needed.
+
+This finding aligns with the v3 recipe's step-4: a per-layer SGD-α
+step that flips signs and chooses scales jointly. Under that recipe,
+both signs and scales are outputs of the same optimisation, so they
+naturally co-vary by layer.
