@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
 """Analyze Q1_0 tensors in a Bonsai GGUF file.
 
 For each Q1_0 tensor we compute statistics that bear on the user's question

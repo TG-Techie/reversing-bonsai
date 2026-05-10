@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
+#
 # Run the Bonsai analysis on locally-staged model files. Use this if you
 # already have the GGUFs / safetensors on your desktop and don't want to
 # burn the GH Actions runner.

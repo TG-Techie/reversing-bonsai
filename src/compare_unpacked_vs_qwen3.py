@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
 """Compare Bonsai-{size}-unpacked (FP16) against Qwen3-{size} base (FP16).
 
 The user's hypothesis: Bonsai's Q1_0 quant unpacks losslessly into the FP16

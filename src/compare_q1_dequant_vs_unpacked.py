@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
 """Compare dequantize(Bonsai-Q1_0 GGUF) vs Bonsai-unpacked safetensors.
 
 This is the missing bridge between the existing tools:

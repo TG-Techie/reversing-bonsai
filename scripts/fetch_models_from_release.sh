@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Jonah Yolles-Murphy (TG-Techie)
+#
 # Fetch the model artifacts a previous workflow run uploaded to a GitHub
 # Release back into the local working tree under models/<family>/<size>/.
 #
