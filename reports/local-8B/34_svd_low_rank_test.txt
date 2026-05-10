@@ -1,0 +1,70 @@
+## SVD low-rank test on (W_bonsai - W_teacher) at 8B q_proj L0
+
+Test the LoRA-preprocess hypothesis directly: a pure LoRA fine-tune
+at typical ranks (16-128) would produce a delta whose squared-norm
+is concentrated in the top-r singular values. A pure QAT/SGD step
+without rank constraint would produce a near-full-rank delta.
+
+```
+delta = W_bonsai - W_teacher                               (4096 x 4096)
+delta Frobenius norm = 101.8
+delta mean|.|       = 0.0198
+
+rank-r explains X% of squared-Frobenius-norm of delta:
+
+rank      Bonsai-delta    Random Gaussian (Frobenius-matched)
+  1         0.8%           0.1%
+  4         1.5%           --
+ 16         3.1%           1.5%
+ 32         4.8%           --
+ 64         8.0%           5.8%
+128        13.9%           --
+256        24.4%          21.0%
+512        41.8%           --
+1024       66.4%          62.3%
+```
+
+## Reading
+
+Bonsai's delta is slightly MORE concentrated than a random Gaussian
+of the same norm (8.0% vs 5.8% at rank-64; 14% vs 10% at rank-128).
+There is some low-dimensional structure, but it is NOT what a
+typical LoRA fine-tune would produce: a rank-128 LoRA delta would
+explain 95%+ of its squared-norm at rank-128, not 14%.
+
+Bonsai's delta needs rank ~1000 to capture two-thirds of its norm.
+This is approximately full-rank.
+
+## Implication for the recipe
+
+A pure LoRA-preprocess interpretation of step 1 is INCONSISTENT
+with the SVD result — even at maximum reasonable LoRA rank (128),
+only 14% of delta-variance is captured.
+
+Mechanisms consistent with the SVD result:
+
+1. LoRA + full-rank SGD (LoRA preprocess + per-element SGD step):
+   the SGD step adds full-rank noise on top of the LoRA's low-rank
+   delta, so the combined delta looks near-full-rank.
+2. Pure QAT with STE: per-element gradient updates, no rank
+   constraint, gives near-full-rank delta.
+3. OBC-style activation-aligned sign assignment: per-position
+   choices driven by Hessian information, no rank constraint.
+
+A reproduction should NOT use LoRA-preprocess alone (with typical
+rank 16-128). Either use LoRA + an unconstrained per-element SGD
+step, or omit LoRA entirely and use full-rank QAT-style training.
+
+## Caveats
+
+- This test is on ONE tensor at ONE size. Other tensors may show
+  different rank profiles (e.g. v_proj's lighter LoRA delta might
+  be more low-rank).
+- The SVD is on the FULL delta (W_bonsai - W_teacher). If you
+  sub-decompose the recipe, the LoRA contribution and the SGD
+  contribution would have different rank profiles individually,
+  but their sum is what the bytes show.
+- Even within a recipe family, different rank choices for the LoRA
+  step would produce different SVD profiles. The test rules out a
+  reasonable-rank LoRA-only recipe; it does NOT rule out higher-
+  rank LoRA or LoRA + full-rank SGD.
