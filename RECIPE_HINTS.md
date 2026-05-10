@@ -688,3 +688,45 @@ depth/type pattern:
 The 38_* finding is direct byte evidence that the block-coupling
 component of the technique is depth- and type-dependent, not a
 single global step.
+
+### Full depth shape: L1-3 MLP "disturbance spike" (see `reports/local-8B/40_*`)
+
+The 3-depth probe in `38_*` missed the dominant feature of the depth
+profile. Full 36-layer sweep at 8B reveals the true shape:
+
+- **L1-L3 MLP gate/up**: over-dispersion **10-13** — far beyond
+  anywhere else. Combined with elevated flip rate (0.32-0.38 vs
+  typical 0.24-0.28), this is the same depth band where sign-match-
+  vs-teacher drops to 0.62-0.65 (the "disturbance dip").
+- **L4 transition**: gate/up over-dispersion drops sharply (2.5,
+  4.5) but is still elevated relative to the middle plateau.
+- **L5-L30 middle plateau**: gate ~1.27, up ~1.16 (essentially
+  Binomial in this band), q stays elevated at ~2.0, v rises
+  gradually 1.1→1.6.
+- **L33-L35 deep-MLP rise**: gate 1.38→2.16, up 1.18→2.25.
+
+The depth shape is **U-shaped at MLP**, **gradually-rising at v**,
+**uniformly elevated at q across all depths**. A SINGLE mechanism
+with a single depth-conditioned strength parameter cannot land all
+three patterns. The recipe needs:
+
+1. An L1-3 MLP "rewrite" component with very high block-coherence
+   (over-dispersion 10+ requires either rank-r LoRA with r much
+   smaller than 128, OR an iterative reconstruction with very
+   strong block-as-unit decisions).
+2. A depth-graded coupling for late MLP and v.
+3. Mid-layer block-coupling that's modest but non-zero (especially q).
+
+The teacher-sign-blockstruct confound check confirmed that teacher
+signs within blocks are essentially i.i.d. (over-dispersion ~1.0
+with shuffle controls matching to ±0.014). The L1-3 spike is real
+and not a confound.
+
+### Pending discrimination
+
+If L1-3 SVD shows much-higher rank-128 % than the L0/L9/L18/L27/L35
+baseline (7.5-9%), the L1-3 spike is LoRA-rank-driven and the recipe
+must include a heavy LoRA at L1-3 specifically. If the L1-3 SVD
+shows the same ~8% baseline, then the spike is mechanism-distinct
+from rank — pointing to an iterative reconstruction step (OBC-style)
+that runs harder at the early layers.

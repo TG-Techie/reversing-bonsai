@@ -78,9 +78,12 @@ def rank_concentration(delta, ranks=(16, 64, 128, 256, 512)):
     return out, float(total)
 
 
+import os
+DEPTHS = os.environ.get("DEPTHS", "0,9,18,27,35")
+LAYERS = [int(x) for x in DEPTHS.split(",")]
 probes = [
-    ("ffn_gate", [0, 9, 18, 27, 35]),
-    ("ffn_up", [0, 9, 18, 27, 35]),
+    ("ffn_gate", LAYERS),
+    ("ffn_up", LAYERS),
 ]
 print(f"{'tensor':<22}  {'rank-16':>9}  {'rank-64':>9}  {'rank-128':>9}  {'rank-256':>9}  {'rank-512':>9}  {'||delta||F':>12}")
 for kind, layers in probes:
