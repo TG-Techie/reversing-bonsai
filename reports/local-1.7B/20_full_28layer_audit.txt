@@ -1,0 +1,248 @@
+size=1.7B
+gguf=/home/user/reversing-bonsai/models/bonsai/1.7B/gguf/Bonsai-1.7B-Q1_0.gguf
+base=/home/user/reversing-bonsai/models/bonsai/1.7B/base
+Indexing GGUF tensors...
+  197 Q1_0 tensors indexed
+
+Walking model-00001-of-00002.safetensors...
+  L -1 embed     sign=0.9993  scale=0.4120  byte=0.9993
+  L  0 down      sign=0.7584  scale=0.0000  byte=0.0007
+  L  0 gate      sign=0.7067  scale=0.0000  byte=0.0003
+  L  0 up        sign=0.7002  scale=0.0000  byte=0.0000
+  L  0 k         sign=0.7058  scale=0.0003  byte=0.0160
+  L  0 o         sign=0.7617  scale=0.0001  byte=0.0007
+  L  0 q         sign=0.6984  scale=0.0005  byte=0.0155
+  L  0 v         sign=0.7890  scale=0.0000  byte=0.0000
+  L  1 down      sign=0.7454  scale=0.0000  byte=0.0002
+  L  1 gate      sign=0.7323  scale=0.0003  byte=0.0090
+  L  1 up        sign=0.6699  scale=0.0000  byte=0.0003
+  L  1 k         sign=0.7117  scale=0.0000  byte=0.0003
+  L  1 o         sign=0.7460  scale=0.0000  byte=0.0002
+  L  1 q         sign=0.7093  scale=0.0000  byte=0.0022
+  L  1 v         sign=0.7575  scale=0.0000  byte=0.0000
+  L 10 down      sign=0.7380  scale=0.0000  byte=0.0000
+  L 10 gate      sign=0.7051  scale=0.0000  byte=0.0009
+  L 10 up        sign=0.7063  scale=0.0000  byte=0.0000
+  L 10 k         sign=0.7126  scale=0.0000  byte=0.0000
+  L 10 o         sign=0.7539  scale=0.0000  byte=0.0000
+  L 10 q         sign=0.7032  scale=0.0001  byte=0.0018
+  L 10 v         sign=0.7731  scale=0.0000  byte=0.0000
+  L 11 down      sign=0.7406  scale=0.0000  byte=0.0000
+  L 11 gate      sign=0.7029  scale=0.0000  byte=0.0005
+  L 11 up        sign=0.7116  scale=0.0000  byte=0.0000
+  L 11 k         sign=0.7111  scale=0.0000  byte=0.0002
+  L 11 o         sign=0.7411  scale=0.0000  byte=0.0000
+  L 11 q         sign=0.7150  scale=0.0002  byte=0.0045
+  L 11 v         sign=0.7708  scale=0.0000  byte=0.0000
+  L 12 down      sign=0.7382  scale=0.0000  byte=0.0000
+  L 12 gate      sign=0.7020  scale=0.0000  byte=0.0008
+  L 12 up        sign=0.7120  scale=0.0000  byte=0.0000
+  L 12 k         sign=0.7280  scale=0.0000  byte=0.0000
+  L 12 o         sign=0.7489  scale=0.0000  byte=0.0000
+  L 12 q         sign=0.7219  scale=0.0000  byte=0.0002
+  L 12 v         sign=0.7720  scale=0.0000  byte=0.0000
+  L 13 down      sign=0.7325  scale=0.0000  byte=0.0000
+  L 13 gate      sign=0.7028  scale=0.0000  byte=0.0002
+  L 13 up        sign=0.7086  scale=0.0000  byte=0.0000
+  L 13 k         sign=0.7192  scale=0.0000  byte=0.0000
+  L 13 o         sign=0.7471  scale=0.0000  byte=0.0000
+  L 13 q         sign=0.7224  scale=0.0000  byte=0.0011
+  L 13 v         sign=0.7710  scale=0.0000  byte=0.0000
+  L 14 down      sign=0.7282  scale=0.0000  byte=0.0000
+  L 14 gate      sign=0.7032  scale=0.0000  byte=0.0001
+  L 14 up        sign=0.7076  scale=0.0000  byte=0.0000
+  L 14 k         sign=0.7195  scale=0.0000  byte=0.0000
+  L 14 o         sign=0.7456  scale=0.0000  byte=0.0000
+  L 14 q         sign=0.7139  scale=0.0001  byte=0.0020
+  L 14 v         sign=0.7722  scale=0.0000  byte=0.0000
+  L 15 down      sign=0.7258  scale=0.0000  byte=0.0000
+  L 15 gate      sign=0.7016  scale=0.0000  byte=0.0001
+  L 15 up        sign=0.7058  scale=0.0000  byte=0.0000
+  L 15 k         sign=0.7102  scale=0.0000  byte=0.0000
+  L 15 o         sign=0.7425  scale=0.0000  byte=0.0001
+  L 15 q         sign=0.7019  scale=0.0003  byte=0.0061
+  L 15 v         sign=0.7690  scale=0.0000  byte=0.0000
+  L 16 down      sign=0.7253  scale=0.0000  byte=0.0001
+  L 16 gate      sign=0.6966  scale=0.0000  byte=0.0001
+  L 16 up        sign=0.7021  scale=0.0000  byte=0.0000
+  L 16 k         sign=0.7049  scale=0.0000  byte=0.0000
+  L 16 o         sign=0.7372  scale=0.0000  byte=0.0001
+  L 16 q         sign=0.7126  scale=0.0001  byte=0.0009
+  L 16 v         sign=0.7613  scale=0.0000  byte=0.0000
+  L 17 down      sign=0.7313  scale=0.0000  byte=0.0000
+  L 17 gate      sign=0.6994  scale=0.0000  byte=0.0000
+  L 17 up        sign=0.7025  scale=0.0000  byte=0.0000
+  L 17 k         sign=0.7065  scale=0.0000  byte=0.0000
+  L 17 o         sign=0.7596  scale=0.0000  byte=0.0001
+  L 17 q         sign=0.7132  scale=0.0001  byte=0.0010
+  L 17 v         sign=0.7829  scale=0.0000  byte=0.0000
+  L 18 down      sign=0.7294  scale=0.0000  byte=0.0002
+  L 18 gate      sign=0.6976  scale=0.0000  byte=0.0000
+  L 18 up        sign=0.6992  scale=0.0000  byte=0.0000
+  L 18 k         sign=0.6985  scale=0.0000  byte=0.0002
+  L 18 o         sign=0.7313  scale=0.0000  byte=0.0002
+  L 18 q         sign=0.7091  scale=0.0000  byte=0.0017
+  L 18 v         sign=0.7604  scale=0.0000  byte=0.0000
+  L 19 down      sign=0.7352  scale=0.0000  byte=0.0001
+  L 19 gate      sign=0.6942  scale=0.0000  byte=0.0000
+  L 19 up        sign=0.6964  scale=0.0000  byte=0.0000
+  L 19 k         sign=0.6886  scale=0.0000  byte=0.0000
+  L 19 o         sign=0.7377  scale=0.0000  byte=0.0002
+  L 19 q         sign=0.6973  scale=0.0002  byte=0.0015
+  L 19 v         sign=0.7477  scale=0.0000  byte=0.0000
+  L  2 down      sign=0.7513  scale=0.0000  byte=0.0000
+  L  2 gate      sign=0.7271  scale=0.0000  byte=0.0011
+  L  2 up        sign=0.6872  scale=0.0000  byte=0.0000
+  L  2 k         sign=0.7204  scale=0.0000  byte=0.0000
+  L  2 o         sign=0.7514  scale=0.0000  byte=0.0001
+  L  2 q         sign=0.7221  scale=0.0002  byte=0.0060
+  L  2 v         sign=0.7647  scale=0.0000  byte=0.0000
+  L 20 down      sign=0.7368  scale=0.0000  byte=0.0002
+  L 20 gate      sign=0.6888  scale=0.0000  byte=0.0000
+  L 20 up        sign=0.6932  scale=0.0000  byte=0.0000
+  L 20 k         sign=0.6958  scale=0.0000  byte=0.0000
+  L 20 o         sign=0.7396  scale=0.0000  byte=0.0001
+  L 20 q         sign=0.7084  scale=0.0001  byte=0.0016
+  L 20 v         sign=0.7503  scale=0.0000  byte=0.0000
+  L 21 down      sign=0.7384  scale=0.0000  byte=0.0001
+  L 21 gate      sign=0.6919  scale=0.0000  byte=0.0001
+  L 21 up        sign=0.6968  scale=0.0000  byte=0.0000
+  L 21 k         sign=0.6886  scale=0.0000  byte=0.0000
+  L 21 o         sign=0.7374  scale=0.0000  byte=0.0001
+  L 21 q         sign=0.7048  scale=0.0000  byte=0.0010
+  L 21 v         sign=0.7484  scale=0.0000  byte=0.0000
+  L 22 down      sign=0.7374  scale=0.0000  byte=0.0001
+  L 22 gate      sign=0.6932  scale=0.0000  byte=0.0000
+  L 22 up        sign=0.6980  scale=0.0000  byte=0.0000
+  L 22 k         sign=0.6843  scale=0.0000  byte=0.0000
+  L 22 o         sign=0.7276  scale=0.0000  byte=0.0000
+  L 22 q         sign=0.6984  scale=0.0002  byte=0.0050
+  L 22 v         sign=0.7398  scale=0.0000  byte=0.0000
+  L 23 down      sign=0.7290  scale=0.0000  byte=0.0001
+  L 23 gate      sign=0.6942  scale=0.0000  byte=0.0000
+  L 23 up        sign=0.6961  scale=0.0000  byte=0.0000
+  L 23 k         sign=0.6779  scale=0.0000  byte=0.0000
+  L 23 o         sign=0.7261  scale=0.0000  byte=0.0001
+  L 23 q         sign=0.6866  scale=0.0003  byte=0.0087
+  L 23 v         sign=0.7416  scale=0.0000  byte=0.0000
+  L 24 down      sign=0.7225  scale=0.0000  byte=0.0001
+  L 24 gate      sign=0.6909  scale=0.0000  byte=0.0000
+  L 24 up        sign=0.6955  scale=0.0000  byte=0.0000
+  L 24 k         sign=0.6697  scale=0.0000  byte=0.0000
+  L 24 o         sign=0.7308  scale=0.0000  byte=0.0001
+  L 24 q         sign=0.6856  scale=0.0004  byte=0.0123
+  L 24 v         sign=0.7388  scale=0.0000  byte=0.0000
+  L 25 down      sign=0.7167  scale=0.0000  byte=0.0000
+  L 25 gate      sign=0.6844  scale=0.0000  byte=0.0000
+  L 25 up        sign=0.6938  scale=0.0000  byte=0.0000
+  L 25 k         sign=0.6731  scale=0.0000  byte=0.0000
+  L 25 o         sign=0.7345  scale=0.0000  byte=0.0002
+  L 25 q         sign=0.6922  scale=0.0004  byte=0.0138
+  L 25 v         sign=0.7474  scale=0.0000  byte=0.0000
+  L 26 down      sign=0.7113  scale=0.0000  byte=0.0000
+  L 26 gate      sign=0.6829  scale=0.0000  byte=0.0000
+  L 26 up        sign=0.6929  scale=0.0000  byte=0.0000
+  L 26 k         sign=0.6718  scale=0.0000  byte=0.0000
+  L 26 o         sign=0.7247  scale=0.0000  byte=0.0002
+  L 26 q         sign=0.7093  scale=0.0004  byte=0.0072
+  L 26 v         sign=0.7314  scale=0.0000  byte=0.0000
+  L 27 down      sign=0.6815  scale=0.0000  byte=0.0000
+  L 27 gate      sign=0.6877  scale=0.0000  byte=0.0002
+  L 27 up        sign=0.6890  scale=0.0000  byte=0.0003
+  L 27 k         sign=0.6436  scale=0.0008  byte=0.0171
+  L 27 o         sign=0.6810  scale=0.0000  byte=0.0000
+  L 27 q         sign=0.6821  scale=0.0033  byte=0.0767
+  L 27 v         sign=0.7115  scale=0.0000  byte=0.0000
+  L  3 down      sign=0.7458  scale=0.0000  byte=0.0000
+  L  3 gate      sign=0.7305  scale=0.0000  byte=0.0003
+  L  3 up        sign=0.6956  scale=0.0000  byte=0.0000
+  L  3 k         sign=0.7134  scale=0.0000  byte=0.0000
+  L  3 o         sign=0.7447  scale=0.0000  byte=0.0002
+  L  3 q         sign=0.7119  scale=0.0000  byte=0.0015
+  L  3 v         sign=0.7667  scale=0.0000  byte=0.0000
+  L  4 down      sign=0.7511  scale=0.0000  byte=0.0000
+  L  4 gate      sign=0.7297  scale=0.0001  byte=0.0021
+  L  4 up        sign=0.7011  scale=0.0000  byte=0.0000
+  L  4 k         sign=0.7061  scale=0.0000  byte=0.0002
+  L  4 o         sign=0.7514  scale=0.0000  byte=0.0000
+  L  4 q         sign=0.7035  scale=0.0001  byte=0.0025
+  L  4 v         sign=0.7751  scale=0.0000  byte=0.0000
+  L  5 down      sign=0.7483  scale=0.0000  byte=0.0000
+  L  5 gate      sign=0.7126  scale=0.0000  byte=0.0005
+  L  5 up        sign=0.7120  scale=0.0000  byte=0.0000
+  L  5 k         sign=0.7102  scale=0.0000  byte=0.0006
+  L  5 o         sign=0.7473  scale=0.0000  byte=0.0000
+  L  5 q         sign=0.7053  scale=0.0001  byte=0.0015
+  L  5 v         sign=0.7633  scale=0.0000  byte=0.0000
+  L  6 down      sign=0.7456  scale=0.0000  byte=0.0000
+  L  6 gate      sign=0.7135  scale=0.0000  byte=0.0002
+  L  6 up        sign=0.7140  scale=0.0000  byte=0.0000
+  L  6 k         sign=0.7147  scale=0.0000  byte=0.0000
+  L  6 o         sign=0.7499  scale=0.0000  byte=0.0001
+  L  6 q         sign=0.7138  scale=0.0001  byte=0.0015
+  L  6 v         sign=0.7844  scale=0.0000  byte=0.0000
+  L  7 down      sign=0.7441  scale=0.0000  byte=0.0000
+  L  7 gate      sign=0.7156  scale=0.0000  byte=0.0010
+  L  7 up        sign=0.7085  scale=0.0000  byte=0.0000
+  L  7 k         sign=0.7009  scale=0.0000  byte=0.0011
+  L  7 o         sign=0.7553  scale=0.0000  byte=0.0000
+  L  7 q         sign=0.6975  scale=0.0002  byte=0.0025
+  L  7 v         sign=0.7789  scale=0.0000  byte=0.0000
+  L  8 down      sign=0.7407  scale=0.0000  byte=0.0000
+  L  8 gate      sign=0.7103  scale=0.0000  byte=0.0004
+  L  8 up        sign=0.7083  scale=0.0000  byte=0.0000
+  L  8 k         sign=0.7179  scale=0.0000  byte=0.0000
+  L  8 o         sign=0.7409  scale=0.0000  byte=0.0000
+  L  8 q         sign=0.7112  scale=0.0001  byte=0.0024
+  L  8 v         sign=0.7678  scale=0.0000  byte=0.0000
+  L  9 down      sign=0.7428  scale=0.0000  byte=0.0000
+  L  9 gate      sign=0.7082  scale=0.0000  byte=0.0010
+  L  9 up        sign=0.7101  scale=0.0000  byte=0.0000
+  L  9 k         sign=0.7027  scale=0.0000  byte=0.0001
+  L  9 o         sign=0.7517  scale=0.0000  byte=0.0000
+  L  9 q         sign=0.7018  scale=0.0002  byte=0.0034
+  L  9 v         sign=0.7738  scale=0.0000  byte=0.0000
+
+Walking model-00002-of-00002.safetensors...
+
+=== per-projection-type summary across all 197 tensors ===
+      type     n  sign_mean  sign_min  sign_max  scale_mean  byte_mean
+     embed     1     0.9993    0.9993    0.9993      0.4120     0.9993
+         q    28     0.7054    0.6821    0.7224      0.0003     0.0066
+         k    28     0.7003    0.6436    0.7280      0.0000     0.0013
+         v    28     0.7611    0.7115    0.7890      0.0000     0.0000
+         o    28     0.7410    0.6810    0.7617      0.0000     0.0001
+      gate    28     0.7038    0.6829    0.7323      0.0000     0.0007
+        up    28     0.7005    0.6699    0.7140      0.0000     0.0000
+      down    28     0.7347    0.6815    0.7584      0.0000     0.0001
+
+=== sign-match by layer (rows) and projection type (cols) ===
+L          q      k      v      o   gate     up   down
+  0   0.698  0.706  0.789  0.762  0.707  0.700  0.758
+  1   0.709  0.712  0.758  0.746  0.732  0.670  0.745
+  2   0.722  0.720  0.765  0.751  0.727  0.687  0.751
+  3   0.712  0.713  0.767  0.745  0.731  0.696  0.746
+  4   0.703  0.706  0.775  0.751  0.730  0.701  0.751
+  5   0.705  0.710  0.763  0.747  0.713  0.712  0.748
+  6   0.714  0.715  0.784  0.750  0.713  0.714  0.746
+  7   0.697  0.701  0.779  0.755  0.716  0.708  0.744
+  8   0.711  0.718  0.768  0.741  0.710  0.708  0.741
+  9   0.702  0.703  0.774  0.752  0.708  0.710  0.743
+ 10   0.703  0.713  0.773  0.754  0.705  0.706  0.738
+ 11   0.715  0.711  0.771  0.741  0.703  0.712  0.741
+ 12   0.722  0.728  0.772  0.749  0.702  0.712  0.738
+ 13   0.722  0.719  0.771  0.747  0.703  0.709  0.733
+ 14   0.714  0.720  0.772  0.746  0.703  0.708  0.728
+ 15   0.702  0.710  0.769  0.742  0.702  0.706  0.726
+ 16   0.713  0.705  0.761  0.737  0.697  0.702  0.725
+ 17   0.713  0.707  0.783  0.760  0.699  0.703  0.731
+ 18   0.709  0.698  0.760  0.731  0.698  0.699  0.729
+ 19   0.697  0.689  0.748  0.738  0.694  0.696  0.735
+ 20   0.708  0.696  0.750  0.740  0.689  0.693  0.737
+ 21   0.705  0.689  0.748  0.737  0.692  0.697  0.738
+ 22   0.698  0.684  0.740  0.728  0.693  0.698  0.737
+ 23   0.687  0.678  0.742  0.726  0.694  0.696  0.729
+ 24   0.686  0.670  0.739  0.731  0.691  0.695  0.722
+ 25   0.692  0.673  0.747  0.734  0.684  0.694  0.717
+ 26   0.709  0.672  0.731  0.725  0.683  0.693  0.711
+ 27   0.682  0.644  0.712  0.681  0.688  0.689  0.682
