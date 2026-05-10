@@ -3,6 +3,7 @@ name: Analyze Bonsai Quantization (8B)
 # Bonsai-8B variant (re-triggered after first run timed out at 60 min)
 # this file triggers exactly one 8B sweep + release; the inputs that the
 # main workflow exposes are baked in.
+# touch: 2026-05-10 r3
 
 on:
   workflow_dispatch: {}
