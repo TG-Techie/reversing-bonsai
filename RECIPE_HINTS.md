@@ -559,6 +559,20 @@ that uses any sign-quantisation-with-training-against-output-loss
 procedure should reproduce the d1/d10 fingerprint; that does not
 mean LoRA was used.
 
+**Direct byte-level evidence against pure-LoRA-only step 1
+(`reports/local-8B/34_*`):** the SVD of `(W_bonsai - W_teacher)` is
+NOT low-rank. At 8B q_proj L0, rank-128 explains only 14% of
+squared-Frobenius-norm of the delta; rank-256 explains 24%; you need
+rank ~1000 to capture 66%. A typical LoRA rank-128 fine-tune would
+explain ~95% at rank-128. Bonsai's delta is approximately full-rank
+(only slightly more concentrated than a random Gaussian of the same
+norm). This **rules out** a pure-LoRA-only preprocess at typical
+LoRA ranks (16-128). Mechanisms consistent with the SVD result:
+LoRA + an additional full-rank SGD step, pure QAT with STE
+(unconstrained per-element updates), OBC-style activation-aligned
+sign assignment. A reproduction should not use LoRA alone — combine
+with a full-rank optimisation pass, or omit LoRA entirely.
+
 ### Per-projection sign-match ordering (corrected)
 
 The 36-layer mean sign-match by projection type at 8B is:
