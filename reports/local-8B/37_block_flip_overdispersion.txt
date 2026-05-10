@@ -80,3 +80,66 @@ i.i.d. baseline.
   decile choice here uses the Bonsai-8B q_proj L0 distribution;
   finer or coarser bins might shift the numbers slightly but not
   the qualitative finding.
+
+## Gaussian-noise-simulation control
+
+Apply the same over-dispersion test to a Gaussian-noise-simulated
+"Bonsai" (`teacher + N(0, sigma=0.025)` then sign-quant) at the same
+tensor:
+
+```
+decile  obs_mean  obs_var  exp_var  overdisp
+ d 1    40.94     32.07    27.85    1.152
+ d 2    37.60     25.08    26.55    0.945
+ d 3    35.92     23.26    25.84    0.900
+ d 4    34.43     23.06    25.17    0.916
+ d 5    32.56     22.26    24.28    0.917
+ d 6    30.68     21.09    23.33    0.904
+ d 7    29.42     20.40    22.66    0.900
+ d 8    28.43     19.76    22.11    0.893
+ d 9    27.57     19.36    21.63    0.895
+ d10    25.07     23.48    20.16    1.165
+```
+
+The Gaussian simulation produces over-dispersion of 0.89-1.17 across
+all bins — essentially Binomial (variance ratio ~1.0 as expected
+under per-element independent flipping).
+
+Bonsai actual: 1.2-3.4 over-dispersion.
+
+**This confirms the Gaussian-noise model is insufficient as a full
+model of Bonsai's sign-flip pattern.** The Gaussian model:
+
+- Reproduces the d1-near-0.5 / d10-near-0.0 marginal flip-rate-vs-
+  magnitude pattern (force-by-data, see 30_*).
+- Does NOT reproduce the within-block correlation structure (this
+  test).
+
+The actual mechanism produces flips with block-level correlation
+that simple element-wise noise lacks. This is direct byte-level
+evidence that the technique includes a block-coherent component:
+- could be OBC-style block-wise activation-aware optimisation,
+- could be a low-rank LoRA delta with rank << 128,
+- could be group-aware regularisation in the SGD step.
+
+The bytes don't discriminate among these mechanism families, but
+they DO rule out the pure-i.i.d.-noise baseline.
+
+## Updated implication for the LoRA-noise model from 30_*
+
+The 30_* finding ("Gaussian sigma=0.04 reproduces 1.7B q L0
+fingerprint near-exactly") matched FIRST-order statistics
+(marginal flip-rate-vs-magnitude). The second-order test (within-
+block flip-count variance) fails for the Gaussian model, so:
+
+- The "near-exact" reproduction of the marginal pattern in 30_* is
+  necessary but not sufficient for matching Bonsai's full
+  fingerprint.
+- The implied LoRA delta sigma (~0.025-0.04) is correct in scale
+  but the i.i.d. Gaussian shape is incomplete — real LoRA deltas
+  ARE block-correlated (rank-r structure), so a low-rank LoRA
+  could potentially match the over-dispersion that Gaussian noise
+  does not.
+
+A proper reproduction of Bonsai's sign-flip pattern needs a
+block-correlated mechanism, not just an isotropic-noise model.
