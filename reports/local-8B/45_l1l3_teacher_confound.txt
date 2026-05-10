@@ -177,6 +177,40 @@ What's WEAKER now:
   ELEVATE flip rate to L1's level. Compare resulting over-dispersion
   to Bonsai's.
 
+## Refined reading — Bonsai REDUCES the teacher's natural over-dispersion at L1-3
+
+A nuance worth surfacing: Bonsai's L1 ffn_gate over-dispersion is
+**10.27**, which is LESS than what random Gaussian noise on L1
+teacher gives (~12-13 across all ranks). So:
+
+```
+location              random Gaussian on teacher    Bonsai actual
+L0 ffn_gate                  ~1.1                       1.12
+L1 ffn_gate                  ~13                       10.27
+```
+
+At L0, Bonsai's recipe roughly matches what random Gaussian noise
+would produce on the same teacher.
+
+At L1, Bonsai's recipe produces LOWER over-dispersion than random
+Gaussian noise on the same teacher. So Bonsai's recipe at L1 is
+**partially compensating** for the teacher structure — likely via
+per-block scale tuning (`s_g` chosen per block to homogenise the
+effective flip difficulty across blocks).
+
+So:
+- The L1-3 over-dispersion is NOT pure teacher structure (would be
+  ~13 if it were).
+- It's NOT pure recipe-driven block-coherence either (would be
+  similar to L0's ~1 if recipe-driven coherence were absent).
+- It's the residual: teacher structure dominates, but the recipe's
+  per-block scale optimisation reduces it by ~25%.
+
+The recipe does real work at L1-3 — but the work is **homogenising**
+flip difficulty across blocks (compensating teacher heterogeneity),
+NOT producing block-coherent decisions ON TOP of a homogeneous
+teacher.
+
 ## Process note
 
 This is the FOURTH confounder caught in this session. The pattern
@@ -188,3 +222,18 @@ rank simulation) with a comparison across layers.
 The repo's discipline of reporting force-by-data separately from
 inference is what makes this kind of correction possible without
 having to retract the underlying measurements.
+
+The full picture of the L1-3 region after this round:
+- **Teacher structure**: Qwen3-8B's L1-3 ffn_gate has heterogeneous
+  block magnitudes (10-30× higher CV than other depths). This is
+  a property of the *base model*, not Bonsai.
+- **Bonsai recipe at L1-3 MLP**: per-block scale optimisation that
+  *reduces* (not amplifies) the natural over-dispersion teacher
+  structure would produce.
+- **Bonsai recipe at L1-3 in the rest**: elevated flip rate
+  (0.32-0.38 vs 0.24-0.28) AND slightly elevated rank-128 %
+  (10-12% vs 7.5-8% baseline). Both real recipe-driven signals.
+
+A reproduction recipe should reproduce both the elevated flip rate
+AND the partial smoothing of natural over-dispersion at L1-3 MLP
+specifically — but the "block-coherent decisions" framing is wrong.
