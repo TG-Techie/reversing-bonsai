@@ -531,20 +531,71 @@ tests. v4 adds three more:
    far from 0.0, the recipe is not matching Bonsai's information-
    theoretic compression behaviour.
 
-### What the magnitude-graded sign-flip pattern implies for step 1
+### What the magnitude-graded sign-flip pattern implies (and DOESN'T)
 
-The d1-near-0.5 / d10-near-0.0 sign-flip pattern is exactly what a
-small-magnitude additive perturbation of the teacher (e.g. a LoRA
-delta) would produce: where `|w_teacher|` is comparable to `|delta|`,
-sign of `w_LoRA-shifted` is essentially randomised; where
-`|w_teacher| >> |delta|`, sign is preserved. The transition zone
-in Bonsai's data (where flip rate crosses 0.25-0.30) is around
-`|w_teacher|` ≈ 0.015-0.020 at 8B q_proj and similar at other
-tensors. This implies the LoRA delta in step 1 has typical magnitude
-~0.015-0.020 — roughly comparable to the median `mean(|w_teacher|_g)`
-of the larger weights.
+The d1-near-0.5 / d10-near-0.0 sign-flip pattern is consistent with
+a small-magnitude additive perturbation of the teacher (e.g. a LoRA
+delta) — where `|w_teacher|` is comparable to `|delta|`, sign of
+`w_LoRA-shifted` is essentially randomised; where
+`|w_teacher| >> |delta|`, sign is preserved. A simple Gaussian
+additive noise model with `σ ≈ 1.25× teacher mean(|w|)` at 8B
+reproduces the magnitude-distribution near-exactly.
 
-This is the cleanest indirect evidence yet that step 1 (LoRA pre-
-quant restore) is in the pipeline. Other mechanisms can produce
-magnitude-graded flips, but a small-magnitude additive LoRA is the
-most natural explanation given the rest of the byte fingerprint.
+**Important caveat (added after independent fresh-context
+verification):** the d1/d10 pattern does **NOT** uniquely imply a
+LoRA preprocess. ANY sign-quantisation-with-training procedure
+where sign choices for small-|w| weights are decoupled from
+teacher signs will produce the same magnitude-graded curve, because
+small-|w| weights have low downstream impact and are freed first
+under any objective that values output behaviour. The pattern is
+*consistent with* LoRA preprocess, *consistent with* OBC-style
+activation-aligned sign assignment, *consistent with* QAT with
+STE-and-output-loss, and *consistent with* sign sampling
+proportional to calibration gradients.
+
+The bytes do not discriminate among these mechanisms. The Gaussian-
+noise model is the simplest fit, not the unique fit. A reproduction
+that uses any sign-quantisation-with-training-against-output-loss
+procedure should reproduce the d1/d10 fingerprint; that does not
+mean LoRA was used.
+
+### Per-projection sign-match ordering (corrected)
+
+The 36-layer mean sign-match by projection type at 8B is:
+
+```
+v       0.7921    (highest)
+down    0.7773
+o       0.7643
+up      0.7347
+k       0.7331
+q       0.7298
+gate    0.7292    (lowest)
+```
+
+The top three (v / down / o) are clearly separated. The bottom four
+(up / k / q / gate) are within 0.6pp of each other and the relative
+ordering depends on which layers you sample. **A reproduction
+target should aim for v ≈ 0.79, down ≈ 0.78, o ≈ 0.76 as the high
+group; q/k/up/gate all ≈ 0.73 as a tight low group.**
+
+### Per-row Pearson is depth-varying for MLP (corrected)
+
+The earlier "MLP gate/up Pearson +0.42" number was a depth-mean
+across L0/6/12/18/24/30/35. At specific depths:
+
+```
+                     L0       L18     L35
+gate Pearson        +0.61    +0.42   +0.21
+up Pearson          +0.74    +0.61   -0.22
+```
+
+So MLP gate/up *decreases* from ~0.6 (early) to ~0.2 or lower
+(late). At early layers, gate behaves more like attention. The
+deviation from teacher amplification is concentrated at late MLP.
+
+A reproduction targeting Bonsai-style behaviour at MLP should
+expect:
+- Early MLP gate/up: per-row Pearson ~0.5-0.7 (similar to attention)
+- Late MLP gate/up: per-row Pearson 0.2 or lower (independent
+  per-row choices)
