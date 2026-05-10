@@ -242,6 +242,23 @@ jobs:
               --limit 12 \
               | tee "reports/04_three_way_gguf.txt"
 
+      - name: dequant(Q1_0) vs Bonsai-unpacked safetensors (Hypothesis A)
+        if: ${{ inputs.include_unpacked != false }}
+        run: |
+          set +e
+          q1=$(find models/gguf -name "${{ steps.paths.outputs.quant_pattern }}" | head -1)
+          # Pick a safetensors of unpacked; if not present, skip.
+          unp=$(find models/unpacked -name "*.safetensors" | head -1)
+          if [ -z "$q1" ] || [ -z "$unp" ]; then
+            echo "Missing q1 or unpacked safetensors; skipping dequant-vs-unpacked." \
+              | tee "reports/05_dequant_vs_unpacked.txt"
+            exit 0
+          fi
+          uv run python src/compare_q1_dequant_vs_unpacked.py \
+              "$q1" "$unp" \
+              ${{ inputs.tensor_filter && format('--filter "{0}"', inputs.tensor_filter) || '' }} \
+              | tee "reports/05_dequant_vs_unpacked.txt"
+
       - name: Lattice / sign-stats summary
         run: |
           # Quick top-line summary that's easy to skim from artifacts
