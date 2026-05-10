@@ -1,0 +1,128 @@
+## Attention SVD at L0-L3, L18, L35: confirms L1-3 spike is MLP-specific
+   in BOTH over-dispersion and rank-concentration
+
+`41_*` showed MLP gate/up at L1-L2 has elevated rank-128 % (10-12%
+vs baseline 7.5-8%) — a relative +40-50% increase. The 40_*
+over-dispersion sweep showed attention has NO L1-3 over-dispersion
+spike (q stays at ~1.7-2.1 there, in line with q's 1.7-3.2 range
+across all depths). This SVD confirms attention also has NO L1-3
+rank-concentration uptick.
+
+## Method
+
+SVD of `(W_bonsai - W_teacher)` at attn_q (4096×4096) and attn_v
+(1024×4096) for L = 0, 1, 2, 3, 18, 35.
+
+## Results
+
+```
+tensor             rank-16   rank-64   rank-128   rank-256   rank-512    ||delta||F
+attn_q L0           3.10%     7.98%    13.89%     24.42%     41.77%      101.816
+attn_q L1           3.28%     8.64%    14.67%     25.14%     42.17%       87.038
+attn_q L2           2.52%     7.41%    13.27%     23.69%     40.86%       97.929
+attn_q L3           3.04%     8.20%    14.21%     24.75%     41.97%       94.103
+attn_q L18          2.49%     7.77%    13.80%     24.30%     41.39%      109.516
+attn_q L35          3.29%     8.70%    14.68%     24.98%     41.70%       96.453
+
+attn_v L0           3.69%    13.25%    24.53%     43.58%     71.59%       57.883
+attn_v L1           3.63%    13.46%    24.98%     44.25%     72.17%       58.069
+attn_v L2           3.56%    13.18%    24.53%     43.65%     71.67%       61.433
+attn_v L3           3.63%    13.41%    24.91%     44.20%     72.18%       62.890
+attn_v L18          3.97%    14.15%    25.92%     45.39%     73.05%       81.129
+attn_v L35          4.31%    15.15%    27.34%     47.17%     74.73%       84.300
+```
+
+## Reading
+
+### attn_q rank-concentration is flat across depth
+
+Range: 13.27-14.68% (1.4pp spread). L1, L2, L3 are 14.67%, 13.27%,
+14.21% — within the L0-L35 range. **No L1-3 spike at attention q.**
+
+### attn_v shows a slight monotonic rise
+
+Range: 24.53-27.34% (2.8pp spread). L0=24.53%, L18=25.92%,
+L35=27.34%. The rise is gradual, not localised at L1-3. v's
+rank-concentration is much higher than q's (24-27% vs 13-15%) —
+consistent with v being the lightest-perturbed projection (lower
+flip rate, lower scale-CV, higher sign-match).
+
+### v's over-dispersion-vs-rank-concentration co-rise
+
+`40_*` showed v over-dispersion rises 1.12 (L0) → 1.84 (L35) — a
++64% relative rise. v's rank-128 % rises 24.5% → 27.3% — only +11%
+relative. The over-dispersion rises faster than rank concentration.
+Two different aspects of "structure in the delta" are growing with
+depth, but they're not proportional.
+
+## Cross-comparison: MLP vs attention at L1-3
+
+```
+                rank-128 baseline    rank-128 at L1-2     baseline overdisp    overdisp at L1-3
+ffn_gate         7.66-8.78%          11.0-11.6%            1.07-1.43            10.20-12.11
+ffn_up           7.45-9.05%          10.07-11.09%          1.06-1.30            10.37-13.03
+attn_q          13.27-14.68%         14.21-14.67%          1.7-3.2              1.78-2.10
+attn_v          24.53-27.34%         24.91-24.98%          1.07-1.84            1.11-1.30
+```
+
+So at L1-3:
+- **MLP**: 40-50% rank-concentration uptick + 7-12× over-dispersion spike
+- **Attention**: no rank-concentration uptick + no over-dispersion spike
+
+Both metrics agree the L1-3 effect is **MLP-specific**, not a
+general "early-layer disturbance".
+
+## Why MLP-specific (interpretation)
+
+The L1-3 effect is most easily explained by an OBC-style sequential
+quantisation that processes attention before MLP within each layer
+block:
+
+- At L1 attention: input is residual stream after L0's quantised
+  block. Some accumulated error from L0.
+- At L1 MLP: input is residual stream + L1-attention's output.
+  Accumulated error from L0 PLUS L1-attention's quantisation error.
+
+So MLP at L1 sees more cumulative error than attention at L1 by an
+EXTRA "this-block's-attention" worth. As you go deeper, accumulated
+error from many previous layers dominates, and the within-block
+extra error becomes a smaller relative contribution. Hence: L1-3
+MLP shows the spike most strongly because MLP's relative-error is
+proportionally biggest there.
+
+This prediction is testable on a reproduction: if your sequential
+quantisation pass quantises attn before MLP within each block, you
+should see an L1-3 MLP spike (especially at deeper architectures);
+if you quantise MLP before attn, the spike should appear at attn
+instead.
+
+## What this rules in / rules out further
+
+The conjunction:
+- Approximately full-rank delta everywhere (`34_*`, `39_*`, `41_*`,
+  `43_*`)
+- Block-correlated flips by construction (`37_*`, `38_*`)
+- Depth-graded coupling at MLP and v (`40_*`)
+- L1-3 MLP-specific spike (NOT replicated at attention or smaller
+  sizes) (`40_*`, `41_*`, `42_*`, this report)
+
+is still most parsimoniously explained by **OBC-style sequential
+per-block reconstruction with attn-before-MLP within each block**.
+A reproduction that quantises layers in parallel (no within-block
+ordering) should NOT produce the asymmetric L1-3 MLP-vs-attention
+pattern.
+
+The bytes also remain consistent with: a sequential-quantisation
+recipe that ALWAYS does attn before MLP within each block, with
+some block-coherence-promoting loss term — but the simplest
+mechanism is OBC-style without explicit additional regularisation.
+
+## Caveats
+
+- Attention SVDs done only at L0-3, L18, L35 (6 of 36 layers). Mid
+  layers not probed at this fineness; the over-dispersion data
+  from `40_*` covers the whole range.
+- Single seed; no resampling-noise estimate.
+- The within-block-ordering interpretation is consistent with the
+  bytes but not proven — a reproduction-level forward simulation
+  would be needed to confirm directly.
