@@ -55,10 +55,18 @@ behaviour.
   (rank typically 16-128). A Gaussian model averages this away.
   Predictions about how the technique handles per-row vs per-input-
   position structure require modelling LoRA's low-rank shape.
-- Other mechanisms can produce magnitude-graded flips: calibration
-  noise injection, iterative quant-aware procedures with sign
-  freedom on small weights. The Gaussian-noise model is the
-  simplest fit, not the only fit.
+- **Important non-discrimination caveat (added after independent
+  fresh-context verification):** the d1-near-0.5 / d10-near-0 pattern
+  is NOT specific to a LoRA preprocess. ANY sign-quantisation-with-
+  training procedure where small-|w| weights are decoupled from
+  teacher signs produces the same magnitude-graded curve, because
+  small-|w| weights have low downstream impact under any output-
+  driven objective. Pure QAT with STE, OBC-style activation-aligned
+  sign assignment, calibration-gradient-driven sign sampling, etc.
+  would all produce magnitude-graded flips. The bytes do NOT
+  uniquely identify the mechanism. The Gaussian-noise model is the
+  simplest parameterisation that reproduces the fingerprint, not the
+  unique one.
 
 ## Cross-size at 8B q_proj L0
 
