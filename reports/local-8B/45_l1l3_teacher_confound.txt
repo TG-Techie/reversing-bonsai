@@ -1,0 +1,190 @@
+## L1-3 MLP teacher-structure confound: the spike is partially
+   intrinsic to Qwen3-8B's teacher, not just a Bonsai recipe choice
+
+This report documents a 4th potential confound on the "L1-3 MLP
+disturbance spike" interpretation, discovered late in the session.
+
+## How it was found
+
+A LoRA-rank simulation was run to quantify how a small-rank LoRA
+perturbation would affect over-dispersion at L1 ffn_gate. When the
+simulation was run with Gaussian rank-r LoRA at L1 teacher
+calibrated to L1's flip rate (0.34), the result was:
+
+```
+r=1: over-dispersion 14.40
+r=2: 13.35
+r=4: 13.23
+r=8: 12.95
+r=16: 12.89
+r=32: 12.86
+r=64: 12.83
+r=128: 12.82
+```
+
+All ranks gave over-dispersion 12-14 — close to Bonsai's actual
+10.27 at L1 ffn_gate. But that's strange: rank-128 LoRA should
+behave like full-rank Gaussian noise, which the original Gaussian-
+control simulation in `37_*` showed gives over-dispersion ~1.0 at
+q L0.
+
+Cross-check at L0 teacher with the same flip rate (0.34) showed:
+```
+r=1: 8.83
+r=2: 4.71
+r=4: 2.60
+r=8: 1.77
+r=16: 1.40
+r=32: 1.23
+r=64: 1.15
+r=128: 1.11
+```
+
+At L0 teacher, rank-128 gives Binomial-like over-dispersion (1.11) —
+matching the q L0 control. **At L1 teacher, rank-128 gives 12.82
+instead of the expected ~1.1.** Something about L1 teacher's
+weight distribution produces high over-dispersion REGARDLESS of
+the perturbation's rank structure.
+
+## What's unusual about Qwen3-8B's L1-3 ffn_gate teacher weights
+
+Per-block statistics of `|w_teacher|` distribution at 8B:
+
+```
+location          block_meanabs_CV    within_block_CV_mean    within_block_CV_std
+L0  gate                0.114                0.763                  0.054
+L1  gate                1.007                1.674                  1.644
+L2  gate                1.128                1.805                  1.668
+L3  gate                0.834                1.792                  1.950
+L9  gate                0.181                0.762                  0.064
+L18 gate                0.165                0.777                  0.091
+L27 gate                0.123                0.762                  0.067
+L35 gate                0.163                0.759                  0.054
+
+L1  up                  0.987                0.848                  0.150
+L2  up                  1.130                0.973                  0.462
+L3  up                  0.808                0.826                  0.139
+(elsewhere up CV is ~0.76 with std ~0.06)
+
+L1-35 q_proj            0.17-0.27            ~0.77                  ~0.06
+```
+
+L1-L3 ffn_gate has **~10× higher cross-block CV of mean-|w| (1.0
+vs 0.1)** and **~30× higher within-block CV variability (1.7 vs
+0.05)** than other depths. ffn_up shows a milder version of the
+same pattern at L1-3 (blk_cv ~1.0 vs baseline ~0.1; within-block
+CV slightly elevated). q_proj is uniform across all depths.
+
+This is a property of **Qwen3-8B's pretrained weights** — not a
+Bonsai recipe choice. It's intrinsic to the teacher.
+
+## Why this produces high over-dispersion under any perturbation
+
+If different blocks within a tensor have very different |w|
+distributions (some blocks have many near-zero positions, others
+have all moderately-sized positions), then under any sigma-bounded
+perturbation:
+- Near-zero-heavy blocks: most positions flip (rate near 0.5)
+- Heavy blocks: few positions flip (rate near 0)
+- Mixed blocks: intermediate rate
+
+So the per-block flip count varies enormously across blocks
+**because the teacher's per-block magnitude distribution is
+heterogeneous**, not because the perturbation has block-coherent
+structure.
+
+The simulation confirms this: at L1 teacher, even random Gaussian
+noise (rank-128 LoRA ≈ random Gaussian) produces over-dispersion
+of ~13. The teacher structure dominates the over-dispersion
+contribution.
+
+## Revised interpretation of the L1-3 over-dispersion spike
+
+**The L1-3 spike is partially attributable to Qwen3-8B's teacher
+structure**, NOT solely to Bonsai's recipe applying a special
+mechanism at L1-3.
+
+A simpler decomposition:
+
+- **Intrinsic-teacher contribution at L1-3 gate**: ~10-14× over-
+  dispersion under uniform Gaussian noise calibrated to the
+  observed flip rate.
+- **Bonsai's actual over-dispersion at L1-3 gate**: 10.27.
+
+So Bonsai's L1-3 MLP "spike" might be explained almost entirely by
+the teacher's intrinsic block-heterogeneity, with Bonsai's recipe
+just producing roughly Gaussian-calibrated flips on top.
+
+## What this changes about the previous L1-3 reports
+
+`38_*`, `40_*` documented the over-dispersion spike. **The factual
+measurement is correct**, but the *interpretation* —
+"Bonsai's recipe has a stronger block-coherent decision step at
+L1-3" — is now substantially weakened.
+
+`41_*` documented that L1-3 has higher rank concentration (rank-128
+~10-12% vs baseline 7.5-8%). **This finding is unaffected.** The
+rank-concentration uptick IS a property of the (W_bonsai - W_teacher)
+delta, independent of the teacher's structure.
+
+`42_*` documented that the spike is 8B-specific (not at 1.7B).
+**This finding is now interpretable through the new lens**: maybe
+Qwen3-1.7B's L1-3 ffn_gate teacher is NOT as heterogeneous as
+Qwen3-8B's, so the same recipe applied to both teachers produces
+different over-dispersion at L1-3. Direct test pending (1.7B base
+needs to be re-fetched).
+
+`43_*` documented the spike is MLP-specific (no spike at attn).
+**This finding is consistent with the new lens**: q_proj teacher
+weights are uniform across all depths (blk_cv ~0.2 throughout) so
+no intrinsic over-dispersion contribution at L1-3 attention.
+
+`44_*`'s within-block-ordering hypothesis: was already weakened by
+verifier-3 corrections. Now further weakened — the asymmetric
+MLP-vs-attention pattern at L1-3 might be substantially explained
+by teacher structure alone (gate teacher is heterogeneous, q
+teacher is uniform), not by within-block ordering.
+
+## Recipe constraints, refined
+
+What the bytes still attest:
+- The recipe produces approximately full-rank delta everywhere
+  (`34_*`, `39_*`, `41_*`, `43_*`).
+- The recipe produces flip rates that vary by (depth, type)
+  (`40_*`).
+- The recipe's L1-3 MLP flip rate (0.32-0.38) is higher than the
+  baseline (0.24-0.28) — this is a real recipe-driven elevation,
+  NOT a teacher artifact.
+- The recipe's per-block scale ratios are 1.5-2.4× teacher
+  mean(|w|) (`27_*`).
+- The recipe's per-block over-dispersion at L1-3 MLP is 10-13,
+  but most of this might be explained by teacher block-magnitude
+  heterogeneity rather than by recipe block-coherence.
+
+What's WEAKER now:
+- The earlier framing that "L1-3 MLP receives extra block-coherent
+  recipe decisions" is partly an artifact of teacher structure.
+- The within-block-ordering interpretation is further weakened.
+
+## Open follow-up
+
+- **1.7B teacher block-CV at L1-3 ffn_gate**: if also high (1.0+),
+  then teacher structure is the dominant explanation and 1.7B's
+  weaker over-dispersion at L1 is something else (maybe smaller
+  flip-rate range, or less perturbation magnitude).
+- **Direct test**: simulate Bonsai's recipe at L0 vs L1 ffn_gate by
+  perturbing teacher with the SAME effective sigma, calibrated to
+  ELEVATE flip rate to L1's level. Compare resulting over-dispersion
+  to Bonsai's.
+
+## Process note
+
+This is the FOURTH confounder caught in this session. The pattern
+holds: every "remarkable" finding deserves a "what would random
+noise produce here?" control. The verifier sub-agent caught three;
+the fourth was found by extending an existing analysis (the LoRA-
+rank simulation) with a comparison across layers.
+
+The repo's discipline of reporting force-by-data separately from
+inference is what makes this kind of correction possible without
+having to retract the underlying measurements.
