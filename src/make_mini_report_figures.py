@@ -27,12 +27,39 @@ from compare_unpacked_vs_qwen3 import load_tensor as load_st
 
 
 REPO = THIS.parent
-OUT_DIR = REPO / "reports" / "bonsai-1.7B" / "figures"
-OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-GGUF_PATH = REPO / "models" / "q1" / "Bonsai-1.7B-Q1_0.gguf"
-UNP_PATH = REPO / "models" / "unpacked" / "model.safetensors"
-BASE_PATH = REPO / "models" / "base" / "model-00001-of-00002.safetensors"
+# Defaults target the 1.7B trio. Pass --size 4B (etc.) to retarget.
+import argparse as _argparse
+_ap = _argparse.ArgumentParser(add_help=False)
+_ap.add_argument("--size", default="1.7B")
+_ap.add_argument("--gguf", default=None)
+_ap.add_argument("--unpacked", default=None)
+_ap.add_argument("--base", default=None)
+_known_args, _ = _ap.parse_known_args()
+_SIZE = _known_args.size
+_size_to_paths = {
+    "1.7B": (
+        REPO / "models" / "q1"       / "Bonsai-1.7B-Q1_0.gguf",
+        REPO / "models" / "unpacked" / "model.safetensors",
+        REPO / "models" / "base"     / "model-00001-of-00002.safetensors",
+    ),
+    "4B": (
+        REPO / "models" / "q1"       / "Bonsai-4B-Q1_0.gguf",
+        REPO / "models" / "unpacked" / "model-00001-of-00002.safetensors",
+        REPO / "models" / "base"     / "model-00001-of-00003.safetensors",
+    ),
+    "8B": (
+        REPO / "models" / "q1"       / "Bonsai-8B-Q1_0.gguf",
+        REPO / "models" / "unpacked" / "model-00001-of-00004.safetensors",
+        REPO / "models" / "base"     / "model-00001-of-00005.safetensors",
+    ),
+}
+_default_g, _default_u, _default_b = _size_to_paths.get(_SIZE, _size_to_paths["1.7B"])
+GGUF_PATH = Path(_known_args.gguf)     if _known_args.gguf     else _default_g
+UNP_PATH  = Path(_known_args.unpacked) if _known_args.unpacked else _default_u
+BASE_PATH = Path(_known_args.base)     if _known_args.base     else _default_b
+OUT_DIR = REPO / "reports" / f"bonsai-{_SIZE}" / "figures"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 plt.rcParams.update({
     "figure.dpi": 110,
@@ -45,8 +72,8 @@ plt.rcParams.update({
 
 
 def parse_h1_report() -> dict:
-    """Parse reports/bonsai-1.7B/05_dequant_vs_unpacked.txt for headline numbers."""
-    p = REPO / "reports" / "bonsai-1.7B" / "05_dequant_vs_unpacked.txt"
+    """Parse 05_dequant_vs_unpacked.txt for headline numbers."""
+    p = REPO / "reports" / f"bonsai-{_SIZE}" / "05_dequant_vs_unpacked.txt"
     txt = p.read_text()
     diffs, lat, sign, scale = [], [], [], []
     for blk in txt.split("\n--"):
@@ -162,7 +189,7 @@ def fig3_h3_sign_transitions() -> Path:
 
 def parse_h2_report() -> dict[int, dict[str, float]]:
     """Parse 03_unpacked_vs_qwen3.txt for cos(identity) by layer.tensor."""
-    p = REPO / "reports" / "bonsai-1.7B" / "03_unpacked_vs_qwen3.txt"
+    p = REPO / "reports" / f"bonsai-{_SIZE}" / "03_unpacked_vs_qwen3.txt"
     txt = p.read_text()
     out: dict[int, dict[str, float]] = {}
     cur_block = None
@@ -210,7 +237,7 @@ def fig4_h2_cosine_by_depth(data: dict[int, dict[str, float]]) -> Path:
 
 def parse_magnitudes() -> dict:
     """Parse 06_magnitudes.txt: aggregates by block."""
-    p = REPO / "reports" / "bonsai-1.7B" / "06_magnitudes.txt"
+    p = REPO / "reports" / f"bonsai-{_SIZE}" / "06_magnitudes.txt"
     text = p.read_text()
     blocks_seen = []
     cur_filter = None
