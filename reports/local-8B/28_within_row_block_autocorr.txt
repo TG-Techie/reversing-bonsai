@@ -1,0 +1,51 @@
+## Within-row block-to-block lag-1 autocorrelation at 8B
+
+For each row of each tensor, compute lag-1 autocorrelation of per-128-block
+scales along the column axis. If positive, blocks within a row are not
+independent.
+
+```
+tensor             rows   cols   lag1_ac_mean   lag1_ac_std
+----------------   -----  ----   ------------   -----------
+L 0.q              4096    32       -0.0317        0.1729
+L 0.v              1024    32       -0.0424        0.1795
+L 0.down           4096    96       -0.0065        0.1005
+L 0.gate          12288    32       -0.0340        0.1743
+L 0.up            12288    32       -0.0329        0.1748
+L12.q              4096    32       -0.0389        0.1723
+L12.v              1024    32       -0.0220        0.1716
+L12.down           4096    96       -0.0085        0.1011
+L12.gate          12288    32       -0.0324        0.1741
+L12.up            12288    32       -0.0307        0.1743
+L25.q              4096    32       -0.0330        0.1733
+L25.v              1024    32       -0.0249        0.1711
+L25.down           4096    96       -0.0095        0.1023
+L25.gate          12288    32       -0.0337        0.1747
+L25.up            12288    32       -0.0295        0.1712
+L35.q              4096    32       -0.0311        0.1757
+L35.v              1024    32       -0.0273        0.1744
+L35.down           4096    96       -0.0127        0.1019
+L35.gate          12288    32       -0.0327        0.1728
+L35.up            12288    32       -0.0329        0.1740
+```
+
+## Reading
+
+Lag-1 autocorrelation is consistently near zero (-0.04 mean, +/-0.17 std)
+across every (layer, projection_type) sampled. Per-block scales within
+a row are statistically INDEPENDENT of their column-neighbours.
+
+Combined with `24_*` (top-1% blocks cluster by row, ~uniform across
+columns): the technique applies per-output-channel amplification with
+per-block independence in the within-row direction.
+
+## Recipe constraint
+
+A reproduction's per-block SGD-α step does NOT need to enforce within-
+row block-to-block smoothness. Each block's scale can be optimised
+independently (subject to the row's overall amplification level being
+inherited from the teacher).
+
+This rules out reading the technique as "per-row smoothing then sample"
+and rules in "per-block independent SGD optimisation, conditioned on
+calibration activations".
