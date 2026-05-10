@@ -33,13 +33,23 @@ what that technique is. The discipline below is meant to keep us from
 collapsing the open hypothesis space prematurely onto whatever
 specific technique we happened to think of first.
 
-## Why this is empirical science, not coding
+## Why this is empirical science, not coding — and why the scientific method applies
 
 A normal codebase rewards "I ran it, it worked, ship it." Here the
 artifacts are the truth, the scripts are just lenses, and a sloppy
 reading of a lens output produces a wrong constraint on the technique
-that someone later spends compute trying to reproduce. Concretely the
-common failure modes:
+that someone later spends compute trying to reproduce.
+
+The discipline that does work here is **the scientific method** in
+its actual form — pre-register a question, design an experiment that
+could distinguish the relevant hypotheses, run it, report the result
+with its uncertainty, and update the hypothesis space accordingly.
+Not "let me run all the scripts and see what's interesting." That's
+the data-mining failure mode and it's how you end up confidently
+claiming patterns that were artifacts of how you sliced the data.
+
+Concretely the common failure modes that the scientific method
+guards against:
 
 - **A script ran successfully → I have a finding.** The output is
   numbers; whether they say what you think requires you to specify
@@ -103,18 +113,35 @@ keepalive them, don't chain them.
 
 ## Why keepalive (and announce it)
 
-The CC-on-the-web harness suspends turns that have no foreground
-work. If you kicked off `nohup ... &` and ended your turn, the
-harness can pause the session and your background process can finish
-without you ever seeing the result. The pattern that works is:
+The point of a keepalive is **so your own agent loop doesn't halt
+mid-task.** The CC-on-the-web harness suspends turns that have no
+foreground work; if you kicked off `nohup ... &` and ended your turn,
+the harness can pause the session and your background process can
+finish without you ever seeing the result. The keepalive isn't
+ceremony, it's how you keep yourself alive long enough to consume
+your own background work.
+
+The pattern that works is:
 
 1. Start the long-running work as a true background process
    (`nohup ... &`, **not** `run_in_background: true` on the harness
    — the harness wrapper has been observed to lose work across
    suspends).
 2. Hold the turn open with a foreground `sleep` of duration matched
-   to expected work-time (~60 s for typical analyses on this VM).
-3. Check completion in a *separate* Bash call afterward.
+   to expected work-time. **You have agency over how long to sleep.**
+   60 s is a reasonable default for fast analyses on this VM, but a
+   1.9 GB chunk download is ~35–40 s, a full multi-shard fetch is
+   minutes, an 8B base download is ~10 min. Size each sleep to the
+   work in flight, not a fixed number — and re-poll afterward, don't
+   assume one sleep covers everything.
+3. **Always log a timestamp at the start *and* end of the sleep
+   span** (`date -u +%H:%M:%S && sleep N && date -u +%H:%M:%S`).
+   Two reasons: it gives the user (often on mobile, watching the
+   transcript stream) something concrete to anchor on instead of
+   blank silence; and it makes future-you's transcript review
+   meaningful — wall-time gaps inside a turn are otherwise
+   undecipherable.
+4. Check completion in a *separate* Bash call afterward.
 
 The "**announce before sleeping**" part — saying "Doing a 60s
 keepalive while H2 finishes" — is for the user (who's often on
