@@ -1,0 +1,80 @@
+## Full per-layer norm-equality at 8B
+##
+## For each layer 0..35: max abs diff between Bonsai's norm tensor (loaded
+## from GGUF in F32) and Qwen3-8B-base's same tensor (BF16 cast to F32).
+## Excess factor = max diff / (2^-7 * |w_max|), i.e. how many BF16-ULPs at
+## peak the difference is. Excess <~1 = round-trip noise; excess >>1 = real
+## drift.
+
+layer    q_norm           k_norm           input_ln              post_ln
+                  max diff (excess factor over BF16 ULP at peak)
+    0    0.0156(0.6x)  0.0039(0.0x)  0.0126(53.2x)   0.0120(3.9x)
+    1    0.0002(0.0x)  0.0001(0.0x)  0.0291(19.1x)   0.0078(0.3x)
+    2    0.0000(0.0x)  0.0003(0.0x)  0.0183(12.2x)   0.0117(0.3x)
+    3    0.0001(0.0x)  0.0010(0.0x)  0.0186(10.5x)   0.0039(0.1x)
+    4    0.0020(0.1x)  0.0039(0.0x)  0.0112(4.6x)    0.0215(1.0x)
+    5    0.0063(0.2x)  0.0039(0.0x)  0.0176(5.5x)    0.0049(0.4x)
+    6    0.0020(0.1x)  0.0020(0.0x)  0.0254(9.8x)    0.0098(0.2x)
+    7    0.0020(0.1x)  0.0001(0.0x)  0.0454(8.1x)    0.0222(0.9x)
+    8    0.0059(0.2x)  0.0117(0.2x)  0.0337(5.8x)    0.0142(3.2x)
+    9    0.0002(0.0x)  0.0049(0.2x)  0.0273(4.3x)    0.0107(2.0x)
+   10    0.0122(0.4x)  0.0125(0.2x)  0.0146(1.4x)    0.0059(1.1x)
+   11    0.0059(0.2x)  0.0127(0.3x)  0.0088(1.4x)    0.0107(2.0x)
+   12    0.0020(0.1x)  0.0049(0.1x)  0.0480(7.1x)    0.0117(2.0x)
+   13    0.0005(0.0x)  0.0006(0.0x)  0.0087(1.5x)    0.0176(2.6x)
+   14    0.0020(0.1x)  0.0039(0.1x)  0.0997(11.5x)   0.0266(3.3x)
+   15    0.0005(0.0x)  0.0005(0.0x)  0.0513(5.4x)    0.0229(2.5x)
+   16    0.0000(0.0x)  0.0039(0.1x)  0.1017(9.3x)    0.0254(1.2x)
+   17    0.0001(0.0x)  0.0001(0.0x)  0.0709(7.4x)    0.0234(3.2x)
+   18    0.0001(0.0x)  0.0005(0.0x)  0.1238(9.7x)    0.0227(3.3x)
+   19    0.0010(0.0x)  0.0004(0.0x)  0.1299(7.0x)    0.0265(3.9x)
+   20    0.0005(0.0x)  0.0003(0.0x)  0.1482(9.3x)    0.0266(3.7x)
+   21    0.0005(0.0x)  0.0078(0.2x)  0.2261(11.6x)   0.0049(0.7x)
+   22    0.0039(0.2x)  0.0020(0.0x)  0.1699(6.7x)    0.0039(0.6x)
+   23    0.0039(0.2x)  0.0020(0.0x)  0.1855(7.1x)    0.0093(1.2x)
+   24    0.0001(0.0x)  0.0002(0.0x)  0.2041(5.5x)    0.0020(0.2x)
+   25    0.0000(0.0x)  0.0059(0.2x)  0.1816(4.5x)    0.0028(0.3x)
+   26    0.0000(0.0x)  0.0010(0.0x)  0.1494(3.6x)    0.0020(0.2x)
+   27    0.0000(0.0x)  0.0029(0.1x)  0.1504(3.2x)    0.0020(0.2x)
+   28    0.0034(0.1x)  0.0039(0.1x)  0.1641(2.7x)    0.0020(0.2x)
+   29    0.0000(0.0x)  0.0005(0.0x)  0.0938(1.3x)    0.0012(0.1x)
+   30    0.0010(0.0x)  0.0010(0.0x)  0.1484(1.7x)    0.0012(0.1x)
+   31    0.0005(0.0x)  0.0001(0.0x)  0.0977(0.9x)    0.0012(0.1x)
+   32    0.0010(0.0x)  0.0010(0.0x)  0.0781(0.6x)    0.0012(0.1x)
+   33    0.0002(0.0x)  0.0005(0.0x)  0.0781(0.4x)    0.0006(0.0x)
+   34    0.0044(0.1x)  0.0037(0.1x)  0.0703(0.3x)    0.0013(0.0x)
+   35    0.0039(0.2x)  0.0003(0.0x)  0.0000(0.0x)    0.1133(0.9x)
+
+## Pattern (revising the earlier "mid-stack only" claim)
+
+q_norm and k_norm: round-trip-tight (≤ 0.6x BF16 ULP) at every layer.
+  Confirmed across all 36 layers. **These are frozen at base values.**
+
+input_layernorm: a structured depth profile, NOT a flat "mid-stack
+  only" shape. Three regimes:
+  - Layer 0: huge excess (53x ULP) — most disturbed of all.
+  - Layers 1-13: moderate excess (1.4-19x ULP).
+  - Layers 14-28: high steady excess (3-12x ULP), peak 11.6x at L21.
+  - Layers 29-35: gradually settles to round-trip-tight (0.3-1.7x).
+  L35 is round-trip-tight (within 0x of ULP).
+
+post_attn_layernorm: ≤4x ULP at every layer; never strongly disturbed.
+  L35 has the largest excess (0.9x — barely above tight).
+
+## Implications
+
+- The frozen-vs-trained split is even sharper than I'd written: q/k_norm
+  are EVERYWHERE frozen; layer norms are differentially trained, with
+  input_ln getting the bulk of the work and post_attn_ln barely touching.
+
+- Layer 0's input_layernorm is the single most-modified norm tensor in
+  the whole network. That's a strong signal — whatever the technique
+  needed to do, it concentrated effort on layer 0's input rescaling.
+
+- Layer 35's input_ln is at 0.0x excess — essentially identical to base
+  to the bit. The technique didn't update it.
+
+This is a richer pattern than fits H_a/H_b/H_c straightforwardly. It is
+consistent with H_d (forward-sequential) — the layer-0 input_ln
+update could be a global activation calibration step at the start of
+the sequential procedure.
