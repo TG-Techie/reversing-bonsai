@@ -644,3 +644,47 @@ block-coherent perturbations of teacher signs without producing a
 purely-low-rank delta. That's compatible with: low-rank LoRA + full-
 rank SGD, OR pure QAT with block-aware loss, OR OBC-style sequential
 quantisation. Open.
+
+### Where block coupling actually fires (refinement, see `reports/local-8B/38_*`)
+
+Over-dispersion is NOT uniform across (depth, projection-type).
+Cross-grid measurement at 8B (3 depths × 7 types):
+
+```
+tensor              L0      L18     L35
+attn_q              2.20    1.95    2.67
+attn_k              1.54    1.85    1.65
+attn_v              1.12    1.17    1.84
+attn_output         1.61    2.27    2.21
+ffn_gate            1.12    1.29    2.16
+ffn_up              1.07    1.23    2.25
+ffn_down            1.23    1.41    1.04
+```
+
+(Values = observed-variance / Binomial-expected-variance for per-
+block flip counts. 1.0 = i.i.d. element-wise. >1.0 = block-coupled.)
+
+Two patterns:
+- **At L0**, attn_q is the only strongly over-dispersed tensor (2.20).
+  attn_v / ffn_gate / ffn_up at L0 are essentially Binomial — i.i.d.
+  noise IS consistent with these tensors.
+- **By depth**: MLP gate/up grow from ~1.1 at L0 to >2.0 at L35.
+  Attention q/k/o grow more modestly. ffn_down stays near 1.0.
+
+So a reproduction must reproduce this structure: deep-MLP block
+coupling is required, but at early MLP and at v_proj the i.i.d.
+fingerprint is consistent with the bytes. A uniform low-rank LoRA
+applied to all tensors equally is RULED OUT (would give roughly
+uniform over-dispersion). Mechanism candidates compatible with the
+depth/type pattern:
+
+- **OBC-style sequential quantisation**, where late layers see
+  compounded reconstruction error from earlier layers and produce
+  more block-coherent fits.
+- **Rank-grows-with-depth LoRA** structure on (gate, up) but not
+  uniformly applied.
+- **A loss with depth-conditioned block-coherence** regularisation.
+
+The 38_* finding is direct byte evidence that the block-coupling
+component of the technique is depth- and type-dependent, not a
+single global step.
