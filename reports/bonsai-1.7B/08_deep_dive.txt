@@ -1,0 +1,78 @@
+
+== A. norm-tensor equality (Bonsai-unpacked vs Qwen3-base) ==
+  matched 113 norm tensors
+  kind                                n   exact-eq       worst max-diff
+  input_layernorm                    28          1               0.2695
+  k_norm                             28          0              0.01562
+  model.norm                          1          0              0.01843
+  post_attention_layernorm           28          0               0.1389
+  q_norm                             28          0               0.0166
+
+== B. embed_tokens vocab diff ==
+  Bonsai shape=(151669, 2048)  Qwen3 shape=(151936, 2048)
+  vocab delta: 267 tokens
+  cos(Bonsai_row, Qwen3_row) for first 151669 rows: mean=0.7981 min=0.6535
+  norm stats of the 267 dropped rows: mean=0.3684 max=0.3876
+
+== C. LM-head presence / tying ==
+  Bonsai-unpacked has lm_head.weight? False
+  Qwen3-base       has lm_head.weight? True
+
+== D. cosine(Bonsai-unpacked, Qwen3-base) breakdown by projection type ==
+  kind     n    cos μ    cos σ  cos min  cos max
+  Wq      28   0.4740   0.0207   0.4291   0.5088
+  Wk      28   0.4651   0.0390   0.3460   0.5204
+  Wv      28   0.5787   0.0315   0.4894   0.6264
+  Wo      28   0.5550   0.0299   0.4323   0.6006
+  gate    28   0.4790   0.0266   0.4361   0.5322
+  up      28   0.4724   0.0202   0.4038   0.4995
+  down    28   0.5375   0.0271   0.4370   0.5815
+
+== E. per-head magnitude profile (Wv as the proxy) ==
+  scanning 28 layers
+  layer  0 self_attn.v_proj   heads=8  ratio: μ=3.007 σ=0.106 range=[2.783, 3.139]
+  layer  0 self_attn.q_proj   heads=16  ratio: μ=1.393 σ=0.160 range=[0.957, 1.660]
+  layer  1 self_attn.v_proj   heads=8  ratio: μ=2.279 σ=0.185 range=[2.007, 2.544]
+  layer  1 self_attn.q_proj   heads=16  ratio: μ=1.424 σ=0.104 range=[1.311, 1.741]
+  layer  2 self_attn.v_proj   heads=8  ratio: μ=2.429 σ=0.177 range=[2.097, 2.590]
+  layer  2 self_attn.q_proj   heads=16  ratio: μ=1.545 σ=0.117 range=[1.403, 1.778]
+  layer  3 self_attn.v_proj   heads=8  ratio: μ=2.258 σ=0.201 range=[1.995, 2.673]
+  layer  3 self_attn.q_proj   heads=16  ratio: μ=1.527 σ=0.125 range=[1.329, 1.832]
+  layer  4 self_attn.v_proj   heads=8  ratio: μ=2.373 σ=0.147 range=[2.240, 2.723]
+  layer  4 self_attn.q_proj   heads=16  ratio: μ=1.545 σ=0.153 range=[1.387, 1.997]
+  layer  5 self_attn.v_proj   heads=8  ratio: μ=2.575 σ=0.317 range=[2.293, 3.310]
+  layer  5 self_attn.q_proj   heads=16  ratio: μ=1.498 σ=0.084 range=[1.376, 1.672]
+  layer 26 self_attn.v_proj   heads=8  ratio: μ=2.488 σ=0.265 range=[2.185, 3.021]
+  layer 26 self_attn.q_proj   heads=16  ratio: μ=1.703 σ=0.238 range=[1.385, 2.443]
+  layer 27 self_attn.v_proj   heads=8  ratio: μ=2.555 σ=0.081 range=[2.437, 2.698]
+  layer 27 self_attn.q_proj   heads=16  ratio: μ=1.250 σ=0.193 range=[1.004, 1.668]
+
+== F. row-cosine outliers (Bonsai-vs-base) — bottom 5 across all 2D weights ==
+      cos   row  name
+  -0.0786  4579  model.layers.10.mlp.up_proj.weight
+  -0.0753   189  model.layers.27.self_attn.q_proj.weight
+  -0.0462  3576  model.layers.1.mlp.up_proj.weight
+  -0.0170   527  model.layers.19.self_attn.q_proj.weight
+   0.0131  1401  model.layers.27.self_attn.o_proj.weight
+   0.0140   899  model.layers.9.self_attn.k_proj.weight
+   0.0282   896  model.layers.22.self_attn.q_proj.weight
+   0.0361  1401  model.layers.26.mlp.down_proj.weight
+   0.0421   450  model.layers.10.self_attn.k_proj.weight
+   0.0435  1397  model.layers.27.mlp.up_proj.weight
+
+== G. mean(|x|) / std(x) ratio per 128-block (Bonsai scale shape vs Qwen3) ==
+  Gaussian reference: ratio = sqrt(2/π) ≈ 0.798
+  showing 7 representative tensors
+  kind   tensor                                       Bonsai s/√(σ²)    Qwen3 mean|x|/σ
+  Wq     blk.0.attn_q.weight                                  1.0000             0.7952
+  Wk     blk.0.attn_k.weight                                  1.0000             0.7975
+  Wv     blk.0.attn_v.weight                                  1.0000             0.7953
+  Wo     blk.0.attn_output.weight                             1.0000             0.7987
+  gate   blk.0.ffn_gate.weight                                1.0000             0.7953
+  up     blk.0.ffn_up.weight                                  1.0000             0.7946
+  down   blk.0.ffn_down.weight                                1.0000             0.7958
+
+  Reading guide:
+    Qwen3 ratio ≈ 0.80 means weights are roughly Gaussian within each 128-block.
+    Lower → heavier tails (outliers); higher → more uniform / sub-Gaussian.
+    Bonsai is degenerate (constant |w| per block) so its ratio is 1.0 by construction.
