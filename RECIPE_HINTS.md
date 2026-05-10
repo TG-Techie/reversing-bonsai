@@ -613,3 +613,34 @@ expect:
 - Early MLP gate/up: per-row Pearson ~0.5-0.7 (similar to attention)
 - Late MLP gate/up: per-row Pearson 0.2 or lower (independent
   per-row choices)
+
+### Within-block flip correlation (added after second verifier round)
+
+Per-block flip counts at 8B q_proj L0 are **OVER-DISPERSED** vs
+the Binomial expectation `128 * p * (1-p)` (the variance under
+per-element independent flipping at marginal rate p). Over-
+dispersion ratio is 1.2-3.4× across magnitude deciles, with
+extremes (d1, d10) most over-dispersed.
+
+The Gaussian-noise simulation that reproduces the d1/d10 marginal
+fingerprint (`reports/local-1.7B/30_*`) has over-dispersion 0.9-
+1.17 — Binomial as expected. **The Gaussian model captures first-
+order statistics but FAILS the second-order test.**
+
+Implication: a reproduction's sign-flip mechanism must produce
+**block-correlated flips**. Pure i.i.d. element-wise noise on
+teacher does NOT reproduce Bonsai's pattern. Mechanism families
+that DO produce block-correlated flips:
+
+- Low-rank LoRA delta with `r << 128` (rank-r structure correlates
+  multiple block positions coherently).
+- OBC-style block-wise activation-aware optimisation.
+- Group-aware regularisation in an SGD-style sign-update step.
+
+The bytes don't discriminate among these, but they DO rule out the
+pure-i.i.d. baseline. Combined with the SVD finding (delta is NOT
+low-rank either): the technique requires SOMETHING that produces
+block-coherent perturbations of teacher signs without producing a
+purely-low-rank delta. That's compatible with: low-rank LoRA + full-
+rank SGD, OR pure QAT with block-aware loss, OR OBC-style sequential
+quantisation. Open.
