@@ -68,3 +68,27 @@ step, or omit LoRA entirely and use full-rank QAT-style training.
   step would produce different SVD profiles. The test rules out a
   reasonable-rank LoRA-only recipe; it does NOT rule out higher-
   rank LoRA or LoRA + full-rank SGD.
+
+## Cross-tensor confirmation
+
+Same SVD test on 4 additional tensors:
+
+```
+tensor                                                rank-128
+L0  v_proj            (1024, 4096)                       24.5%
+L0  mlp.up_proj      (12288, 4096)                        7.5%
+L18 q_proj            (4096, 4096)                       13.8%
+L35 mlp.down_proj     (4096, 12288)                       8.6%
+```
+
+All tensors confirm: rank-128 explains 8-25% of squared-Frobenius-
+norm of the delta. None are close to LoRA-rank-128's expected ~95%.
+
+v_proj is the most concentrated (25%) — consistent with the per-
+tensor-type finding (`33_*`) that v_proj has the lightest implied
+LoRA strength. MLP up/down at L0 / L35 are the LEAST concentrated
+(7.5% / 8.6%) — these tensors' deltas are most full-rank.
+
+The SVD-low-rank-rejection finding is robust across (layer,
+projection-type). Pure-LoRA-only step 1 at typical LoRA ranks is
+consistently ruled out.
