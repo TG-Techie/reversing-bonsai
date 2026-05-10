@@ -153,13 +153,14 @@ short-lived-judge purpose.
 ## Resuming from compaction or summary
 
 If your context was compacted or you're resuming from a summarized
-session, two things you owe the user before you do anything else:
-**say so explicitly** so the transparency line isn't broken, and
-**re-read CLAUDE.md with the Read tool** to reload the discipline
-into your active context — a summary of this file isn't the same
-thing as having the file in front of you, and the rules above are
-exactly the kind of thing that quietly drift when you only have a
-paraphrase.
+session, three things you owe the user before you do anything else:
+**say so explicitly** so the transparency line isn't broken, **re-Read
+this file** (CLAUDE.md), and **re-Read the two whitepapers**
+(`1-bit-bonsai-8b-whitepaper.pdf` and `ternary-bonsai-8b-whitepaper.pdf`)
+— a summary of any of these isn't the same thing as having them in
+front of you, and the discipline rules above plus the whitepaper
+specifics are exactly the kind of thing that quietly drift when you
+only have a paraphrase.
 
 ## Why mind disk
 

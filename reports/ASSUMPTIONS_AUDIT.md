@@ -133,6 +133,23 @@ bytes.
   numerical noise). Some of our cross-size differences may be
   statistical artefacts at the smaller-stat axes.
 
+### Confounder note: the identity-shaping step
+
+The bytes-attested fact that "some step shaped the
+Bonsai/PrismML/Caltech identity into the weights" is not just one
+observation among many — it is a **confounder for every other
+byte-level claim** in this repo. Anything we've measured (sign
+disagreement, row cosine, per-block scale correlation, magnitude
+ratio, norm drift) is the endpoint of *whatever combination of steps*
+PrismML applied; the identity-shaping step contributes to all of
+them in ways we cannot apportion. So when we say "8B has a lower
+sign-flip rate than 1.7B", we don't know whether that's because the
+quantisation-producing step was less aggressive at 8B, *or* because
+the identity-shaping step was less disruptive at 8B, *or* because
+the two steps interact differently at scale. The cross-size shape
+itself remains observed, but its *cause* is now bracketed by the
+confounder.
+
 ## 3. Conclusions and the assumptions they depend on
 
 I'd been writing things like "the QAT pushed signs 17pp beyond PTQ"
