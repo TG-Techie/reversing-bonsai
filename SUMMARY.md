@@ -89,20 +89,33 @@ section is anchored to a specific report under `reports/local-*/`.
     Some pipeline step encoded this identity.
 20. **Per-block flip counts are over-dispersed vs Binomial**, with
     the over-dispersion **depth- and projection-type-dependent**.
-    `attn_q` over-dispersed at every depth (1.95-2.67); `attn_v` L0,
-    `mlp.gate` L0, `mlp.up` L0 are essentially Binomial (1.07-1.17);
-    deep MLP grows to >2.0 at L35. A control Gaussian-noise simulator
-    matched to the marginal flip rate gives 0.9-1.17 across all
-    deciles — confirming the over-dispersion is a real Bonsai
-    signature, not an artifact. Per-element-i.i.d. flipping is RULED
-    OUT for q at every depth and for late MLP. Reports
-    `local-8B/37_*` and `38_*`.
+    `attn_q` over-dispersed at every depth (1.7-3.2); `attn_v` rises
+    1.1 → 1.8 with depth; `attn_o` 1.6-2.3; `mlp.gate/up` are
+    **U-shaped** (10-13 at L1-L3 → 1.1-1.4 mid → 2.2 at L35);
+    `mlp.down` stays modest 1.0-1.5. A Gaussian-noise control
+    simulator gives 0.9-1.17 across the magnitude deciles —
+    confirming the over-dispersion is a real Bonsai signature, not
+    an artifact. Teacher-sign-blockstruct confound check shows
+    teacher signs within blocks are i.i.d. (over-dispersion ~1.0
+    with shuffle controls matching to ±0.014), so the over-dispersion
+    is not inherited from teacher structure. Reports `local-8B/37_*`,
+    `38_*`, `40_*`.
 21. **The depth-growing block coupling at MLP is NOT explained by
     growing LoRA rank**: full SVD across 5 depths × {gate, up} shows
     rank-128 % of squared-Frobenius-norm is essentially flat across
-    depth (gate 7.66-8.78%; same for up). If a depth-graded LoRA
-    rank produced the depth-growing coupling, rank-128 would rise
-    substantially with depth. It doesn't. Report `local-8B/39_*`.
+    L0/L9/L18/L27/L35 (7.5-9.05%, 1.6pp total spread). If a
+    depth-graded LoRA rank produced the depth-growing coupling,
+    rank-128 would rise substantially with depth. It doesn't. The
+    over-dispersion's relative range (1.07-2.25 over the same grid)
+    is over 100× the SVD's relative spread. Report `local-8B/39_*`.
+22. **L1-L3 MLP "disturbance spike"**: per-block flip-count
+    over-dispersion at L1-L3 `mlp.gate`/`mlp.up` reaches **10-13**,
+    far higher than anywhere else in the model. Same depth band where
+    sign-match-vs-teacher drops to 0.62-0.65 (the "disturbance dip").
+    A "single uniform LoRA rank" recipe cannot produce this; the
+    recipe must include either an L1-3-targeted rewrite step or a
+    depth-graded loss with very high L1-3 weight. Report
+    `local-8B/40_*`.
 
 ## What we INFER (not byte-attested, but consistent)
 
