@@ -1,0 +1,81 @@
+## Full-recipe step-1+step-2 simulation vs Bonsai bytes (1.7B q_proj L0)
+
+The candidate recipe v4 has two steps before SGD-alpha refinement:
+1. LoRA preprocess: w_LoRA = w_teacher + small_delta
+2. Naive Q1_0: formula(w_LoRA) = sign(w_LoRA) * mean(|w_LoRA|_per_128_block)
+
+Test: simulate steps 1+2 with a Gaussian delta and compare to Bonsai bytes.
+
+```
+                                                  sign-match   byte-match   per-block scale
+                                                  to Bonsai    (abs 1e-3)   match (within 10%)
+formula(raw teacher) [no LoRA]                    0.6984       0.0155       n/a
+formula(teacher + N(0, 0.020))                    0.6674       0.0425       0.221
+formula(teacher + N(0, 0.025))                    0.6558       0.0634       0.327
+formula(teacher + N(0, 0.030))                    0.6445       0.0738       0.414
+formula(teacher + N(0, 0.035))                    0.6342       0.0741       0.435    <-- best per-block
+formula(teacher + N(0, 0.040))                    0.6245       0.0619       0.382
+formula(teacher + N(0, 0.050))                    0.6082       0.0225       0.178
+```
+
+## Reading
+
+`formula(raw teacher)` already matches Bonsai's signs at 0.7 — same as
+the audit's measured overall sign-agreement. So Bonsai's signs are
+about 70% the same as what `formula(raw teacher)` would produce.
+
+`formula(teacher + Gaussian noise)` gives LOWER sign-match-to-Bonsai
+than `formula(raw teacher)`. This is because the simulation flips
+DIFFERENT positions than Bonsai actually flipped. Both have the
+SAME RATE of flips (matched by the 30_* magnitude-graded test) but
+the SPECIFIC positions flipped depend on Bonsai's actual calibration
+data + LoRA training trajectory, which a random Gaussian delta does
+not reproduce.
+
+## What the LoRA-preprocess does NOT do
+
+- It does NOT pin the specific positions that flip. Different
+  calibration data / LoRA initialisations would flip different
+  positions. Only the magnitude-graded distribution of flips is
+  reproducible.
+
+## What the LoRA-preprocess DOES do (per this test)
+
+- Matches Bonsai's per-block scales for ~43% of blocks (within 10%).
+  This is significant given the formula(raw teacher) byte-match is
+  only 1.5%.
+
+## The 57% gap
+
+The remaining 57% of blocks need scale corrections beyond what
+LoRA + naive Q1_0 produces. This is consistent with the v4 recipe
+including a per-block SGD-alpha step (step 3) that fits scales to
+calibration activations rather than to weight statistics. The
+SGD-alpha step accounts for the gap between LoRA-only-scale-match
+(43%) and Bonsai's actual scales.
+
+## Recipe-implication update
+
+Steps 1 + 2 alone:
+- match the d1/d10 magnitude-graded sign-flip fingerprint
+- match ~43% of per-block scales
+- DO NOT match Bonsai's specific position-of-flip choices
+
+Step 3 (SGD-alpha):
+- account for the remaining ~57% of per-block scales
+- driven by calibration-activation-output objective, not weight-distance
+
+Steps 4-7: layer-by-layer ordering, lm_head, norms, identity-shaping.
+
+## Caveats
+
+- The test is on ONE tensor. The 57% gap may be tighter or wider on
+  other tensors.
+- Real LoRA delta is low-rank, not Gaussian. A low-rank delta would
+  affect the SAME positions consistently across rows (since the
+  delta has structure). Could potentially RAISE the sign-match-to-
+  Bonsai if the LoRA happens to flip positions the technique
+  expected to flip.
+- 8B per-tensor scale-match might be higher (8B has tighter d10
+  values, so the LoRA delta is smaller, so the residual SGD-alpha
+  step has less to correct).
