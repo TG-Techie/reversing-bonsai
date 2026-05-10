@@ -1,0 +1,79 @@
+## Per-block feature → s_bonsai correlations and joint regression (8B)
+##
+## For each 128-block of a tensor, compute base-block features and the
+## sign-flips count, then correlate with deployed s_bonsai.
+
+=== L0.q_proj (shape (4096, 4096), 131072 blocks) ===
+        feature   pearson   spearman
+        mean|w|   +0.8608    +0.8772
+      median|w|   +0.8187    +0.8399
+         max|w|   +0.7106    +0.7764
+            std   +0.8611    +0.8785
+          range   +0.7625    +0.8112
+             L2   +0.8613    +0.8788
+      pos_count   +0.0019    +0.0017
+         sum|w|   +0.8608    +0.8772
+   top3 mean|w|   +0.7859    +0.8265
+sign_flips_count   -0.2958    -0.2785
+  joint r² (all 9 features): 0.7471
+
+=== L0.v_proj (shape (1024, 4096), 32768 blocks) ===
+        feature   pearson   spearman
+        mean|w|   +0.5958    +0.6205
+      median|w|   +0.4545    +0.4678
+         max|w|   +0.3751    +0.3722
+            std   +0.6222    +0.6399
+          range   +0.4412    +0.4293
+             L2   +0.6231    +0.6409
+      pos_count   +0.0020    +0.0024
+         sum|w|   +0.5958    +0.6205
+   top3 mean|w|   +0.4770    +0.4632
+sign_flips_count   -0.4311    -0.3960
+  joint r² (all 9 features): 0.4711
+
+=== L0.mlp.gate_proj (shape (12288, 4096), 393216 blocks) ===
+        feature   pearson   spearman
+        mean|w|   +0.5803    +0.5514
+      median|w|   +0.4856    +0.4456
+         max|w|   +0.3263    +0.3206
+            std   +0.5789    +0.5533
+          range   +0.3888    +0.3686
+             L2   +0.5795    +0.5541
+      pos_count   -0.0039    -0.0045
+         sum|w|   +0.5803    +0.5514
+   top3 mean|w|   +0.4219    +0.3944
+sign_flips_count   -0.2899    -0.2807
+  joint r² (all 9 features): 0.3604
+
+## Patterns
+
+1. Base-block magnitude features (mean|w|, std, L2) are consistently the
+   strongest predictors of s_bonsai. Pearson +0.58–0.86, with q_proj
+   most predictable.
+
+2. pos_count (number of positive base weights in the block) is
+   essentially uncorrelated with s_bonsai across all tensors:
+   -0.004 to +0.002. Positivity bias of the base block carries no
+   signal for the chosen Bonsai scale — sign-balance is symmetric.
+
+3. sign_flips_count is consistently NEGATIVELY correlated with
+   s_bonsai (-0.29 to -0.43). Either the technique deliberately
+   reduces scale where it flips more signs (loss-driven), OR the
+   correlation is a magnitude confound: low-|w| blocks have both
+   small s_bonsai AND many flips, since near-zero base values
+   randomise easily.
+
+4. Joint regression r²: 0.36–0.75. Substantial structure is captured
+   by base features alone; the unexplained 25–64% must be
+   technique-contributed (e.g. activation statistics, output norm
+   targets, an objective beyond pointwise distance to base).
+
+## Recipe constraint for a reproduction
+
+If targeting Bonsai-style scale assignment per block, fitting only on
+base-block magnitude features will plateau at r² ≈ 0.5–0.75 — too
+loose for byte-equivalent reproduction. The procedure used at least
+one signal *outside* the per-block base statistics. Likely candidates:
+post-matmul activation magnitudes (preserves layer output scale);
+distillation logit-KL contribution (which weighs blocks differently
+based on downstream impact); or layer-level norm calibration.
