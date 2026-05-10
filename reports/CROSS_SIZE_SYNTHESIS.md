@@ -158,23 +158,38 @@ Take Qwen3-base, apply Q1_0_g128 sign-quant (per-128-group scale = mean(|w|)), m
 
 **Caveats from independent verification:** earlier I'd written "input_ln moved >0.1 across all layers" — that was an overstatement; it's only true for the mid-stack range. The "round-trip-tight" verdict for q/k_norm is sensitive to whether you take ULP at peak |w| or at median |w|; on layer 10 input_ln, max diff is 0.0146 vs ULP@peak 0.0078 — a 2× excess at peak, which is locally "tight enough" by some readings but not others. Numbers in the table use ULP@peak.
 
-## Per-head sign-flip distribution (1.7B)
+## Embedding vs LM-head asymmetry (8B)
 
-`reports/local-1.7B/10_per_head_signs.txt`
+At 8B specifically, `embed_tokens` and `lm_head` are **separate Q1_0 tensors** (Qwen3-8B is untied; smaller Qwen3 sizes tie). Comparing each to its Qwen3-8B-base counterpart by row cosine on the first 50k rows:
 
-Mean flip rate by projection type, averaged across all 28 layers:
-- q_proj: 29.5% (std across heads in a tensor: 1.9%)
-- k_proj: 30.0%
-- v_proj: 23.9%
-- o_proj: 25.9%
+- `model.embed_tokens.weight` row cos to base: **0.799 mean** (range 0.24–0.81), 99.98% > 0.5. Equals √(2/π) ≈ 0.798 within noise — the **format-induced PTQ floor**.
+- `lm_head.weight` row cos to base: **0.718 mean** (range 0.37–0.82). Clearly moved beyond the PTQ floor.
+- Spot-check: Bonsai's own `embed_tokens` and `lm_head` are **NOT byte-equal** (max abs diff 0.083 across first 1000 rows; different scales: embed row 0 first 5 = ±0.0234, lm_head row 0 first 5 = ±0.0425).
 
-**Per-projection-type asymmetry: q/k get pushed harder than v/o** by the recipe, by ~5pp on average.
+**Inference (suggestion):** at 8B, the technique left `embed_tokens` at essentially the format-induced sign-quant state but trained `lm_head` further. The two end up materially different even though Qwen3-8B is untied so they could have remained the same vector. This is the same shape as the 8B-norm pattern (q/k_norm frozen, layer-level norms trained): the technique is selective about *which* tensors it disturbs.
 
-Within q_proj, averaged across all 28 layers, per-head flip rate range across the 16 heads is **0.287 – 0.301** — std 0.4pp. So no specific head is systematically "hot"; the asymmetry is at the projection-type level, not the head level.
+(Smaller sizes have only one tied embedding tensor so this asymmetry can't manifest there.)
 
-This pattern would be expected from a recipe whose signal is dominated by the matmul contribution to attention scores: q·k^T is more sensitive to per-element sign than v projection (which gets averaged) or o projection (which projects an already-mixed result back).
+## Per-head sign-flip distribution (1.7B and 8B)
 
-(Pending: same per-head measurement at 4B and 8B.)
+`reports/local-{1.7B,8B}/10_per_head_signs.txt`
+
+Mean flip rate by projection type, averaged across all layers:
+
+| size | q     | k     | v     | o     |
+| ---- | ----- | ----- | ----- | ----- |
+| 1.7B | 29.5% | 30.0% | 23.9% | 25.9% |
+| 8B   | 27.0% | 26.7% | 20.8% | 23.6% |
+
+**Same q/k > o > v hierarchy at both sizes; 8B uniformly ~3 pp lower** (consistent with the broader cross-size "8B is more conservative" story).
+
+Within q_proj, averaged across all layers:
+- 1.7B (16 heads): per-head range **0.287 – 0.301**, std 0.004.
+- 8B (32 heads): per-head range **0.265 – 0.278**, std 0.003.
+
+Both extremely tight. **No specific head is systematically "hot"** at either scale — the asymmetry is at the projection-type level (q/k vs v/o), not at individual heads. Consistent with: the technique's signal is dominated by the matmul contribution to attention scores (q·k^T — more sensitive to per-element sign than v which gets averaged, or o which projects an already-mixed result back).
+
+(Pending: same measurement at 4B for completeness.)
 
 ## Things that reproduced cleanly across all three sizes
 
