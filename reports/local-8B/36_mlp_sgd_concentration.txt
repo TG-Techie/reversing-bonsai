@@ -1,0 +1,62 @@
+## SGD-alpha step's work concentration at MLP (8B)
+
+Same per-row LoRA-vs-Bonsai test as the 1.7B q_proj L0 baseline
+(reports/local-1.7B/32_*), repeated at MLP gate / up across depths
+at 8B. LoRA simulation uses sigma = 1.25 * teacher_mean (the 8B
+typical ratio from 33_*).
+
+```
+tensor              overall match    rows >60%   rows <20%   col CV
+L0  mlp.gate         0.4620            29%        13%         0.027
+L18 mlp.gate         0.0503             2%        93%         0.077
+L35 mlp.gate         0.1372            10%        77%         0.029
+L35 mlp.up           0.2175            17%        65%         0.020
+```
+
+Compare to q_proj baseline (1.7B q L0 from 32_*):
+- overall match 0.435, rows >60% 38%, rows <20% 30%, col CV 0.008.
+
+## Reading
+
+L0 mlp.gate behaves similarly to the q_proj baseline (~45% overall
+match). But at deeper MLP gate (L18, L35) and at L35 mlp.up, the
+LoRA-only simulation gets very few blocks right: only 5% match at
+L18 mlp.gate, with 93% of rows having <20% of their blocks within
+10% of Bonsai's deployed scale.
+
+The SGD-alpha step does the overwhelming majority of corrective
+work at deep MLP gate and up. In contrast, attention projections
+and early-layer MLP (L0) are mostly handled by LoRA + naive Q1_0
+alone.
+
+Column CV is uniformly small (<0.08) at every tensor sampled. The
+unmatched-vs-matched distinction is per-row, not per-column.
+
+## Recipe constraint
+
+A reproduction's SGD-alpha step's compute budget should be
+ALLOCATED ASYMMETRICALLY:
+
+- Attention layers and L0 MLP: most blocks converge with LoRA + a
+  handful of SGD steps.
+- Mid-stack and deep MLP gate/up: most blocks need substantial SGD
+  refinement to land at Bonsai-style scales. Allocate proportionally
+  more compute here.
+
+This pattern matches the per-row Pearson finding (26_*): at MLP
+gate/up, deep layers' deployed alpha deviates most from teacher's
+mean(|w|). The two findings together identify deep MLP gate/up as
+the recipe's HOTSPOT — where the technique invests the most compute.
+
+A reproduction targeting Bonsai-style behaviour with limited SGD
+budget should prioritise deep MLP gate/up.
+
+## Caveats
+
+- The "LoRA simulation" uses Gaussian noise with sigma matched to
+  overall sign-agreement, NOT Bonsai's actual LoRA delta (which we
+  don't have). The actual mapping might be more efficient at deep
+  MLP than our simulation suggests.
+- Real SGD-alpha doesn't operate on a Gaussian-noised teacher; it
+  conditions on calibration activations. The "compute budget"
+  prediction is approximate.
