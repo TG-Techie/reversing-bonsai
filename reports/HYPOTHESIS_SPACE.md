@@ -37,6 +37,24 @@
 
 **Status:** **Falsified by obs 5 for matrix-heavy weights.** Kept on the list because it cleanly explains the embed/norm subset and bounds the "minimum work" baseline a hypothesis must explain past.
 
+## H_d — Forward-sequential accumulated-error-aware quantisation (added after 16_depth_sweep)
+
+**Commits to:** Sweep through layers in topological order. At each layer, choose signs and scales (under the Q1_0 storage constraint) **jointly with knowledge of the accumulated activation distortion from earlier already-quantised layers**. The objective at each step is to fit the *distorted* activations through the partially-quantized model up to that point, not to fit the teacher's weight matrix in isolation. Embedding gets the formula treatment by special-case (it has no upstream distortion). Some norms remain trainable; q_norm and k_norm stay at teacher values. lm_head signs largely from teacher, scales recomputed under the layer-by-layer regime.
+
+**Best explains:**
+
+- Obs 6 (embed = formula exactly) — embedding has no upstream layer to distort it.
+- The non-monotonic, erratic *depth pattern of how predictable s_bonsai is from per-block teacher statistics* (q/k/v/o stable at 0.45–0.80; mlp_gate / mlp_up r² collapses at unpredictable depths down to 0.02–0.05). A pure QAT or instruction-tune story would predict smoother depth-decay; an accumulated-distortion story naturally produces erratic patterns where activation drift happens to align or misalign with teacher block magnitudes layer-by-layer.
+- Obs 5 (sign disagreement 22–32%) — many signs flip because the optimisation target is a distorted activation, not teacher weights.
+- Loudness ratio ~2× — scales are amplified to compensate for the cumulative attenuation from upstream binary-lattice projection.
+- Norm split: a sequential procedure can interleave layer-norm updates with weight quantisation, giving the input_ln-only-mid-stack pattern.
+
+**Doesn't comfortably explain:**
+
+- Obs 12 (Bonsai/PrismML/Caltech identity) — would need a separate instruction-tune step layered on, since pure activation-fit doesn't teach an identity. So this is a 2-step pipeline rather than a 1-step one. (Same caveat applies to H_a/H_b — none of them are 1-step.)
+
+**Discriminator vs H_a/H_b:** the depth sweep (16_*) looks far more like H_d than H_a/H_b. The other discriminator from §earlier (joint sign-flip × scale-drift correlation) was a weak Pearson +0.12 on q_proj L0 — also closer to H_b/H_d than H_a, and consistent with H_d's "scale isn't tightly coupled to which signs flipped, both jointly fit a downstream activation target".
+
 ## Reading rule
 
 When citing one of these hypotheses, name the obs it explains and the obs it doesn't. Do not blur "the technique" with "H_a" — H_a is one candidate. The next experiments should target the discriminators listed above.
