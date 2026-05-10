@@ -233,6 +233,150 @@ Empirical sizes / speeds for keepalive sizing:
 - `scripts/independent_verify.py` — sample of how a verification
   sub-agent reproduced H1/H2/PTQ/norms claims independently.
 
+## How long-running autonomous research goes here
+
+When the user grants you a multi-hour time window with periodic
+check-ins instead of turn-by-turn driving, the failure modes shift.
+The discipline this section captures is what made the May 2026 5-hour
+run productive (PR #7 + extending into recipe-extraction). Future
+agents arriving cold into a similar grant should reason from these,
+not follow them by rote.
+
+**Re-state the goal in your own words at the start of every grant.**
+The user will course-correct your phrasing if you've drifted. This
+also forces you to reload the goal into your active context when it's
+been a while since the last time you touched it. The single sentence
+that captures it for this repo is something like *"reverse-engineer
+how Bonsai compresses Qwen3 to 1.125 bits/weight at ~95% benchmark
+retention, deeply enough that a different base model could be
+compressed the same way; output is byte-attested constraints, not
+guessed recipes."* If you can't articulate this, re-Read the
+whitepapers and `RECIPE_HINTS.md` before doing anything else.
+
+**Don't ask permission, pick one and continue.** When the user gives
+you a multi-hour window they explicitly do not want to be the driver.
+"Should I continue or wind down?" "Should I do A or B?" — these halt
+their ability to do other things. Pick the higher-leverage option
+and act; if the user disagrees they will course-correct. Halting on
+binary questions wastes the grant. This is not the same as
+silent-action — see "communication pacing" below.
+
+**Communication pacing: concrete findings, not narration.** The user
+is on mobile, often watching the transcript stream while doing other
+things. Before each tool call write one sentence of intent; after a
+batch of work write a short status with the actual numbers and what
+they mean. Avoid "I'm now going to..." style narration — describe
+what changed, what's open, and ask only the questions the user can
+actually answer.
+
+**Sense when something is taking too long and kill it.** If a script
+has been running for more than 2× its expected wall time, or has
+produced no output for many minutes when it should be streaming,
+investigate root cause and rewrite. Do not let it consume the budget.
+The 36-layer audit in this run hit this — first version walked the
+shard index 254 times (each tensor lookup is O(shards)); second
+version walks the index 5 times. Same logic, ~20× faster. The win
+came from killing-and-rewriting at the right moment, not from
+patience.
+
+**Always check at least 5–7 instances, never just 3.** A trio is
+the minimum for early/mid/late framing, but with only 3 points you
+can't see non-monotonic patterns and you'll falsely report "monotonic
+trend" when the truth is "U-shape with peak in middle, gradual rise
+late". The 4B sign-disagreement number in this run got reported as
+"monotonic 21% → 30%" until the user pushed back and a 36-layer
+re-read showed it was actually plateau-then-late-rise. 5–7 layers
+spread across depth catches this.
+
+**Periodic concrete-finding check-ins.** Roughly every 20–40 minutes
+of clock time, post a short message to the user: "since last check
+I added X, Y, Z results; here are the headline numbers; here's
+what's open." This is the pacing that lets the user re-direct
+without you halting. They don't need the running narrative; they
+need the deltas.
+
+**Sub-agents are for independent verification, not for delegating
+work to.** Spawning a worktree-isolated sub-agent with a tight prompt
+is the cheapest way to surface assumptions you slid past. Brief them
+like a smart colleague who walked into the room cold: state the
+claim, hand over the data path, ask for the numbers they themselves
+measured. Bound the report length. **Do not let sub-agents see your
+prior framing.** Two valuable patterns from this run:
+
+1. *Observation-only narrative derivation.* Hand the agent only the
+   §1 force-by-data observations (numbered list); ask them to derive
+   what hypothesis space is consistent. They will surface alternative
+   readings you missed. (See `reports/HYPOTHESIS_SPACE.md` — sub-agent
+   produced H_a/H_b/H_c, of which H_c was falsified by data the
+   author already had but hadn't quite framed as a falsifier.)
+2. *Prior-art research with a tight scope.* Spawn one for "broad
+   literature in topic X" and a separate one for "the specific people
+   behind this artifact and their own publications". Do not combine —
+   the search strategies are different and the second is much more
+   constrained. (See `reports/RELATED_RESEARCH.md` for output.)
+
+**Compare against the deterministic formula AND the base model
+explicitly; sync state in messages.** The "formula" `sign(w_base) ·
+mean(|w_base|_per_128_block)` is by definition the naive Q1_0
+quantisation of the teacher; that's the same as comparing against
+"naive-quant(base)". When you say "Bonsai vs base" you might mean
+either of these — be explicit which. If you want to disentangle
+"sign chosen well" from "scale chosen well" you need both
+comparisons.
+
+**Block alignment is exact.** Both Bonsai (post-HF-reverse) and base
+reshape `(out, n_blk, 128)` row-major and the i-th element at
+`(row, blk, i)` corresponds. Stating this once in each new analysis
+script keeps it from drifting; "block group to precise weight
+placement" is the user's phrase and it matters because comparing
+*group statistics* of misaligned groups is meaningless even if the
+numbers look reasonable.
+
+**Confounder discipline.** Some observations confound others. The
+identity-shaping step ("Bonsai/PrismML/Caltech" emerges from temp=0
+inference with empty system prompt) is force-by-data, but it is also
+a *confounder for every byte-level cross-size or per-tensor claim*
+because we cannot apportion drift between "the quantisation step"
+and "the identity step". Flag confounders in `ASSUMPTIONS_AUDIT.md`
+and re-flag them when you cite the affected observations.
+
+**Pointers > bulk downloads for prior art.** When research is needed,
+the right output is an arXiv URL list with one-sentence summaries of
+which observation each paper would and wouldn't predict. Do not
+download PDFs unless the user asks. The maintainer keeps the cache
+clean; you write `RELATED_RESEARCH.md` with stable links, and when
+PDFs land in `reports/related_papers/` they're added to that doc's
+"in cache" list with the same metadata.
+
+**Read the cited prior art, don't just summarise its abstract.** The
+abstract gave us "ℓ∞-regularised → 1-bit"; reading the theorems and
+corollaries gave us "boundary value `δ/λ` is *data-dependent, not
+teacher-weight-dependent*", which is the differential prediction
+that distinguishes ℓ∞-style recipes from "apply formula to teacher
+and call it done". The discipline only works if you actually read the
+prior work; paraphrase-from-memory will quietly converge on whatever
+intuition you already had.
+
+**Format: markdown tables only, each row on its own line, blank
+lines around the table.** HTML tables don't render in this chat
+interface, and tightly-packed markdown rows can render as one line.
+Always test mentally: each row needs a leading newline before its
+`|`.
+
+**Branch per merge.** When the maintainer merges a PR, immediately
+check out the new main and start a fresh branch for the next batch
+of work. Don't add to the merged branch — it pollutes the main-line
+history. The fresh-branch convention also gives you a clean
+"as-of-merge" snapshot to point at later.
+
+**Whitepapers compact fastest.** The two PDFs (`1-bit-bonsai-8b-
+whitepaper.pdf`, `ternary-bonsai-8b-whitepaper.pdf`) are read once
+at session start and rarely re-read; their specifics drift to
+paraphrase as the context grows. If you find yourself struggling to
+recall a specific claim from the whitepaper, re-Read the relevant
+pages explicitly with `pages: "N-M"` (large PDFs require the page
+parameter) before relying on memory.
+
 ## Why all of this is in CLAUDE.md and not a comment in some script
 
 Because future agents arrive cold. They need the model of *what we're
