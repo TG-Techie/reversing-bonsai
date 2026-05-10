@@ -1,0 +1,61 @@
+## LoRA-delta magnitude inferred from sign-flip simulation (1.7B q_proj L0)
+
+Simulate the LoRA preprocess: add Gaussian noise N(0, sigma) to teacher
+weights, then sign-quant. Compare the resulting sign-flip fingerprint
+to Bonsai's measured fingerprint at the same tensor.
+
+Test on Bonsai-1.7B q_proj L0 (teacher mean|w| = 0.027):
+
+```
+sigma     overall_agree   d1_flip   d10_flip
+0.005       0.950           0.351     0.000
+0.010       0.903           0.422     0.000
+0.015       0.861           0.447     0.000
+0.020       0.824           0.461     0.001
+0.025       0.792           0.468     0.004
+0.030       0.764           0.473     0.011
+0.040       0.720           0.480     0.039
+0.060       0.662           0.486     0.114
+
+Bonsai measured at 1.7B q L0:
+  overall_agree = 0.6984
+  d1_flip       = 0.483
+  d10_flip      = 0.056
+```
+
+## Reading
+
+A Gaussian additive noise model with sigma ≈ 0.04 reproduces Bonsai's
+measured pattern essentially exactly:
+- overall agreement 0.720 vs Bonsai's 0.698
+- d1 flip rate 0.480 vs Bonsai's 0.483
+- d10 flip rate 0.039 vs Bonsai's 0.056
+
+Bonsai's teacher mean(|w|) at this tensor is 0.027, so the implied
+LoRA delta std is roughly 1.5× the teacher's mean(|w|).
+
+## Recipe constraint
+
+A reproduction's LoRA preprocess delta should have RMSE-magnitude
+roughly 1.5× the teacher's mean(|w|) at that tensor. Smaller LoRA
+deltas (sigma ~0.02) under-disturb (overall agreement too high);
+larger LoRA deltas (sigma ~0.06) over-disturb (overall agreement
+too low). The Gaussian noise model is a simple parameterisation;
+real LoRA deltas have low-rank structure, but for predicting the
+sign-flip fingerprint, the scalar magnitude matches the observed
+behaviour.
+
+## Caveats
+
+- The simulation is on ONE tensor at ONE size. Other tensors / sizes
+  may need different sigma. The 8B fingerprint shows tighter d10
+  values (~0.025 vs 0.056 at 1.7B), suggesting a smaller delta at 8B
+  or a different LoRA/calibration regime.
+- Real LoRA deltas have structure: they live on a rank-r subspace
+  (rank typically 16-128). A Gaussian model averages this away.
+  Predictions about how the technique handles per-row vs per-input-
+  position structure require modelling LoRA's low-rank shape.
+- Other mechanisms can produce magnitude-graded flips: calibration
+  noise injection, iterative quant-aware procedures with sign
+  freedom on small weights. The Gaussian-noise model is the
+  simplest fit, not the only fit.
