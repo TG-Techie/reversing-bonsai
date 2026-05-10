@@ -7,24 +7,29 @@
     "'x-deny-reason: host_not_allowed' and Bonsai weight inspection requires",
     "a GitHub Actions workaround (see .github/workflows/analyze-bonsai.yml).",
     "",
+    "Wildcards: '*.huggingface.co' covers subdomains (api, cdn-lfs, cdn-lfs-us-1,",
+    "datasets-server, etc.); the bare 'huggingface.co' is listed explicitly because",
+    "many allowlist implementations don't fold the apex into the wildcard.",
+    "",
     "Adding a domain only takes effect at the start of a NEW session — the",
     "egress proxy is initialized at sandbox spin-up."
   ],
   "sandbox": {
     "allowedDomains": [
       "huggingface.co",
+      "*.huggingface.co",
       "hf.co",
-      "cdn-lfs.huggingface.co",
-      "cdn-lfs-us-1.huggingface.co",
-      "cdn-lfs-eu-1.huggingface.co",
+      "*.hf.co",
 
-      "release-assets.githubusercontent.com",
-      "objects.githubusercontent.com",
+      "*.githubusercontent.com",
 
       "download.pytorch.org",
+      "*.pytorch.org",
+
       "dl.fbaipublicfiles.com",
+
       "modelscope.cn",
-      "www.modelscope.cn"
+      "*.modelscope.cn"
     ]
   }
 }
