@@ -1,0 +1,51 @@
+## Per-block amplification ratio: s_bonsai / RMSE-optimal scalar at 8B
+
+For each block in matrix-heavy tensors, compute:
+  s_bonsai             = the deployed FP16 scale per block
+  s_rmse_optimal       = mean(sigma_bonsai · w_teacher) per block
+                         (the unique scalar that minimises ‖s · sigma - w_base‖²
+                          for the block's chosen sign pattern)
+  ratio = |s_bonsai / s_rmse_optimal|
+
+Distribution per tensor:
+
+```
+tensor                median  IQR     p10    p90    CV
+L0.q_proj              1.89   0.43   1.52   2.40   1.70
+L0.v_proj              2.26   0.27   2.02   2.54   0.11
+L0.mlp.gate            2.19   0.38   1.85   2.60   0.14
+L0.mlp.down            1.47   0.13   1.35   1.60   0.07
+L18.q_proj             2.28   0.61   1.80   3.11   0.30
+L35.mlp.up             2.42   1.24   1.55   3.78   0.41
+```
+
+## Reading
+
+The amplification factor `s_bonsai / RMSE-optimal` is approximately
+constant per tensor (CV typically 7-40%, with one outlier).
+
+L0.q_proj's high CV (1.70) comes from a small fraction of blocks
+where Bonsai's chosen signs are nearly anti-aligned with the teacher
+in that block, making RMSE-optimal near zero and the ratio large.
+The IQR (0.43) is more representative; bulk of L0.q_proj blocks have
+ratio in [1.52, 2.40].
+
+L35.mlp.up has wider distribution (CV 0.41) — late MLP layers' per-
+block amplification is more variable than early-layer attention's.
+
+## Recipe constraint
+
+A reproduction's per-block scale assignment can target:
+
+  s_bonsai_per_block ≈ amplification_factor × RMSE-optimal-per-block
+
+with `amplification_factor` chosen per-tensor (typically 1.5-2.4),
+not per-block. The RMSE-optimal scalar is a function of the chosen
+sign pattern and the teacher, so a recipe that first chooses signs
+(via SGD or similar) and then sets scales to ~2x the RMSE-optimal
+gets close to Bonsai's deployed scales without needing per-block
+custom logic.
+
+This is consistent with the v4 recipe step-3 prediction:
+"alpha around 1.3-1.8x the init value (median; range varies by
+tensor)".
