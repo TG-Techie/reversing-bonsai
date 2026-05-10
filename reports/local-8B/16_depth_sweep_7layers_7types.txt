@@ -1,0 +1,60 @@
+## 7-layer × 7-projection-type depth sweep at 8B
+##
+## For each of {q, k, v, o, mlp_gate, mlp_up, mlp_down} at layers
+## {0, 6, 12, 18, 24, 30, 35}: compute Pearson(s_bonsai, mean|w_base|),
+## Pearson(s_bonsai, sign-flips count vs base), and joint r² over
+## {mean|w|, std, max|w|, sign-flips} predictors.
+##
+## Headline: joint r² across the matrix.
+
+type     |  L0   |  L6   |  L12  |  L18  |  L24  |  L30  |  L35
+---------|-------|-------|-------|-------|-------|-------|------
+q        | 0.747 | 0.675 | 0.678 | 0.679 | 0.587 | 0.566 | 0.441
+k        | 0.491 | 0.594 | 0.628 | 0.673 | 0.451 | 0.628 | 0.360
+v        | 0.469 | 0.632 | 0.647 | 0.674 | 0.470 | 0.580 | 0.650
+o        | 0.795 | 0.814 | 0.644 | 0.784 | 0.660 | 0.602 | 0.749
+mlp_gate | 0.360 | 0.016 | 0.300 | 0.312 | 0.468 | 0.417 | 0.079
+mlp_up   | 0.415 | 0.268 | 0.461 | 0.405 | 0.175 | 0.193 | 0.048
+mlp_down | 0.818 | 0.479 | 0.428 | 0.636 | 0.691 | 0.861 | 0.514
+
+## Patterns
+
+- Attention projections (q/k/v/o): joint r² mostly 0.45-0.80 across
+  depth. Stable — base block statistics keep predicting much of
+  Bonsai's chosen scales for attention paths.
+
+- MLP (gate / up / down): wildly non-monotonic. L6 mlp_gate r² =
+  0.016 (essentially noise). L35 mlp_up r² = 0.048 (essentially
+  noise). But L30 mlp_down r² = 0.861, and L0 mlp_down r² = 0.818
+  (highly predictable). The "predictability collapse" is not
+  smooth in depth.
+
+## Hypothesis fit
+
+This pattern fits naturally with a forward-sequential quantization
+where each layer's scale-choice depends on accumulated activation
+distortion from prior layers (GPTQ-style or similar). Under that
+hypothesis:
+
+  - r² is base-block-driven where activations through to that layer
+    happen to remain correlated with teacher activations.
+  - r² collapses where prior-layer quantization has decorrelated the
+    activations from teacher activations — and the new optimization
+    target is the distorted activation distribution, not the teacher
+    weights.
+
+That predicts the erratic, non-monotonic depth pattern we observe in
+MLP, which a clean QAT story would not produce.
+
+A reproduction recipe consistent with this would:
+  1. Quantize embedding via the formula directly (force-by-data).
+  2. Sweep through layers in topological order, at each layer:
+     - Solve for sign and scale jointly under an objective tied to
+       the activation through the partially-quantized model up to
+       this point.
+     - Bias scales upward to compensate for downstream activation
+       attenuation.
+  3. Allow specific norms (input_layernorm, post_attn_layernorm) to
+     update as part of this; freeze q_norm/k_norm.
+  4. Optionally interleave or follow with an instruction-tune for
+     identity / behavioural shaping.

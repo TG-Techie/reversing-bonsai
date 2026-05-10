@@ -1,0 +1,125 @@
+head_dim = 128
+tensor                                                                  n_heads  mean   std    min    max   range
+  model.layers.0.self_attn.k_proj.weight                                      8   0.2942 0.0322 0.2710 0.3634  0.0923
+  model.layers.0.self_attn.o_proj.weight                                     16   0.2383 0.0308 0.1983 0.3093  0.1110
+  model.layers.0.self_attn.q_proj.weight                                     16   0.3016 0.0319 0.2641 0.3716  0.1074
+  model.layers.0.self_attn.v_proj.weight                                      8   0.2110 0.0266 0.1895 0.2776  0.0880
+  model.layers.1.self_attn.k_proj.weight                                      8   0.2883 0.0161 0.2715 0.3177  0.0461
+  model.layers.1.self_attn.o_proj.weight                                     16   0.2540 0.0269 0.2145 0.3143  0.0998
+  model.layers.1.self_attn.q_proj.weight                                     16   0.2907 0.0129 0.2666 0.3163  0.0497
+  model.layers.1.self_attn.v_proj.weight                                      8   0.2425 0.0165 0.2182 0.2733  0.0551
+  model.layers.10.self_attn.k_proj.weight                                     8   0.2874 0.0241 0.2595 0.3374  0.0779
+  model.layers.10.self_attn.o_proj.weight                                    16   0.2461 0.0276 0.2050 0.3116  0.1066
+  model.layers.10.self_attn.q_proj.weight                                    16   0.2968 0.0164 0.2739 0.3253  0.0515
+  model.layers.10.self_attn.v_proj.weight                                     8   0.2269 0.0247 0.1949 0.2790  0.0842
+  model.layers.11.self_attn.k_proj.weight                                     8   0.2889 0.0266 0.2599 0.3325  0.0726
+  model.layers.11.self_attn.o_proj.weight                                    16   0.2589 0.0308 0.2180 0.3323  0.1143
+  model.layers.11.self_attn.q_proj.weight                                    16   0.2850 0.0273 0.2366 0.3567  0.1201
+  model.layers.11.self_attn.v_proj.weight                                     8   0.2292 0.0154 0.2110 0.2504  0.0393
+  model.layers.12.self_attn.k_proj.weight                                     8   0.2720 0.0132 0.2554 0.2918  0.0364
+  model.layers.12.self_attn.o_proj.weight                                    16   0.2511 0.0087 0.2332 0.2690  0.0357
+  model.layers.12.self_attn.q_proj.weight                                    16   0.2781 0.0150 0.2552 0.3082  0.0530
+  model.layers.12.self_attn.v_proj.weight                                     8   0.2280 0.0081 0.2175 0.2438  0.0264
+  model.layers.13.self_attn.k_proj.weight                                     8   0.2808 0.0125 0.2547 0.2938  0.0392
+  model.layers.13.self_attn.o_proj.weight                                    16   0.2529 0.0171 0.2209 0.2781  0.0572
+  model.layers.13.self_attn.q_proj.weight                                    16   0.2776 0.0079 0.2660 0.3015  0.0355
+  model.layers.13.self_attn.v_proj.weight                                     8   0.2290 0.0055 0.2206 0.2390  0.0184
+  model.layers.14.self_attn.k_proj.weight                                     8   0.2805 0.0182 0.2531 0.3087  0.0556
+  model.layers.14.self_attn.o_proj.weight                                    16   0.2544 0.0177 0.2169 0.2851  0.0682
+  model.layers.14.self_attn.q_proj.weight                                    16   0.2861 0.0227 0.2514 0.3320  0.0806
+  model.layers.14.self_attn.v_proj.weight                                     8   0.2278 0.0107 0.2062 0.2443  0.0380
+  model.layers.15.self_attn.k_proj.weight                                     8   0.2898 0.0192 0.2667 0.3171  0.0504
+  model.layers.15.self_attn.o_proj.weight                                    16   0.2575 0.0149 0.2342 0.2837  0.0495
+  model.layers.15.self_attn.q_proj.weight                                    16   0.2981 0.0280 0.2675 0.3764  0.1089
+  model.layers.15.self_attn.v_proj.weight                                     8   0.2310 0.0174 0.2091 0.2613  0.0522
+  model.layers.16.self_attn.k_proj.weight                                     8   0.2951 0.0126 0.2770 0.3233  0.0463
+  model.layers.16.self_attn.o_proj.weight                                    16   0.2628 0.0229 0.2152 0.3092  0.0940
+  model.layers.16.self_attn.q_proj.weight                                    16   0.2874 0.0196 0.2648 0.3347  0.0699
+  model.layers.16.self_attn.v_proj.weight                                     8   0.2387 0.0193 0.2145 0.2656  0.0511
+  model.layers.17.self_attn.k_proj.weight                                     8   0.2935 0.0231 0.2703 0.3508  0.0805
+  model.layers.17.self_attn.o_proj.weight                                    16   0.2404 0.0279 0.2031 0.3237  0.1205
+  model.layers.17.self_attn.q_proj.weight                                    16   0.2868 0.0288 0.2510 0.3560  0.1050
+  model.layers.17.self_attn.v_proj.weight                                     8   0.2171 0.0174 0.1959 0.2520  0.0561
+  model.layers.18.self_attn.k_proj.weight                                     8   0.3015 0.0176 0.2740 0.3238  0.0498
+  model.layers.18.self_attn.o_proj.weight                                    16   0.2687 0.0181 0.2400 0.3005  0.0606
+  model.layers.18.self_attn.q_proj.weight                                    16   0.2909 0.0153 0.2684 0.3248  0.0565
+  model.layers.18.self_attn.v_proj.weight                                     8   0.2396 0.0190 0.2044 0.2671  0.0626
+  model.layers.19.self_attn.k_proj.weight                                     8   0.3114 0.0196 0.2932 0.3599  0.0667
+  model.layers.19.self_attn.o_proj.weight                                    16   0.2623 0.0243 0.2362 0.3331  0.0969
+  model.layers.19.self_attn.q_proj.weight                                    16   0.3027 0.0294 0.2672 0.3637  0.0965
+  model.layers.19.self_attn.v_proj.weight                                     8   0.2523 0.0278 0.2144 0.3030  0.0886
+  model.layers.2.self_attn.k_proj.weight                                      8   0.2796 0.0150 0.2659 0.3110  0.0451
+  model.layers.2.self_attn.o_proj.weight                                     16   0.2486 0.0242 0.2141 0.2934  0.0793
+  model.layers.2.self_attn.q_proj.weight                                     16   0.2779 0.0121 0.2585 0.3073  0.0488
+  model.layers.2.self_attn.v_proj.weight                                      8   0.2353 0.0236 0.2093 0.2835  0.0742
+  model.layers.20.self_attn.k_proj.weight                                     8   0.3042 0.0105 0.2826 0.3205  0.0379
+  model.layers.20.self_attn.o_proj.weight                                    16   0.2604 0.0254 0.2212 0.3228  0.1016
+  model.layers.20.self_attn.q_proj.weight                                    16   0.2916 0.0197 0.2679 0.3513  0.0834
+  model.layers.20.self_attn.v_proj.weight                                     8   0.2497 0.0242 0.2106 0.2770  0.0664
+  model.layers.21.self_attn.k_proj.weight                                     8   0.3114 0.0131 0.2953 0.3351  0.0398
+  model.layers.21.self_attn.o_proj.weight                                    16   0.2626 0.0228 0.2276 0.3051  0.0775
+  model.layers.21.self_attn.q_proj.weight                                    16   0.2952 0.0183 0.2620 0.3283  0.0663
+  model.layers.21.self_attn.v_proj.weight                                     8   0.2516 0.0227 0.2166 0.2880  0.0714
+  model.layers.22.self_attn.k_proj.weight                                     8   0.3157 0.0253 0.2772 0.3550  0.0779
+  model.layers.22.self_attn.o_proj.weight                                    16   0.2724 0.0283 0.2187 0.3158  0.0971
+  model.layers.22.self_attn.q_proj.weight                                    16   0.3016 0.0195 0.2782 0.3446  0.0664
+  model.layers.22.self_attn.v_proj.weight                                     8   0.2602 0.0317 0.2241 0.3069  0.0827
+  model.layers.23.self_attn.k_proj.weight                                     8   0.3221 0.0175 0.2961 0.3454  0.0492
+  model.layers.23.self_attn.o_proj.weight                                    16   0.2739 0.0206 0.2379 0.3143  0.0764
+  model.layers.23.self_attn.q_proj.weight                                    16   0.3134 0.0171 0.2824 0.3593  0.0769
+  model.layers.23.self_attn.v_proj.weight                                     8   0.2584 0.0209 0.2277 0.2902  0.0625
+  model.layers.24.self_attn.k_proj.weight                                     8   0.3303 0.0104 0.3087 0.3415  0.0328
+  model.layers.24.self_attn.o_proj.weight                                    16   0.2692 0.0315 0.2357 0.3427  0.1071
+  model.layers.24.self_attn.q_proj.weight                                    16   0.3144 0.0143 0.3010 0.3613  0.0603
+  model.layers.24.self_attn.v_proj.weight                                     8   0.2612 0.0147 0.2307 0.2835  0.0529
+  model.layers.25.self_attn.k_proj.weight                                     8   0.3269 0.0155 0.2982 0.3436  0.0454
+  model.layers.25.self_attn.o_proj.weight                                    16   0.2655 0.0358 0.2184 0.3326  0.1142
+  model.layers.25.self_attn.q_proj.weight                                    16   0.3078 0.0139 0.2761 0.3306  0.0545
+  model.layers.25.self_attn.v_proj.weight                                     8   0.2526 0.0205 0.2238 0.3012  0.0774
+  model.layers.26.self_attn.k_proj.weight                                     8   0.3282 0.0101 0.3151 0.3425  0.0275
+  model.layers.26.self_attn.o_proj.weight                                    16   0.2753 0.0404 0.2266 0.3400  0.1134
+  model.layers.26.self_attn.q_proj.weight                                    16   0.2907 0.0156 0.2597 0.3138  0.0542
+  model.layers.26.self_attn.v_proj.weight                                     8   0.2686 0.0301 0.2249 0.3114  0.0865
+  model.layers.27.self_attn.k_proj.weight                                     8   0.3564 0.0294 0.3002 0.3994  0.0992
+  model.layers.27.self_attn.o_proj.weight                                    16   0.3190 0.0361 0.2438 0.3836  0.1398
+  model.layers.27.self_attn.q_proj.weight                                    16   0.3179 0.0344 0.2355 0.3884  0.1529
+  model.layers.27.self_attn.v_proj.weight                                     8   0.2885 0.0338 0.2348 0.3252  0.0903
+  model.layers.3.self_attn.k_proj.weight                                      8   0.2866 0.0197 0.2599 0.3178  0.0579
+  model.layers.3.self_attn.o_proj.weight                                     16   0.2553 0.0167 0.2228 0.2911  0.0683
+  model.layers.3.self_attn.q_proj.weight                                     16   0.2881 0.0158 0.2686 0.3302  0.0616
+  model.layers.3.self_attn.v_proj.weight                                      8   0.2333 0.0145 0.2158 0.2626  0.0468
+  model.layers.4.self_attn.k_proj.weight                                      8   0.2939 0.0242 0.2714 0.3428  0.0714
+  model.layers.4.self_attn.o_proj.weight                                     16   0.2486 0.0223 0.2123 0.2928  0.0805
+  model.layers.4.self_attn.q_proj.weight                                     16   0.2965 0.0212 0.2776 0.3482  0.0706
+  model.layers.4.self_attn.v_proj.weight                                      8   0.2249 0.0216 0.1965 0.2698  0.0733
+  model.layers.5.self_attn.k_proj.weight                                      8   0.2898 0.0241 0.2673 0.3432  0.0760
+  model.layers.5.self_attn.o_proj.weight                                     16   0.2527 0.0282 0.2052 0.3162  0.1110
+  model.layers.5.self_attn.q_proj.weight                                     16   0.2947 0.0168 0.2714 0.3225  0.0511
+  model.layers.5.self_attn.v_proj.weight                                      8   0.2367 0.0325 0.1954 0.2945  0.0991
+  model.layers.6.self_attn.k_proj.weight                                      8   0.2853 0.0222 0.2640 0.3394  0.0755
+  model.layers.6.self_attn.o_proj.weight                                     16   0.2501 0.0275 0.2119 0.3111  0.0992
+  model.layers.6.self_attn.q_proj.weight                                     16   0.2862 0.0194 0.2496 0.3317  0.0821
+  model.layers.6.self_attn.v_proj.weight                                      8   0.2156 0.0133 0.1975 0.2440  0.0466
+  model.layers.7.self_attn.k_proj.weight                                      8   0.2991 0.0178 0.2744 0.3299  0.0555
+  model.layers.7.self_attn.o_proj.weight                                     16   0.2447 0.0182 0.2131 0.2764  0.0633
+  model.layers.7.self_attn.q_proj.weight                                     16   0.3025 0.0124 0.2799 0.3284  0.0485
+  model.layers.7.self_attn.v_proj.weight                                      8   0.2211 0.0149 0.1983 0.2519  0.0536
+  model.layers.8.self_attn.k_proj.weight                                      8   0.2821 0.0162 0.2536 0.3059  0.0523
+  model.layers.8.self_attn.o_proj.weight                                     16   0.2591 0.0098 0.2437 0.2803  0.0366
+  model.layers.8.self_attn.q_proj.weight                                     16   0.2888 0.0170 0.2570 0.3167  0.0597
+  model.layers.8.self_attn.v_proj.weight                                      8   0.2322 0.0061 0.2199 0.2400  0.0201
+  model.layers.9.self_attn.k_proj.weight                                      8   0.2973 0.0252 0.2684 0.3496  0.0812
+  model.layers.9.self_attn.o_proj.weight                                     16   0.2483 0.0263 0.2119 0.3131  0.1012
+  model.layers.9.self_attn.q_proj.weight                                     16   0.2982 0.0197 0.2736 0.3335  0.0599
+  model.layers.9.self_attn.v_proj.weight                                      8   0.2262 0.0170 0.2074 0.2589  0.0515
+
+proj  tensors     mean  std-across-heads     within-tensor range
+  k        28   0.2997        0.0190              0.0585
+  o        28   0.2590        0.0243              0.0886
+  q        28   0.2946        0.0194              0.0726
+  v        28   0.2389        0.0197              0.0613
+
+Per-head q_proj flip rate (averaged across all q_proj layers):
+  range across heads: [0.2868, 0.3009]  std: 0.0039
+  highest-flip heads: [0, 6, 2, 3, 7] (rates: [0.2972, 0.2986, 0.2989, 0.3007, 0.3009])
+  lowest-flip heads:  [10, 11, 13, 9, 12] (rates: [0.2868, 0.2892, 0.2911, 0.2918, 0.2919])

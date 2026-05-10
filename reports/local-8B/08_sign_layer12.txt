@@ -1,0 +1,16 @@
+Compared 7 tensors.
+tensor                                                                  flip_frac
+  model.layers.12.mlp.down_proj.weight                                    0.2091
+  model.layers.12.mlp.gate_proj.weight                                    0.2567
+  model.layers.12.mlp.up_proj.weight                                      0.2434
+  model.layers.12.self_attn.k_proj.weight                                 0.2644
+  model.layers.12.self_attn.o_proj.weight                                 0.2324
+  model.layers.12.self_attn.q_proj.weight                                 0.2695
+  model.layers.12.self_attn.v_proj.weight                                 0.1954
+
+ depth     mean      min      max  n
+    12    0.2387   0.1954   0.2695   7
+
+OVERALL: mean=0.2387  median=0.2434  min=0.1954  max=0.2695
+Random baseline (50/50 signs): 0.5000
+Pure Gaussian sign-quant prediction (cos = sqrt(2/pi)≈0.798): flip ≈ (1-0.798)/2 ≈ 0.1010

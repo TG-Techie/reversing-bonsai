@@ -109,7 +109,11 @@ authoritative — treat it as the second eye on the same data, which
 is enough to catch most assumption slips.
 
 Sub-agents *terminate*. They are checks, not collaborators. Don't
-keepalive them, don't chain them.
+keepalive *them* — but **you keepalive while one is running**, the
+same way you do for any other async work. A spawned sub-agent is a
+background process from the parent's perspective; if you end your
+turn waiting for it, the harness can suspend you and the sub-agent's
+result lands silently.
 
 ## Why keepalive (and announce it)
 
@@ -145,6 +149,18 @@ one bad sleep.
 This *only* applies to the top-level agent. Sub-agents should run
 their assigned task and exit; making them keepalive defeats the
 short-lived-judge purpose.
+
+## Resuming from compaction or summary
+
+If your context was compacted or you're resuming from a summarized
+session, three things you owe the user before you do anything else:
+**say so explicitly** so the transparency line isn't broken, **re-Read
+this file** (CLAUDE.md), and **re-Read the two whitepapers**
+(`1-bit-bonsai-8b-whitepaper.pdf` and `ternary-bonsai-8b-whitepaper.pdf`)
+— a summary of any of these isn't the same thing as having them in
+front of you, and the discipline rules above plus the whitepaper
+specifics are exactly the kind of thing that quietly drift when you
+only have a paraphrase.
 
 ## Why mind disk
 
