@@ -1,0 +1,73 @@
+## Per-block scale-CV: teacher (Qwen3-8B-base) vs Bonsai-8B at the same layers
+
+For each (layer, projection_type) at 8B, compute:
+- `base_cv`: CV of `mean(|w_base|_per_128_block)` across the tensor's blocks
+- `bonsai_cv`: CV of Bonsai's deployed `s_g` across the same blocks
+
+Compare early (L0-3) vs late (L32-35) means of each:
+
+```
+type   base_early_cv   base_late_cv   base_late/early   bonsai_early_cv   bonsai_late_cv   bonsai_late/early
+q          0.1899          0.2578          1.357             0.2029          0.2452              1.209
+k          0.1821          0.2666          1.464             0.1847          0.2278              1.233
+v          0.1186          0.1344          1.134             0.1154          0.1739              1.506
+o          0.1938          0.1950          1.007             0.1818          0.2516              1.384
+gate       0.7707          0.1269          0.165             0.4393          0.2377              0.541
+up         0.7536          0.1096          0.145             0.3898          0.1507              0.387
+down       0.1830          0.1240          0.678             0.1409          0.1138              0.807
+```
+
+## Reading
+
+The "MLP-CV-falls-with-depth" pattern (gate/up have wider per-block
+scale distribution at early layers and narrower at late layers) is
+**inherited from the teacher's natural weight distribution**, not
+induced by the technique. Qwen3-8B-base itself has gate/up early-MLP
+per-block `mean(|w|)` CV roughly 6x the late-MLP value (0.77 vs 0.13
+for gate). Bonsai inherits the same depth shape, just with the values
+shifted.
+
+The TECHNIQUE-induced signature, separate from the teacher inheritance,
+is:
+
+- For MLP gate/up, Bonsai's per-block CV is roughly HALF the teacher's
+  CV at every depth (early gate: teacher 0.77, Bonsai 0.44; late gate:
+  teacher 0.13, Bonsai 0.24). The technique COMPRESSES the
+  teacher's wide MLP per-block magnitude variation toward a narrower
+  distribution. Especially at early layers.
+- For attention (q/k/v/o), Bonsai's CV is similar to the teacher's at
+  every depth (no compression).
+- For down_proj, modest pattern: Bonsai's CV is ~80% of the teacher's
+  at every depth.
+
+## What rules out the simple OBC-error-accumulation reading at MLP
+
+Under simple OBC-style sequential error propagation, layer-L+1 should
+inherit accumulated activation distortion from layer-L, producing
+WIDER per-block scale variation as depth grows (not narrower). But:
+
+- Attention: this prediction holds (CV rises with depth).
+- MLP: this prediction is contradicted; CV falls with depth.
+
+The teacher inheritance explains why MLP CV falls (teacher does the
+same), so OBC-error-accumulation doesn't necessarily fail — it might
+operate at MLP but be MASKED by the teacher's strong opposite trend.
+The cleanest way to test OBC at MLP would require running inference,
+which we haven't done.
+
+## Recipe constraint
+
+A reproduction targeting Bonsai-style behaviour:
+
+1. Should NOT artificially impose a depth-uniform per-block CV target.
+   The natural distribution of mean(|w|) varies by layer (and varies
+   per-projection-type), and Bonsai inherits that.
+2. Should compress the per-block CV at MLP relative to the teacher,
+   especially at early MLP layers. The compression factor is roughly
+   2x at early gate/up.
+3. Should preserve the teacher's per-block CV at attention without
+   compression.
+
+These predictions are not in any of the 9 prior-art papers digested in
+`PRIOR_ART_VERDICT_MATRIX.md`. They are 8B-specific findings that
+emerged from comparing Bonsai to Qwen3-8B-base directly.
