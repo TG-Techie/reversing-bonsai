@@ -230,3 +230,14 @@ reports/local/
 # in-flight chunked downloads (reassembled into models/, then deleted)
 tmpdl/
 
+# in-flight comprehensive-sweep reports (4B/8B). Removed once each sweep
+# is complete and the final files are committed in one shot.
+reports/bonsai-4B/03_unpacked_vs_qwen3.txt
+reports/bonsai-4B/05_dequant_vs_unpacked.txt
+reports/bonsai-4B/06_magnitudes.txt
+reports/bonsai-4B/07_col_permutation.txt
+reports/bonsai-8B/03_unpacked_vs_qwen3.txt
+reports/bonsai-8B/05_dequant_vs_unpacked.txt
+reports/bonsai-8B/06_magnitudes.txt
+reports/bonsai-8B/07_col_permutation.txt
+
