@@ -19,8 +19,7 @@ Full SVD of `(W_bonsai - W_teacher)` at 5 depths × {gate, up}.
 Report % of squared-Frobenius-norm captured at ranks 16, 64, 128,
 256, 512.
 
-## Results (partial: ffn_up L18/L27/L35 still computing as of writing;
-   will be added in a follow-up edit)
+## Results (complete: 5 depths × {gate, up})
 
 ```
 tensor                    rank-16    rank-64   rank-128   rank-256   rank-512    ||delta||F
@@ -31,13 +30,25 @@ ffn_gate L27                1.23%      4.24%      7.96%     14.86%     27.09%   
 ffn_gate L35                1.41%      4.71%      8.78%     16.20%     29.10%       287.101
 ffn_up   L0                 1.03%      3.89%      7.51%     14.28%     26.38%       187.259
 ffn_up   L9                 0.99%      3.84%      7.45%     14.20%     26.27%       229.504
+ffn_up   L18                1.06%      4.01%      7.70%     14.56%     26.76%       274.971
+ffn_up   L27                1.06%      3.94%      7.57%     14.35%     26.46%       288.239
+ffn_up   L35                1.77%      5.10%      9.05%     16.26%     28.82%       248.610
 ```
 
 ## Reading
 
-Rank-128 % is **essentially flat across depth at MLP**:
+Rank-128 % is **essentially flat across depth at MLP**, with a slight
+uptick at L35:
 - ffn_gate: 7.80% (L0) → 7.66% (L9) → 7.84% (L18) → 7.96% (L27) → 8.78% (L35)
-- ffn_up: 7.51% (L0) → 7.45% (L9), L18+ pending
+- ffn_up:   7.51% (L0) → 7.45% (L9) → 7.70% (L18) → 7.57% (L27) → 9.05% (L35)
+
+Range across all 10 (depth, type) combinations: 7.45-9.05% (1.6pp
+total spread). Compare to over-dispersion in 38_* over the same grid:
+1.07-2.25 (118% relative spread — over 100× the SVD's 21% spread).
+
+Frobenius norm of the delta DOES grow with depth (gate L0=192,
+L35=287 = +50%) but that growth is matched proportionally across
+all singular values, not concentrated in low-rank components.
 
 Total spread across 5 depths at gate: 7.66-8.78% (range = 1.1pp).
 The Frobenius norm of the delta DOES grow with depth (gate L0 = 192,
