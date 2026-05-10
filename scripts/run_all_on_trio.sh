@@ -33,16 +33,29 @@ uv run python src/gguf_inspect.py "$GGUF" --tensors > "$DEST/01_metadata.txt"
 echo "== 02 Q1_0 sortedness / sign-pattern (H3) =="
 uv run python src/analyze_q1_0.py "$GGUF" --top 0 > "$DEST/02_q1_0_analysis.txt"
 
-echo "== 03 Bonsai-unpacked vs Qwen3-base, layer 0 / mid / last (H2) =="
+echo "== Determine layer count from GGUF metadata =="
+N_LAYERS=$(uv run python -c "
+from gguf import GGUFReader
+r = GGUFReader('$GGUF', 'r')
+for k, f in r.fields.items():
+    if k.endswith('.block_count'):
+        print(int(f.contents()))
+        break
+" 2>/dev/null)
+[ -z "$N_LAYERS" ] && N_LAYERS=28
+echo "N_LAYERS=$N_LAYERS"
+
+echo "== 03 Bonsai-unpacked vs Qwen3-base, EVERY transformer block (H2) =="
 {
-  for f in "model.layers.0\\." "model.layers.7\\." "model.layers.13\\." \
-           "model.layers.20\\." "model.layers.27\\." "model.layers.35\\."; do
-    echo "===== filter: $f ====="
-    # --filter takes a substring; we strip the trailing escape for the regex
-    # (the script does plain-substring matching, not regex).
+  for i in $(seq 0 $((N_LAYERS - 1))); do
+    echo "===== filter: model.layers.${i}.self_attn ====="
     uv run python src/compare_unpacked_vs_qwen3.py \
         "$UNPACKED" "$BASE" \
-        --filter "${f%\\.}." 2>&1 | tail -90 || true
+        --filter "model.layers.${i}.self_attn" 2>&1 | tail -60 || true
+    echo "===== filter: model.layers.${i}.mlp ====="
+    uv run python src/compare_unpacked_vs_qwen3.py \
+        "$UNPACKED" "$BASE" \
+        --filter "model.layers.${i}.mlp" 2>&1 | tail -40 || true
   done
 } > "$DEST/03_unpacked_vs_qwen3.txt"
 
@@ -50,23 +63,23 @@ echo "== 05 dequant(Q1_0) vs unpacked safetensors (H1) =="
 uv run python src/compare_q1_dequant_vs_unpacked.py \
     "$GGUF" "$UNPACKED" > "$DEST/05_dequant_vs_unpacked.txt"
 
-echo "== 06 magnitude follow-up (per-block, per-row, per-col) =="
+echo "== 06 magnitude follow-up (per-block, per-row, per-col), EVERY block =="
 {
-  for f in "blk.0\\." "blk.7\\." "blk.13\\." "blk.20\\." "blk.27\\." "blk.35\\."; do
-    echo "===== filter regex: $f ====="
+  for i in $(seq 0 $((N_LAYERS - 1))); do
+    echo "===== filter regex: blk.${i}. ====="
     uv run python src/compare_magnitudes.py \
         "$GGUF" "$UNPACKED" "$BASE" \
-        --filter "${f%\\.}." 2>&1 | tail -90 || true
+        --filter "blk.${i}." 2>&1 | tail -90 || true
   done
 } > "$DEST/06_magnitudes.txt"
 
-echo "== 07 input-column permutation test (H4) =="
+echo "== 07 input-column permutation test (H4), EVERY block =="
 {
-  for f in "model.layers.0\\." "model.layers.13\\." "model.layers.27\\." "model.layers.35\\."; do
-    echo "===== filter: $f ====="
+  for i in $(seq 0 $((N_LAYERS - 1))); do
+    echo "===== filter: model.layers.${i}. ====="
     uv run python src/test_column_permutation.py \
         "$UNPACKED" "$BASE" \
-        --filter "${f%\\.}." 2>&1 | tail -25 || true
+        --filter "model.layers.${i}." 2>&1 | tail -25 || true
   done
 } > "$DEST/07_col_permutation.txt"
 
