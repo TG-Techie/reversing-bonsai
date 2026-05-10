@@ -14,9 +14,11 @@ actually doing?*
 
 ## Reading order for someone arriving cold
 
-If you're new to this repo and want the current state in 30 minutes,
-read in this order:
+**5-minute TL;DR is in `SUMMARY.md`.** If you want full state in
+~30 minutes, read in this order:
 
+0. **`SUMMARY.md`** — 5-minute conclusions (force-by-data only,
+   inferred separately, mechanisms ruled out vs consistent).
 1. **`CLAUDE.md`** — framing of what we're doing and why; discipline
    rules for an agent picking up the work.
 2. **`RECIPE_HINTS.md`** — what the bytes attest to about Bonsai's
