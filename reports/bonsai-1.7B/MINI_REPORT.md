@@ -8,19 +8,30 @@
 
 ## TL;DR
 
-Bonsai-1.7B is **Qwen3-1.7B retrained onto a strict ±s\_g binary lattice
-via QAT** — same architecture, same channel ordering, same head structure.
-Two of the three "could there be a layout trick?" hypotheses are firmly
-rejected; the remaining one is firmly confirmed (and it's the boring one:
-the FP16 "unpacked" file is just `dequantize(Q1_0)` cast to FP16). The
-"proprietary Caltech IP" the paper alludes to is the QAT recipe, not the
-weight format.
+Bonsai-1.7B looks like **Qwen3-1.7B with the matrix-heavy weights replaced
+by signs trained to live on a strict ±s\_g binary lattice** — same
+architecture, same channel ordering, same head structure. Three "is the
+magic in the layout?" hypotheses come back negative (no row reorder, no
+input-column reorder, no within-block sortedness) and the only structural
+hypothesis that holds is the boring one (the FP16 "unpacked" file is just
+`dequantize(Q1_0)` cast to FP16). The "proprietary Caltech IP" the paper
+alludes to is therefore most likely the *training recipe*, not the weight
+format. Acronyms are unpacked in [`../../GLOSSARY.md`](../../GLOSSARY.md).
 
 | # | claim | verdict |
 | - | - | - |
 | **H1** | `dequant(Bonsai-Q1_0)` ≡ `Bonsai-unpacked` (FP16) elementwise | ✅ confirmed |
-| **H2** | Bonsai-unpacked is Qwen3 after channel permutation | ❌ rejected (no perm helps) |
+| **H2** | Bonsai-unpacked is Qwen3 after **row** permutation | ❌ rejected (no perm helps) |
 | **H3** | Signs within each 128-block are sorted/clustered | ❌ rejected (random) |
+| **H4** | Bonsai-unpacked is Qwen3 after input-**column** permutation | ❌ rejected per-tensor; cross-tensor residual-stream search not run |
+
+A note on confidence: H1, H3, H4 are statements about the bytes and
+reproducibly hold or fail. H2 holds against greedy row-permutation search
+but the more general residual-stream / FFN-intermediate cross-tensor
+reorder hasn't been ruled out. "Trained" / "QAT" throughout this document
+means *some retraining process consistent with these observations* — we
+have not observed PrismML's training run and cannot pin down the specific
+recipe.
 
 The follow-up question — *do magnitudes inherit anything from Qwen3?* —
 gets a partial yes: row-magnitude profile is preserved, column-magnitude
@@ -112,23 +123,30 @@ than that.
 
 ## Putting it together
 
-Bonsai-1.7B is best described as: *Qwen3-1.7B with the matrix-heavy weights
-replaced by signs trained on the binary lattice* `{±s_g}`. Tokenizer +
-norms + small q/k per-head scale tensors are inherited; the embedding loses
-267 reserved-vocab entries; FFN intermediate dim and per-head channel
-ordering are unchanged. The only things that fundamentally differ from
-post-training sign-quant are:
+What the bytes attest to: *Qwen3-1.7B with the matrix-heavy weights
+replaced by signs that live on the binary lattice* `{±s_g}`, with
+tokenizer + norms + per-head q/k scales inherited (the embedding loses 267
+reserved-vocab entries), and per-tensor row + input-column ordering
+matching Qwen3 within the resolution of our search. Three things differ
+from a naive post-training sign-quant of Qwen3:
 
-1. ~25–30% of signs were flipped during QAT, especially in late layers.
-2. Per-block magnitudes were learned (with Qwen3's group magnitude as a
-   prior, weight ~0.65 early to ~0.37 late).
-3. Per-input-channel magnitude variation is structurally erased — the
-   format can't carry it.
+1. ~25–30% of the signs are different from Qwen3's. The simplest
+   explanation is *some* form of retraining; QAT is the obvious candidate
+   but the bytes alone don't pin down the recipe.
+2. Per-block magnitudes were not set to `mean(|Qwen3 group|)`; they were
+   set to something correlated with that (r ≈ 0.65 early, dropping to
+   0.37 late) but consistently ~2× louder.
+3. Per-input-channel magnitude variation is gone — the format physically
+   cannot carry it within a 128-block, and we see no evidence of a
+   cross-tensor permutation that would trade it for something else.
 
-That matches the paper's reported 9-point accuracy gap (Qwen3-8B 79.3 →
-Bonsai-8B 70.5) at 1/14× the storage. Pure sign-quant would lose far more;
-QAT plus a binary-lattice constraint is the cheapest plausible recipe that
-preserves this much.
+That picture matches the paper's reported 9-point accuracy gap (Qwen3-8B
+79.3 → Bonsai-8B 70.5) at 1/14× the storage. Pure post-training sign-quant
+would lose far more; *some* training-side intervention plus the
+binary-lattice constraint is the cheapest plausible recipe that preserves
+this much, but we are inferring the *kind* of intervention from the
+discrepancy between observed cosine and post-training-sign-quant cosine,
+not from direct evidence of a training procedure.
 
 ## Reproduce
 

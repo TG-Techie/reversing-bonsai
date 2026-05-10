@@ -4,19 +4,71 @@
 > [`models-bonsai-1.7B-r5`](https://github.com/TG-Techie/reversing-bonsai/releases/tag/models-bonsai-1.7B-r5)
 > trio (Q1_0 GGUF, FP16 "unpacked" safetensors, BF16 Qwen3-1.7B base).
 > Reproduce with `scripts/fetch_models_from_release.sh` + the commands at the
-> end of this doc. Raw reports live under `reports/local/`.
+> end of this doc. Raw reports live under `reports/bonsai-1.7B/`.
+> Acronyms and conventional terms are unpacked in
+> [`GLOSSARY.md`](./GLOSSARY.md). Below is split into two clearly-labelled
+> sections: **observed** numbers we ran ourselves, and **inferred** claims
+> we believe but did not directly demonstrate.
 
-## Headline answers to the three hypotheses
+## Observed (high confidence, reproducible)
 
-| # | Hypothesis | Verdict | Evidence |
+These are numbers we ran against the bytes. Re-running the scripts on the
+same release tag will reproduce them within FP16 noise.
+
+| # | Question | Number | Source |
 | - | - | - | - |
-| H1 | `dequant(Bonsai-Q1_0)` ≡ `Bonsai-unpacked` (FP16) elementwise | **✅ Confirmed** | 197/197 Q1_0 tensors. Worst max-abs diff = **9.77e-4** (1 FP16 ULP at the local scale). Sign agreement = 100.0000% on every tensor. Per-group scale `d` in Q1_0 reproduces `mean(|x|)` of the unpacked group to ≤ 3e-5. **99.9947%** of all 13.4M groups have exactly one distinct \|w\|. |
-| H2 | `Bonsai-unpacked` is `Qwen3-1.7B-base` after channel permutation | **❌ Rejected** | Across early/mid/late blocks (0, 13, 27): identity-row cosine = 0.43–0.60. Greedy best-row-permutation cosine **= identity cosine** for every layer; the search literally cannot improve on identity. No reorder. |
-| H3 | Signs within each 128-block are sorted/clustered | **❌ Rejected** | Mean sign transitions per block = **63.50** (random binomial expects 63.5). 0.00% of blocks have ≤ 1 transition. Lag-1 sign autocorrelation = 0.0001. Adjacent-block scales non-decreasing 50.94% of the time. Indistinguishable from random. |
+| H1 | Does `dequantize(Bonsai-Q1_0)` equal `Bonsai-unpacked` (FP16) element-wise? | Yes. Worst max-abs diff across all 197 Q1\_0 tensors = **9.77e-4** (1 FP16 ULP at the local scale). Sign agreement = **100.0000%** on every tensor. **99.9947%** of all 13.4M 128-element groups have exactly one distinct \|w\|. Per-group scale `d` reproduces `mean(\|x\|)` of the unpacked group to ≤ 3e-5. | `compare_q1_dequant_vs_unpacked.py` |
+| H2 | Does a row-only permutation of Bonsai match Qwen3 better than identity? | No. Identity row-cosine = 0.43–0.60 across early/mid/late blocks. Greedy best-row-permutation cosine = identity cosine to ±1e-3 on every layer; greedy search can't improve on identity. | `compare_unpacked_vs_qwen3.py` |
+| H3 | Are signs sorted/clustered inside each 128-block? | No. Mean sign transitions per block = **63.50** vs Binomial(127, 0.5) expectation 63.5. **0.00%** of blocks have ≤ 1 transition; lag-1 sign autocorrelation = 0.0001. Sign distribution within a block is statistically random. | `analyze_q1_0.py` |
+| H4 | Are input columns a permutation of Qwen3's columns? | Probably not, with a caveat. Per-column mean\|w\| Pearson = 0.05–0.13 in identity order, **and Spearman is also 0.03–0.13** — not "right columns in different positions". Top-10% loudest column overlap is 12–16% vs 10% by chance. Caveat: this is a per-tensor test; a graph-equivalent permutation of the residual stream would require a joint cross-tensor search we have not run. | `test_column_permutation.py` |
+| — | Does Bonsai's per-block scale `s_g` track Qwen3's per-group `mean(\|w\|)`? | Partly. Pearson = +0.67 → +0.65 → **+0.37** at blocks 0 / 13 / 27. Bonsai used Qwen3 group magnitudes as a prior but re-learned them, more aggressively in late layers. | `compare_magnitudes.py` |
+| — | Per-output-row mean\|w\| correlation Bonsai vs Qwen3 | +0.68 → +0.66 → +0.43 across depth. Per-output-channel magnitude rank is preserved. | `compare_magnitudes.py` |
+| — | Per-input-column mean\|w\| correlation Bonsai vs Qwen3 | ≤ 0.13 anywhere. Q1\_0's group structure forces all 128 columns inside a block to share a magnitude, so per-input-column variation cannot be expressed by the format. | `compare_magnitudes.py` |
+| — | Mean(\|w\|) ratio Bonsai / Qwen3 | Median 1.4× — 3×, average ~2× across tensors. Bonsai is consistently louder than Qwen3. | `compare_magnitudes.py` |
+
+## Inferred (lower confidence, not directly attested)
+
+These statements are consistent with the observed data and with what is
+publicly known about 1-bit LLMs, but we did not observe the training
+process and cannot prove which specific recipe PrismML used.
+
+- **Bonsai's signs were re-learned, not just thresholded.** Pure
+  post-training sign-quantization of a Gaussian-distributed weight matrix
+  produces row-cosine `sqrt(2/π) ≈ 0.798` against the original. We
+  observe 0.43–0.60. The simplest explanation is that some training
+  procedure altered roughly 25–30% of the signs relative to the base.
+  We cannot determine from the bytes alone whether that procedure was
+  QAT (BitNet-style straight-through), distillation, an iterative
+  calibration loop, or some Caltech-IP variant of those. Throughout
+  this document, "QAT" is shorthand for "*some retraining method
+  consistent with these observations*".
+- **The "proprietary Caltech IP" referred to in the paper is the
+  training recipe rather than a layout trick.** The Q1\_0\_g128 format
+  itself is published in `ggml-quants.c`; the inference kernels are in
+  PrismML's public llama.cpp / MLX forks; H1/H2/H3/H4 jointly rule out
+  the obvious layout-side tricks (no permutation, no sortedness, no
+  hidden FP track). What's left is the choice of loss, schedule, and
+  calibration. None of those is in the bytes.
+- **Per-input-channel magnitude information was deliberately surrendered.**
+  This is an interpretation of the observed format constraint plus the
+  observed sign re-learning pattern. The format physically cannot carry
+  it, so Bonsai's QAT was free either to fight that loss or to adapt
+  around it; the per-row preservation suggests the latter.
+
+## What we would need to claim more
+
+- A **joint cross-tensor permutation search** to fully rule out a
+  residual-stream / FFN-intermediate reorder (see §H4 caveat).
+- A **calibration corpus** + a clean training run to attempt to reproduce
+  Bonsai from Qwen3 and confirm the recipe.
+- White-box gradient observation during PrismML's training, which we do
+  not have.
 
 ## What that combination implies
 
-The "1-bit Bonsai" magic is not in the layout. It's QAT.
+The "1-bit Bonsai" magic is not in the layout. The most likely remaining
+locus is the training recipe — what we'd colloquially call QAT, with the
+caveats in *Inferred* above.
 
 1. The deployed Q1_0 GGUF and the FP16 "unpacked" file are the *same artifact*
    in two containers. The unpacked file is exactly `dequantize_row_q1_0`'s
@@ -242,9 +294,11 @@ reports as a tagged release.
 | Hypothesis | Script |
 | - | - |
 | H1 — dequant ≡ unpacked | `src/compare_q1_dequant_vs_unpacked.py` |
-| H2 — channel permutation vs Qwen3 | `src/compare_unpacked_vs_qwen3.py` |
+| H2 — row permutation vs Qwen3 | `src/compare_unpacked_vs_qwen3.py` |
 | H3 — sign / scale sortedness | `src/analyze_q1_0.py` |
+| H4 — input-column permutation | `src/test_column_permutation.py` |
 | Magnitude follow-up | `src/compare_magnitudes.py` |
+| Mini report figures | `src/make_mini_report_figures.py` |
 | Format primer / Q1_0 codec | `src/q1_0.py` |
 | GGUF metadata + tensor inventory | `src/gguf_inspect.py` |
 
