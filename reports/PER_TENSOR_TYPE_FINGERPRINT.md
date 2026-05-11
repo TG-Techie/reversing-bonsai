@@ -70,8 +70,19 @@ For each type, what a recipe-implementation should aim for:
   falls with depth (gate ratio 0.54×, up ratio 0.39× early-vs-late).
   This depth shape is largely inherited from the teacher's natural
   weight distribution; the technique compresses the spread by ~2×.
-- Sign-match has L1-3 dip (down to ~0.62) and recovers by L4.
+  Refinement (`local-8B/45_*`): the "early MLP" CV comes specifically
+  from L1-L3 (teacher block-CV ~1.0 at gate L1-L3 vs ~0.15 at L0 and
+  L9-L35). L0 itself has uniform teacher CV.
+- Sign-match has L1-3 dip (down to ~0.62) and recovers by L4. Per
+  `45_*`, this dip is partially explained by Qwen3-8B's L1-L3
+  teacher having many near-zero positions that flip at near-random
+  rate; the recipe contribution is real but the depth profile of the
+  dip has a teacher-structure component.
 - Per-tensor amplification ~1.5-2.4×.
+- Per-block over-dispersion (vs Binomial) at L1-L3 reaches 10-13;
+  at L0/L9-L35 stays modest (1.1-2.3). The L1-L3 spike is 8B-specific
+  (not at 1.7B) and partially teacher-driven. See `local-8B/40_*`,
+  `41_*`, `42_*`, `43_*`, `45_*` for the full picture.
 
 ### `mlp.down_proj`
 
