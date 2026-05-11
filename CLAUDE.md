@@ -172,13 +172,11 @@ per-tensor claims — we can't apportion drift between quantisation
 and identity-tune. Flag in `ASSUMPTIONS_AUDIT.md`; re-flag at each
 cite.
 
-**Pointers > bulk downloads for prior art.** Output an arXiv URL
-list with one-sentence "predicts / doesn't predict" summaries.
-Don't download PDFs unless asked.
-
-**Read the cited prior art.** Theorems and corollaries carry the
-differential predictions; abstracts collapse to whatever intuition
-you already had.
+**Prior art.** Output an arXiv URL list with one-sentence
+"predicts / doesn't predict" summaries. Download the PDFs
+autonomously when summaries aren't enough — abstracts collapse to
+whatever intuition you already had; theorems and corollaries carry
+the differential predictions that matter.
 
 **Markdown tables only.** HTML doesn't render here; packed markdown
 can collapse to one line. Each row on its own line, blank lines
