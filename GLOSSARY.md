@@ -192,3 +192,50 @@ prove which specific recipe was used.
 - **calibration corpus** — a small sample of input text used by PTQ
   techniques to compute layer-wise activation statistics. Choice of
   corpus matters less than its diversity.
+
+### Over-dispersion / block-coupling terms (introduced in 37_*-45_*)
+
+- **Per-block flip-count** — for a given 128-block, the count of
+  positions where `sign(W_bonsai) != sign(W_teacher)`. Ranges 0..128.
+- **Binomial null / Binomial baseline** — the variance of per-block
+  flip-counts under per-element-independent flipping at marginal
+  rate `p`. Equals `128 · p · (1-p)`.
+- **Over-dispersion ratio** — observed variance of per-block
+  flip-counts divided by the Binomial baseline. = 1.0 means
+  per-element-iid flips; > 1.0 means flips are correlated within
+  blocks; < 1.0 means anti-correlated.
+- **Block-coupled flips / block-coherent decisions** — a pattern
+  where many positions within the same 128-block flip together
+  (high over-dispersion). Can arise from low-rank LoRA structure
+  or from per-block joint optimisation (OBC-style).
+- **Teacher block-magnitude heterogeneity** — the cross-block CV
+  of `mean(|w_teacher|_per_block)`. Qwen3-8B's `mlp.gate_proj` at
+  L1-3 has 10× higher heterogeneity than at other depths — a
+  property of the BASE model, not of Bonsai's recipe. Under any
+  perturbation calibrated to the right flip rate, this heterogeneity
+  alone produces high over-dispersion. Identified as the 4th
+  confound in `local-8B/45_*`.
+- **L1-3 disturbance dip / L1-3 spike** — at 8B, L1-L3 MLP gate/up
+  show sign-match drop (to 0.62-0.65) and over-dispersion spike
+  (10-13). NOT replicated at 1.7B (over-dispersion only 1.5-2.5).
+  Partially explained by Qwen3-8B's teacher block-heterogeneity at
+  those layers; Bonsai's recipe actually REDUCES the over-dispersion
+  the teacher alone would produce.
+
+### Process / discipline terms
+
+- **verifier sub-agent** — a worktree-isolated, fresh-context
+  general-purpose sub-agent given a recipe claim + data and asked
+  to independently challenge it with explicit bias-naming. Caught
+  4 confirmation-biased over-reaches in this session. See CLAUDE.md
+  for the protocol and the four catches.
+- **force-by-format / force-by-data / suggestion** — the three
+  buckets for any empirical finding in `RECIPE_HINTS.md`. Format-
+  level constraints (couldn't be otherwise) vs measurement-anchored
+  constraints (reproducible from artifacts) vs patterns consistent
+  with one specific reading.
+- **confound check** — a control measurement establishing what
+  "doing nothing" or "random noise" would produce, so the recipe-
+  attributable signal can be separated from artifacts. The teacher-
+  sign-blockstruct check (`40_*`) and teacher-block-magnitude
+  heterogeneity check (`45_*`) are examples.
