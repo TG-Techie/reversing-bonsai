@@ -67,9 +67,24 @@ size    L0     L1     L2     L3     L4     min
 (The pattern is very similar at 1.7B and at the gate/down projections;
 see `reports/local-{size}/20_*` for full per-layer tables.)
 
-The L1–3 MLP dip is **cross-size reproduced**. Whatever the technique
-does, it pushes early-MLP signs hardest of any projection-type/depth
-combination.
+The L1–3 MLP **sign-match dip** is **cross-size reproduced** (4B and
+8B both show ~10pp drop at L1-3 vs L0). Whatever the technique does,
+it pushes early-MLP signs hardest of any projection-type/depth
+combination at both sizes.
+
+**Refinement (`local-8B/40_*`, `42_*`, `45_*`)**: the L1-3 **over-
+dispersion** in per-block flip-counts is NOT cross-size — at 8B it
+reaches 10-13× Binomial, but at 1.7B it stays modest (1.5-2.5).
+Per `45_*`, this is because Qwen3-8B's L1-L3 ffn_gate teacher has
+~10× higher cross-block magnitude CV than other depths AND than
+Qwen3-1.7B's L1-L3 ffn_gate. So:
+- Sign-match dip: cross-size, partly explained by teacher's
+  near-zero positions at L1-3 (cross-size phenomenon)
+- Over-dispersion spike: 8B-only, explained by Qwen3-8B's
+  L1-3 block-magnitude heterogeneity (size-specific teacher property)
+The "early-MLP gets pushed hardest" framing remains correct at the
+sign-match level; the additional over-dispersion structure was a
+size-specific teacher-driven artifact that's been factored out.
 
 ## What's the same across sizes
 
