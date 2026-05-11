@@ -180,8 +180,11 @@ phase boundary and honour what's there. Flag boot-time concerns
 (recipe parameters look wrong for this base, library version
 mismatch, etc.) before starting Phase A and pause 5 min for
 intervention. During long phases, log current numbers every 20-40
-min — not "progress: ok", actual numbers. Take redirection without
-arguing; document it in `recipe_decisions.md`.
+min — not "progress: ok", actual numbers. When the user redirects:
+if the change has a non-trivial cost (discarded work, conflict with
+a measurement you just made), flag the cost in one sentence; then
+comply. Don't debate across turns. Document the redirect in
+`recipe_decisions.md`.
 
 ## What you should NOT do
 

@@ -338,8 +338,11 @@ partial now"). Flag boot-time mismatches (different architectures
 across the input models, missing Gemini key, etc.) and pause 5 min
 for intervention. During long benchmarks, log current numbers every
 20-40 min (running mean, items scored, ETA) — not "progress: ok".
-Take redirection without arguing; document it in
-`comparison_report.md` as a constraint that shaped the output.
+When the user redirects: if the change has a non-trivial cost
+(invalidated comparison, abandoned benchmark mid-run), flag the
+cost in one sentence; then comply. Don't debate across turns.
+Document the redirect in `comparison_report.md` as a constraint
+that shaped the output.
 
 ## What you should NOT do
 
