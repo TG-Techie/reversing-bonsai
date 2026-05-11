@@ -104,11 +104,9 @@ quietly drift.
 
 ## Disk pressure is silent
 
-When the disk is full, **bash exits 1 with no output** (can't fork)
-— looks like the agent broke, is just disk pressure. If a command
-fails empty, check `df -h /` before doing anything else. Specific
-allocatable size and per-size model footprints are in
-`GLOSSARY.md`.
+When the disk fills, bash exits 1 with empty stdout (can't fork)
+— looks like the agent broke, is just disk pressure. Check
+`df -h /` first when a command fails empty. Sizes in `GLOSSARY.md`.
 
 ## Long-running autonomous research
 
