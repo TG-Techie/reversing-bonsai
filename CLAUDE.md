@@ -344,6 +344,24 @@ prior framing.** Two valuable patterns from this run:
      layer-norm asymmetry) produce the same byte signatures, AND
      the proposed mechanism's direction-of-gap prediction failed
      at L0 (8B) and L1 (1.7B). Corrected in `reports/local-8B/44_*`.
+   - **Round 4**: an extension of the LoRA-rank simulation found
+     that the L1-3 MLP over-dispersion spike is partially explained
+     by Qwen3-8B's intrinsic teacher block-magnitude heterogeneity
+     (~10× higher block-CV at L1-3 gate vs other depths). The
+     "recipe makes block-coherent decisions at L1-3" framing was
+     weakened — most of the spike comes from teacher structure that
+     ANY perturbation would surface. Documented in
+     `reports/local-8B/45_*`.
+   - **Round 5**: an over-attribution within `45_*` claimed the
+     recipe REDUCES the teacher's natural over-dispersion via
+     per-block scale tuning. Verifier-5 identified that the
+     comparison simulation doesn't include per-block scaling, so
+     the direction of recipe contribution (homogenising vs
+     amplifying) is not byte-attested. Also flagged that SUMMARY's
+     "approximately full-rank delta" framing undersells what
+     rank-16 fractions actually say (small-rank LoRA NOT ruled out),
+     and v_proj's depth-rise was not teacher-confound-checked.
+     Corrected in `45_*`, `SUMMARY.md` findings 18, 20, 22.
 
    The pattern is robust: when you've been organising-around a
    hypothesis for a while, every byte signature looks like
