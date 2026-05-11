@@ -51,7 +51,17 @@ Cross-size: bigger Bonsai = lighter LoRA preprocess relatively.
 
 - Tested at L0 only. Per-layer sigma may vary; the early-MLP-dip
   finding suggests gate/up might have heavier sigma at L1-3.
+  **Refinement (`45_*`)**: at L1-L3 the elevated flip rate may be
+  partly explained by the teacher's intrinsic block-magnitude
+  heterogeneity rather than a heavier recipe-applied sigma. The
+  L1-L3 sign-agreement dip is not necessarily a "more LoRA disturbance
+  at those layers" signal — could be the teacher's many near-zero
+  positions flipping at near-random rate. The per-kind sigma ranking
+  in the table above (measured at L0) is unaffected by this
+  refinement.
 - Gaussian noise model is a simplification; real LoRA is low-rank.
 - The sigma fit is a 1-parameter model matched to overall
   sign-agreement only; not all aspects of Bonsai's bytes are
-  captured by the fit.
+  captured by the fit. Specifically, the over-dispersion findings
+  in `37_*`-`45_*` show the actual flip pattern has block-level
+  structure not captured by i.i.d. Gaussian noise.
