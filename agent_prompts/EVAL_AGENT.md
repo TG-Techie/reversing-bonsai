@@ -310,6 +310,80 @@ verdict. Exit zero.
   hedging language.
 - One headline verdict, max one sentence, at the top of
   `comparison_report.md`. The rest is supporting numbers.
+- This is an unattended run with **periodic oversight**. The user
+  (or a supervising agent) reads what you write to files; they may
+  send messages between benchmarks or during long benchmarks.
+
+## Scientific-method discipline (load-bearing)
+
+You are running a comparison experiment. Apply the following
+discipline throughout — the verdict you produce will be used to
+update beliefs about a recipe family, so over- or under-claims have
+real downstream cost.
+
+- **Pre-register the test before running it**. In `run_log.txt`,
+  write a one-sentence "I am about to run benchmark B on model M;
+  pass-criterion = ___; expected score range = ___" entry. Then
+  run. Then report whether the observed score landed inside the
+  expected range.
+- **Separate observation from inference**. Observed numbers in
+  `comparison_report.md` are bare measurements
+  (`base avg = 79.3, subject avg = 70.5, gap = 8.8 pp`). The
+  HOLDS / PARTIAL / FAILS verdict is an explicit inference applied
+  to those numbers and is labelled as such.
+- **Apples-to-apples or noted asymmetry**. If anything differs
+  between the runs for two models (engine, judge, seed, retry
+  count), note it explicitly. The reader needs to know whether
+  comparisons are tight or loose.
+- **No silent skipping**. If a benchmark fails for one model and
+  succeeds for another, the comparative average is asymmetric.
+  Report this explicitly; do NOT compute the average ignoring the
+  failed benchmark for the other models. Either re-run for all,
+  re-run for none, or document and weight accordingly.
+- **Confound awareness**. The "gap_delta < 2pp" HOLDS verdict can
+  be a false positive if engine drift between vLLM-CUDA and
+  llama.cpp-Metal is also ~2pp. Note the engine-drift estimate (if
+  you can derive one from base-vs-base on two engines) and adjust
+  the verdict threshold if drift is meaningful.
+- **Avoid the data-mining failure mode**. Report per-benchmark
+  deltas in full, not just the headline average. If subject beats
+  reference on 3 benchmarks and loses badly on 7, the average can
+  mask that — and the per-benchmark detail tells the user where the
+  recipe failed.
+- **No retracts in silence**. If you change a verdict mid-report (e.g.,
+  rerunning a flaky benchmark changes the result), document the
+  change with reason in `run_log.txt`.
+
+## Operating under oversight (you are NOT fully autonomous)
+
+The pattern: you run autonomously between user check-ins; the user
+may send messages between benchmarks or during a long benchmark.
+You may be paused, redirected to a different subset of benchmarks,
+or asked to re-run with different settings.
+
+- **Re-state the goal at boot**. First line of `run_log.txt`:
+  "Goal: 3-way [or 2-way] behavioural-similarity comparison of
+  base=${BASE_MODEL_NAME}, subject=${SUBJECT_MODEL_NAME}
+  [, reference=${REFERENCE_NAME}]. Headline = gap_delta to
+  reference; threshold = ±2pp HOLDS."
+- **Check for user directives at benchmark boundaries**. Read
+  `$OUTPUT_DIR/USER_DIRECTIVES.md` between benchmarks if it exists.
+  The user can drop instructions there ("skip MMLU-Redux"; "only
+  run code benchmarks"; "report partial results now"). Honour them;
+  log compliance.
+- **Surface uncertainties early**. At boot, if the input models
+  appear to be from different architectures (different head counts,
+  different vocab sizes), flag this clearly to `run_log.txt` and
+  pause 5 minutes for the user to intervene via
+  `USER_DIRECTIVES.md`. Then proceed with the documented default.
+- **Concrete-finding check-ins**. Every 20-40 minutes during long
+  benchmarks, log current progress to `run_log.txt` with numbers:
+  "MMLU-Redux on subject: 487/2389 items scored, running mean
+  72.4". The user reads these from their phone.
+- **Take redirection without protest**. If the user writes "stop
+  after the current benchmark and produce a partial report",
+  comply. Don't argue. Document the redirection in the eventual
+  `comparison_report.md` as a constraint that shaped the output.
 
 ## What you should NOT do
 
