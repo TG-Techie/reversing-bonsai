@@ -322,55 +322,17 @@ prior framing.** Two valuable patterns from this run:
    behind this artifact and their own publications". Do not combine —
    the search strategies are different and the second is much more
    constrained. (See `reports/RELATED_RESEARCH.md` for output.)
-3. *Recipe-as-written verification.* When you have a candidate recipe
-   you've spent hours building up, spawn a sub-agent and give it the
-   recipe + the data path. Tell it to *independently measure* the
-   recipe's claims and report numbers. **Specifically tell it your
-   known biases** ("the author has a known confirmation bias toward
-   X; if you see evidence inconsistent with X, point it out"). This
-   is the pattern that caught real over-statements in this run —
-   each catch came from the same loop:
-   - **Round 1**: the magnitude-graded sign-flip pattern was read
-     as evidence FOR a LoRA preprocess, when in fact it's consistent
-     with several mechanisms. Corrected in `RECIPE_HINTS.md` v4.
-   - **Round 2**: an "SGD-α step is concentrated at deep MLP gate/up"
-     claim was a Gaussian-sigma-misspecification artifact (the
-     simulator used 1.25× the wrong tensor's ratio uniformly).
-     Retracted in `reports/local-8B/36_*`.
-   - **Round 3**: a "within-block attn-before-MLP ordering" claim
-     was over-stated as the byte-attested mechanism when several
-     alternatives (SwiGLU-sensitivity-weighted parallel pass,
-     MLP-only small-rank LoRA, calibration-data composition,
-     layer-norm asymmetry) produce the same byte signatures, AND
-     the proposed mechanism's direction-of-gap prediction failed
-     at L0 (8B) and L1 (1.7B). Corrected in `reports/local-8B/44_*`.
-   - **Round 4**: an extension of the LoRA-rank simulation found
-     that the L1-3 MLP over-dispersion spike is partially explained
-     by Qwen3-8B's intrinsic teacher block-magnitude heterogeneity
-     (~10× higher block-CV at L1-3 gate vs other depths). The
-     "recipe makes block-coherent decisions at L1-3" framing was
-     weakened — most of the spike comes from teacher structure that
-     ANY perturbation would surface. Documented in
-     `reports/local-8B/45_*`.
-   - **Round 5**: an over-attribution within `45_*` claimed the
-     recipe REDUCES the teacher's natural over-dispersion via
-     per-block scale tuning. Verifier-5 identified that the
-     comparison simulation doesn't include per-block scaling, so
-     the direction of recipe contribution (homogenising vs
-     amplifying) is not byte-attested. Also flagged that SUMMARY's
-     "approximately full-rank delta" framing undersells what
-     rank-16 fractions actually say (small-rank LoRA NOT ruled out),
-     and v_proj's depth-rise was not teacher-confound-checked.
-     Corrected in `45_*`, `SUMMARY.md` findings 18, 20, 22.
-
-   The pattern is robust: when you've been organising-around a
-   hypothesis for a while, every byte signature looks like
-   confirmation. A fresh-context sub-agent with explicit
-   bias-naming reliably surfaces over-reaches. **Use this pattern
-   before publishing or merging recipe-style claims.** The
-   verifier doesn't need to be right about every alternative it
-   raises; it just needs to identify ONE that you didn't rule out
-   to deflate an over-strong claim.
+3. *Recipe-as-written verification.* When you have a candidate
+   recipe you've spent hours building up, spawn a sub-agent, hand
+   it the recipe + the data path, and ask for independently
+   measured numbers. **Tell it your known biases** ("the author
+   favors X; flag evidence inconsistent with it"). Confirmation
+   bias is invisible from inside; once you've been organising
+   around a hypothesis for a while, every byte signature looks
+   like confirmation. The verifier doesn't need to be right about
+   every alternative it raises — identifying ONE you didn't rule
+   out is enough to deflate an over-strong claim. **Use before
+   publishing or merging recipe-style claims.**
 
 **Compare against the deterministic formula AND the base model
 explicitly; sync state in messages.** The "formula" `sign(w_base) ·
