@@ -34,7 +34,19 @@ measurement that supports a specific claim.
 29_signflip_by_magnitude.txt       sign flips MAGNITUDE-GRADED (d1~0.47, d10~0.025); size-invariant. NOT discriminatory of LoRA vs other mechanisms.
 33_per_kind_lora_strength.txt      implied per-tensor-type sigma; v/down receive lighter LoRA than q/k/o/gate/up
 34_svd_low_rank_test.txt           SVD of (W_bonsai - W_teacher) is NOT low-rank; RULES OUT pure-LoRA-only step 1
+35_delta_row_concentration.txt     per-row delta concentration modest (Pearson +0.87 with teacher row-norm)
+36_mlp_sgd_concentration.txt       [RETRACTED] — was a sigma-misspecification artifact (verifier catch 2)
+37_block_flip_overdispersion.txt   per-block flip count OVER-DISPERSED 1.2-3.4x at q L0; Gaussian control gives ~1.0; rules out i.i.d. element-wise noise
+38_cross_tensor_overdisp.txt       cross-tensor (depth/type) over-dispersion grid; pattern depth/type-dependent
+39_depth_svd_mlp.txt               depth-resolved SVD on MLP gate/up — rank-128 % flat across depth (RULES OUT depth-graded LoRA rank)
+40_full_depth_overdisp.txt         full 36-layer x 5-projection over-dispersion sweep — U-shaped MLP profile (L1-3 spike 10-13)
+41_l1l3_svd_mlp.txt                L1-3 MLP SVD — rules out heavy-rank-128 LoRA at the spike
+43_attn_svd_l1l3.txt               attention SVD at L0-3, L18, L35 — L1-3 spike is MLP-specific in BOTH metrics
+44_within_block_ordering_synthesis.txt  within-block attn-before-MLP ordering hypothesis [DOWNGRADED by verifier catch 3]
+45_l1l3_teacher_confound.txt       L1-3 spike is PARTIALLY a teacher-structure confound (catch 4); recipe REDUCES teacher-natural over-dispersion
 ```
+
+(`local-1.7B/42_*` is the 1.7B cross-size validation of the L1-3 spike.)
 
 ## Quick claim → evidence pointer
 
@@ -60,4 +72,16 @@ this is where to look:
 | Sign flips magnitude-graded (d1~0.47, d10~0.025) | `29_*` |
 | Per-tensor-type LoRA strength (v/down lighter) | `33_*` |
 | Bonsai delta is NOT low-rank (rules out pure-LoRA-only) | `34_*` |
+| Per-row delta concentration modest, proportional to teacher row-norm | `35_*` |
 | Per-block independence within rows | `28_*` |
+| Per-block flip count is OVER-DISPERSED (rules out i.i.d. noise) | `37_*` |
+| Cross-tensor over-dispersion depth/type-dependent | `38_*` |
+| Depth-graded LoRA rank ruled out (rank-128 flat across depth) | `39_*` |
+| U-shaped MLP over-dispersion profile (L1-3 spike, L33-35 rise) | `40_*` |
+| Teacher signs i.i.d. within blocks (confound check) | `40_*` |
+| L1-3 spike not heavy-rank-128 LoRA | `41_*` |
+| L1-3 spike is 8B-specific (1.7B doesn't show it) | `42_*` (in local-1.7B) |
+| L1-3 spike is MLP-specific (attention shows no spike) | `43_*` |
+| Within-block attn-before-MLP ordering [WEAKENED by verifier-3] | `44_*` |
+| L1-3 spike is partially a teacher-structure confound | `45_*` |
+| Recipe REDUCES teacher-natural over-dispersion at L1-3 | `45_*` |
