@@ -71,3 +71,31 @@ A reproduction targeting Bonsai-style behaviour:
 These predictions are not in any of the 9 prior-art papers digested in
 `PRIOR_ART_VERDICT_MATRIX.md`. They are 8B-specific findings that
 emerged from comparing Bonsai to Qwen3-8B-base directly.
+
+## Refinement from `45_*` (per-layer breakdown of "early MLP")
+
+The "base_early_cv = 0.77 at gate" in the table above is the L0-L3
+average. Per-layer the picture is much spikier:
+
+```
+L0  gate teacher block_CV  =  0.114   (uniform, like L9-L35)
+L1  gate teacher block_CV  =  1.007   (heterogeneous)
+L2  gate teacher block_CV  =  1.128   (heterogeneous)
+L3  gate teacher block_CV  =  0.834   (heterogeneous)
+```
+
+So Qwen3-8B's MLP-gate teacher is uniform at L0 and L9-L35, but
+**highly heterogeneous specifically at L1-L3**. The "early MLP CV
+high" pattern in 25_* is dominated by L1-L3, not L0. This connects
+to the L1-3 over-dispersion spike documented in `40_*` and refined
+in `45_*`: the teacher's L1-L3 block-heterogeneity is a precondition
+for the per-block flip-count over-dispersion of 10-13× observed
+there. Without that teacher structure, no perturbation would
+produce such over-dispersion (per `45_*`'s L0-teacher Gaussian
+control: rank-128 noise gives over-dispersion ~1.1).
+
+The "compress MLP CV by ~2× at early gate/up" recipe constraint
+above is unchanged but should be understood as: Bonsai's recipe
+compresses the L1-L3 teacher heterogeneity by a factor of ~2.
+At L0 the teacher is already uniform so there's nothing to
+compress.
