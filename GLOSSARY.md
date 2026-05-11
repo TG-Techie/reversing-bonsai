@@ -239,3 +239,35 @@ prove which specific recipe was used.
   attributable signal can be separated from artifacts. The teacher-
   sign-blockstruct check (`40_*`) and teacher-block-magnitude
   heterogeneity check (`45_*`) are examples.
+
+## Operational reference (moved from CLAUDE.md)
+
+### Repo scripts
+
+- `src/q1_0.py` — pure-Python Q1\_0 codec; round-trip byte-equal to `ggml-quants.c`.
+- `src/gguf_inspect.py` — GGUF metadata + tensor inventory.
+- `src/analyze_q1_0.py` — H3 per-block sign/scale stats.
+- `src/compare_q1_dequant_vs_unpacked.py` — H1 bridge.
+- `src/compare_unpacked_vs_qwen3.py` — H2 identity + best-row-perm.
+- `src/compare_magnitudes.py` — per-block / row / col magnitudes.
+- `src/test_column_permutation.py` — H4 per-input-column stats.
+- `src/sign_disagreement.py` — per-tensor flip rate vs base.
+- `src/ptq_baseline_v2.py` — direct PTQ-quant of Qwen3.
+- `src/joint_permutation_search.py` — joint cross-tensor perm.
+- `scripts/fetch_models_from_release.sh` — fetch + reassemble.
+- `scripts/independent_verify.py` — verifier sample.
+
+### Environment empirical sizes
+
+- `df -h /` reports 252 GB total; only ~30 GB is allocatable. When the cap is hit, **bash exits 1 with no output** (can't fork) — looks like the agent broke, is just disk pressure.
+- 1.7B trio ~7 GB, 4B trio ~16 GB, 8B trio ~33 GB. **8B does NOT fit alongside another size**; free first.
+- Release-asset download ~50 MB/s. 4B trio ~5-6 min, 8B trio ~10-12 min.
+- uv first-run pulls a CUDA torch (~5 GB) we don't use; cached after first sync.
+- Reassembly trap: `cat *.part-* > file.tmp && mv file.tmp file` doubles peak usage. Use `cat *.part-* > file && rm *.part-*` or stream-and-delete.
+
+### Artifact-layout quirks
+
+- Release `models-bonsai-{size}-r{N}` packs unpacked + base shards flat; both write `model.safetensors.index.json` and clobber each other. Move into `unpacked/` and `base/` before comparators.
+- HuggingFace egress is blocked (`x-deny-reason: host_not_allowed`); `release-assets.githubusercontent.com` is allowed. Prefer release fetches via `.github/workflows/`.
+- Bonsai-unpacked carries no info beyond the GGUF: `dequantize_row_q1_0(GGUF) ≡ Bonsai-unpacked` to FP16 precision (H1). For new sizes, fetch just GGUF + base.
+- `main` is branch-protected; runners push to `claude/**`.
