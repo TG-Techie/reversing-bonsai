@@ -249,7 +249,7 @@ it is unspecified by the published theory.
      1.7B uniformly)
    - Approximately full-rank delta everywhere (rank-128 < 28%)
 6. **Eval-framework replication guide** (`reports/EVAL_REPLICABILITY.md`)
-   — how to run PrismML's published-numbers harness on M4 Max via
+   — how to run PrismML's published-numbers harness on M3 Max via
    EvalScope + llama.cpp Metal + Gemini Flash Lite judge.
 
 ## How a reproduction would be tested

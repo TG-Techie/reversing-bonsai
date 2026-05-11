@@ -3,7 +3,7 @@
 PrismML's published eval setup (Appendix B of the 1-bit whitepaper) is
 mostly reachable from open tooling. This note records what we'd need
 to drop in to reproduce their numbers ± expected drift, with specific
-attention to running it on local Apple-silicon hardware (M4 Max class)
+attention to running it on local Apple-silicon hardware (M3 Max class)
 rather than the CUDA H100 path they used.
 
 ## Their setup, summarised
@@ -54,7 +54,7 @@ GPQA-Diamond     8192     mean of 10 samples (sampling)
 - **Rule-based scorers** (IFEval, IFBench, BFCL, GSM8K, code) are
   pure Python — no API calls.
 
-## Two real gotchas for M4 Max replication
+## Two real gotchas for M3 Max replication
 
 ### 1. The inference engine
 
@@ -109,7 +109,7 @@ unused.
 For testing whether a reproduction recipe matches Bonsai's
 behavioural fingerprint:
 
-1. Stand up `llama.cpp` server with Metal on M4 Max (use PrismML's
+1. Stand up `llama.cpp` server with Metal on M3 Max (use PrismML's
    fork `PrismML-Eng/llama.cpp` for Q1_0_g128 kernel support).
 2. Configure EvalScope with Gemini 2.5 Flash Lite as the fallback
    judge.
@@ -127,7 +127,7 @@ behavioural fingerprint:
    Reproducing both endpoints under the same harness gives you a
    consistent reference.
 
-## Memory footprint on a 36GB M4 Max
+## Memory footprint on a 36GB M3 Max
 
 ```
 asset                              size (resident)
@@ -159,7 +159,7 @@ fast to mmap-load.
 
 ## Summary
 
-Replicate PrismML's benchmarks on M4 Max via:
+Replicate PrismML's benchmarks on M3 Max via:
 - EvalScope (OSS) +
 - llama.cpp Metal or MLX as the engine (instead of vLLM CUDA) +
 - Gemini 2.5 Flash Lite as fallback judge (faithful to PrismML)
