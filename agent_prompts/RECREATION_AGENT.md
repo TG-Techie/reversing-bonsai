@@ -158,79 +158,30 @@ The exact substructure of `checkpoints/` is dictated by the recipe.
   helpful.
 - `self_test_report.md`: numbers + brief reading. No verdict.
 
-## Scientific-method discipline (load-bearing)
+## Scientific discipline
 
-This recipe is one candidate hypothesis about how to land in a target
-behavioural space; the run is a *scientific experiment*, not a build
-task. Apply the following discipline throughout:
+The recipe is one hypothesis; this run is the experiment. Before
+each phase, log one sentence in `run_log.txt`: what's being tested,
+expected range, what would surprise. After, report observed numbers
+as bare measurements separate from any inference about them. If a
+phase emits per-tensor or per-layer metrics, report the
+distribution, not just three points. If a number looks remarkable,
+run a control (random-Gaussian noise on the same teacher,
+teacher-side baseline) before claiming the recipe produced it.
+Sanity-check artifacts before declaring a phase complete.
 
-- **Pre-register before each phase**: in `run_log.txt`, write a
-  one-sentence "what I'm about to test, what numbers I expect, what
-  numbers would surprise me" entry. Then run. Then report observed
-  numbers AND whether they fell inside or outside the expected
-  range.
-- **Separate observation from inference**. In `run_log.txt` and
-  `self_test_report.md`, write OBSERVED numbers as bare measurements
-  ("perplexity = 4.23 on 2k C4 tokens"). Inferences ("this is
-  acceptable for a 1-bit quantisation of an 8B base") go in a
-  distinct sentence and are flagged as inferences. Do not collapse
-  the two.
-- **Don't read tails / always check 5-7+ instances**. If a phase
-  produces per-tensor or per-layer metrics, report the full
-  distribution (min, max, median, a histogram or a sweep), not just
-  the first or last 3 values. "Layer 0 sign-match is 76% and layer
-  35 is 73%, so this looks like a monotonic decline" is the
-  data-mining failure mode; report all sampled layers.
-- **Confound awareness**. If a number looks remarkable, run a
-  control before claiming significance. Examples: if a tensor's
-  scale-CV looks high, check whether the base teacher's scale-CV at
-  the same location is also high (might be inherited, not produced).
-  If a flip-rate looks high, check what random-Gaussian noise on
-  the same teacher would produce.
-- **Self-check before declaring a phase complete**. Don't write
-  "Phase C complete" to `run_log.txt` until you've sanity-checked
-  the artifact (e.g., loaded a few quantised weights, decoded them,
-  compared element-wise to the shadow weights). If anything looks
-  wrong, halt and report.
-- **No retracts in silence**. If you change a previous decision or
-  measurement, document the change with reason. The whole run
-  history should be reconstructable from `run_log.txt` +
-  `recipe_decisions.md`.
+## Oversight
 
-## Operating under oversight (you are NOT fully autonomous)
-
-The pattern this run follows: you execute autonomously between
-oversight check-ins, but the user may send messages at any time
-between phases (or occasionally during a long phase). You may also
-be paused, redirected, or rolled back to a prior checkpoint.
-
-- **Re-state the goal at the start of each invocation**. First line
-  of `run_log.txt` for any new run: "Goal: produce a Q1_0_g128
-  subject of ${BASE_MODEL_NAME} following ${RECIPE_PATH}. This is
-  invocation N of M (best-effort guess); each invocation is
-  standalone." If the user has corrected the goal via a message
-  delivered in your context, re-state per the correction.
-- **Check for user directives at phase boundaries**. Between phases,
-  read `$OUTPUT_DIR/USER_DIRECTIVES.md` if it exists. The user can
-  drop instructions there (e.g., "stop after Phase B; do not run
-  QAT"; "change LoRA rank to 32"). Honour them; document compliance
-  in `recipe_decisions.md`.
-- **Surface uncertainties early, not late**. If at boot you suspect
-  the recipe parameters are wrong for the base (e.g., recipe says
-  rank-64 LoRA but base is so small that rank-64 is the full
-  matrix), write a flag to `run_log.txt` BEFORE starting Phase A and
-  pause for 5 minutes to allow the user to intervene via
-  `USER_DIRECTIVES.md`. Then proceed with the documented default
-  if no directive arrives.
-- **Concrete-finding check-ins**. Every 20-40 minutes of wall-clock
-  during long phases, write a status entry to `run_log.txt` with
-  CURRENT numbers (not "progress: ok") — step count, current loss,
-  ETA. The user reads these from their phone.
-- **Take redirection without protest**. If the user sends a message
-  through the conversation channel (or writes to
-  `USER_DIRECTIVES.md`) telling you to abandon Phase C and pack the
-  Phase B output as final, do that. Don't argue. Document the
-  redirection.
+You're autonomous between check-ins, not in absolute. The user is
+reading `run_log.txt` from a phone and may drop instructions in
+`$OUTPUT_DIR/USER_DIRECTIVES.md` between phases. At boot, write the
+goal as line 1 of `run_log.txt`. Read `USER_DIRECTIVES.md` at every
+phase boundary and honour what's there. Flag boot-time concerns
+(recipe parameters look wrong for this base, library version
+mismatch, etc.) before starting Phase A and pause 5 min for
+intervention. During long phases, log current numbers every 20-40
+min — not "progress: ok", actual numbers. Take redirection without
+arguing; document it in `recipe_decisions.md`.
 
 ## What you should NOT do
 
