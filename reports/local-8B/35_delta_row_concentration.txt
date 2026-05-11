@@ -1,0 +1,73 @@
+## Per-row delta concentration at 8B q_proj L0
+
+For each row of the (4096, 4096) tensor, compute:
+- `delta_row_norm[i]`     = L2 norm of (W_bonsai[i] - W_teacher[i])
+- `teacher_row_norm[i]`   = L2 norm of W_teacher[i]
+- `bonsai_row_mean[i]`    = mean(|W_bonsai[i]|)
+
+Correlate across rows.
+
+```
+Per-row delta-norm vs teacher-row-norm:
+  Pearson  +0.873
+  Spearman +0.864
+  -> big-norm rows have big-delta-norm (proportional)
+
+Per-row delta-norm vs per-row mean(deployed Bonsai):
+  Pearson  +0.948   <-- stronger; deployed-Bonsai magnitude tracks delta most
+  Spearman +0.944
+```
+
+Cumulative squared-norm by ranked rows:
+
+```
+top  1% of rows: 1.9% of delta squared-norm
+top  5%       : 8.2%
+top 10%       : 15.7%
+top 25%       : 37.2%
+top 50%       : 67.8%
+
+uniform expectation: top X% holds X% of squared-norm
+```
+
+## Reading
+
+The delta is MODESTLY row-concentrated. Top 50% of rows hold 67.8%
+of squared-norm vs the uniform expectation of 50% — concentration
+ratio ~1.36x.
+
+This is consistent with the per-row amplification story (24_*, 26_*):
+the technique perturbs each row roughly proportionally to its
+teacher amplitude. Big-norm rows get bigger absolute delta because
+they have more magnitude to perturb. Not extreme outlier-row
+concentration.
+
+The Pearson 0.87 (delta vs teacher) and 0.95 (delta vs Bonsai)
+together say:
+
+1. Delta tracks teacher row-norm closely.
+2. Delta tracks Bonsai's per-row mean even more closely (since
+   Bonsai's amplification factor is roughly ~2x teacher per
+   tensor, and that factor is multiplicative on row magnitudes).
+3. The technique inherits per-row magnitude structure from
+   teacher; doesn't pick out a small set of "outlier rows" to
+   amplify disproportionately.
+
+## Recipe constraint
+
+A reproduction's delta should:
+
+- Have per-row L2-norm correlate with teacher-row-norm at Pearson
+  ~0.85+.
+- Be modestly row-concentrated (top 50% rows ~65-70% of squared-
+  norm, not 90%+).
+- NOT exhibit a small-outlier-row pattern (the per-row amplification
+  is roughly proportional to teacher row magnitude, not selectively
+  applied to a salient subset).
+
+## Caveats
+
+- One tensor at one size. Different tensor types may have different
+  concentration profiles. MLP gate/up's per-row Pearson with teacher
+  is lower (~0.6 early, ~0.2 late per 26_*), so the delta there
+  may be MORE row-concentrated.

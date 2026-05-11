@@ -1,0 +1,95 @@
+## Sign-flip rate by teacher-magnitude decile at 8B
+
+For each tensor, bin teacher weights by |w| decile. Within each bin,
+measure the fraction of weights whose sign in Bonsai differs from
+their sign in teacher.
+
+Random binarisation prediction: ~21% flip rate (1 - sqrt(2/π)) at
+every decile if Bonsai's signs were sampled iid from a Gaussian.
+
+```
+L0.self_attn.q_proj  (overall sign-agreement 0.7517):
+ decile   |w_base|_max   flip_rate
+   d 1     0.00301        0.474
+   d 2     0.00607        0.422
+   d 3     0.00928        0.372
+   d 4     0.01270        0.322
+   d 5     0.01636        0.272
+   d 6     0.02063        0.224
+   d 7     0.02563        0.175
+   d 8     0.03223        0.127
+   d 9     0.04248        0.077
+   d10     0.55078        0.025
+
+L0.mlp.up_proj  (overall 0.7519):
+   d 1     0.464   →   d10     0.022
+
+L18.self_attn.v_proj  (overall 0.8004):
+   d 1     0.466   →   d10     0.003
+
+L35.mlp.down_proj  (overall 0.8113):
+   d 1     0.457   →   d10     0.003
+```
+
+## Reading
+
+Sign flips are STRONGLY magnitude-graded: small-magnitude teacher
+weights flip ~46% of the time (near-random), large-magnitude
+teacher weights flip 0.3–2.5% of the time (almost-perfect
+preservation). Smooth gradient between deciles.
+
+The pattern is qualitatively the same across all 4 tensors sampled
+(L0.q, L0.mlp.up, L18.v, L35.mlp.down) and across early vs late
+layers, q vs MLP vs v projections. The d1 flip rate is consistently
+in the 0.46-0.47 range for ALL tensors with overall sign-agreement
+~0.75; for tensors with higher overall agreement (v, down) the d1 is
+similar but d10 is even tighter (0.003 vs 0.025).
+
+## Interpretation
+
+The technique preserves signs of weights whose magnitude indicates
+they carry signal, and flips signs of weights whose magnitude
+indicates they're near noise. Consistent with:
+
+- An information-theoretic compression where high-info bits are
+  preserved and low-info bits are free.
+- A loss function (output-cosine + MSE on activations) that values
+  matching teacher behaviour driven by large-weight contributions.
+- Sign-quant after a calibration noise injection that randomises
+  small weights (LoRA preprocess fits this).
+
+## Recipe constraint
+
+A reproduction targeting Bonsai-style behaviour should produce sign
+flips that are MAGNITUDE-GRADED:
+
+- d1 (smallest |w_teacher|): flip rate near 0.5 (random).
+- d10 (largest |w_teacher|): flip rate near 0.0 (preserve).
+- Smooth monotone gradient between.
+
+If your reproduction's d1 flip rate is ≪0.45 or ≫0.50, you haven't
+reproduced this signature. If d10 is significantly above 0.05, the
+technique isn't preserving the high-magnitude signal it should be.
+
+This is the tightest single reproduction-target found in this round
+of analysis. None of the 9 prior-art papers digested in
+`PRIOR_ART_VERDICT_MATRIX.md` predict this specific magnitude grading.
+
+## Cross-size confirmation (1.7B)
+
+Same test on 1.7B at L0.q / L0.mlp.up / L13.v / L27.mlp.down:
+
+```
+                 d1     d5     d10
+L0.q           0.483  0.341  0.056
+L0.mlp.up      0.460  0.340  0.068
+L13.v          0.472  0.251  0.012
+L27.mlp.dn     0.485  0.357  0.080
+```
+
+The d1-near-0.5, d10-near-0.0 pattern is reproduced. d10 values at
+1.7B are slightly higher than at 8B (1.7B q d10 = 0.056, 8B q d10 =
+0.025), consistent with the broader cross-size finding that bigger
+Bonsai stays closer to teacher signs at every magnitude bin.
+
+Magnitude-graded sign flips is a SIZE-INVARIANT recipe signature.

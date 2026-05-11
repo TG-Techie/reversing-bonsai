@@ -1,0 +1,134 @@
+## Cross-tensor over-dispersion: where is block-level coupling
+   strong vs weak?
+
+Refines the within-block flip-correlation finding from `37_*` (q L0,
+overdispersion 1.2-3.4 in deciles, 2.20 overall). That single
+tensor showed strong over-dispersion. This experiment scans
+3 depths (L0, L18, L35) × 7 projection types at 8B to ask: is the
+block-level coupling uniform, or does it vary by (depth, type)?
+
+## Method
+
+Per tensor: take all 128-blocks, count flips (positions where
+sign(W_bonsai) != sign(W_teacher), excluding teacher zeros — restrict
+to blocks with no teacher zeros, which is nearly all of them).
+Compute observed variance of per-block flip-count, compare to the
+Binomial-expected `128 * p * (1-p)`. Ratio > 1 = block-correlated;
+ratio = 1 = per-element independent.
+
+## Results
+
+```
+tensor                  flip-rate   overdisp   n_blocks
+attn_q L0                  0.2483      2.195     131072
+attn_q L18                 0.2672      1.948     131072
+attn_q L35                 0.2738      2.666     131072
+attn_k L0                  0.2296      1.539      32768
+attn_k L18                 0.2507      1.849      32768
+attn_k L35                 0.3166      1.646      32768
+attn_v L0                  0.1990      1.121      32768
+attn_v L18                 0.1996      1.169      32768
+attn_v L35                 0.2368      1.836      32768
+attn_output L0             0.2263      1.614     131072
+attn_output L18            0.2342      2.269     131072
+attn_output L35            0.1840      2.213     131072
+ffn_gate L0                0.2419      1.119     393216
+ffn_gate L18               0.2746      1.286     393216
+ffn_gate L35               0.2415      2.157     393216
+ffn_up L0                  0.2481      1.069     393216
+ffn_up L18                 0.2609      1.232     393216
+ffn_up L35                 0.2195      2.248     393216
+ffn_down L0                0.1709      1.226     393216
+ffn_down L18               0.2311      1.408     393216
+ffn_down L35               0.1887      1.035     393216
+```
+
+## Reading
+
+Over-dispersion is NOT uniform. Two clear patterns emerge:
+
+1. **By projection type at L0**: attn_q is most over-dispersed (2.20).
+   attn_v, ffn_gate, ffn_up at L0 are essentially Binomial
+   (1.07-1.17). attn_k, attn_output, ffn_down sit in between
+   (1.22-1.61).
+
+2. **Depth pattern**: For MLP types (gate, up), over-dispersion is
+   essentially Binomial at L0 (~1.07-1.12) and grows monotonically
+   to >2.0 at L35. For attention types (q, k, v, o), over-dispersion
+   is already non-trivial at L0 and rises modestly with depth.
+   ffn_down is the exception — flat across depth.
+
+## What this constrains
+
+- **The block-level coupling mechanism is depth- and type-dependent.**
+  Whatever produces over-dispersion in q_proj at every depth and in
+  late MLP gate/up does NOT produce it in v_proj L0 or early MLP
+  gate/up. The same recipe step cannot apply uniformly.
+
+- **At early layers and on v/gate/up, per-element independent
+  flipping is consistent with the bytes**. Block coupling is not
+  required there. But attention q/k/o always shows some coupling.
+
+- **Late layers (L35) have stronger block coupling across all types**
+  except ffn_down. This is consistent with deeper layers receiving
+  a stronger or more block-structured perturbation (e.g., a low-rank
+  delta with rank that grows with depth, or sequential-quantisation
+  error that compounds layerwise).
+
+## What this rules in / rules out
+
+- A pure-i.i.d.-Gaussian noise model is RULED OUT for q_proj at all
+  depths (consistent with `37_*`), for late MLP, and for o_proj at
+  L18/L35.
+- For v_proj L0/L18 and early MLP gate/up at L0, the i.i.d. model
+  is CONSISTENT with the bytes (over-dispersion within statistical
+  noise of 1.0).
+- A uniform block-level mechanism (same low-rank-r LoRA delta
+  applied identically to all tensors) is RULED OUT — that would
+  give roughly uniform over-dispersion. The actual technique
+  produces block-coupled flips at some (layer, type) pairs and not
+  others.
+
+## Mechanism families consistent with this depth/type pattern
+
+Three candidates, listed in order of how naturally they produce the
+observed pattern:
+
+1. **OBC-style sequential per-block activation-aware quantisation**:
+   per-block decisions explicitly depend on prior blocks' activation
+   reconstruction. Late layers see error compounded from earlier
+   layers; tensors more sensitive to activations show more
+   block-structured fits. Naturally produces depth-growing
+   over-dispersion and tensor-type variation.
+
+2. **A low-rank LoRA delta whose rank or magnitude grows with depth**
+   for some tensor types but not others. Pure low-rank deltas
+   produce block-coupled flips by construction.
+
+3. **A loss function that includes block-coherence regularisation
+   that fires more strongly at deep layers** — possible but ad-hoc;
+   the 1-bit Bonsai whitepaper's "principled framework" claim makes
+   this less likely.
+
+The bytes don't discriminate (1) from (2). Both produce
+block-coupled flips with depth/type variation.
+
+## Caveats
+
+- The Binomial baseline assumes independent per-element flipping at
+  the empirical mean rate p. If teacher signs within a block are
+  themselves correlated (e.g., due to low-rank teacher structure),
+  the baseline shifts. We checked at q L0 (`37_*`) where teacher
+  per-block sign distribution looks well-mixed; not separately
+  re-checked here.
+- 3 depths sampled (L0, L18, L35); the depth shape between is not
+  measured here.
+
+## Updated implication for `RECIPE_HINTS.md`
+
+The block-correlation finding should be qualified:
+"Block-level flip correlation is present in some tensors and depths
+but not others. Strongest in deep MLP gate/up and in attention q
+across all depths; absent or weak in early MLP and v_proj at early
+depths." A reproduction must reproduce this pattern, not just
+average over-dispersion.

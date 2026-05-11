@@ -242,3 +242,555 @@ recipe. Differs from v1 in being informed by the 8B + audit work.
 
 These would each take experimental verification beyond byte-level
 inspection.
+
+## v3 update (May 2026, post 9-paper prior-art digestion)
+
+Nine published 1-bit / sub-2-bit techniques were evaluated against the
+6 strongest empirical findings (`reports/PRIOR_ART_VERDICT_MATRIX.md`).
+Five are structurally ruled out by format or by direct contradiction.
+Two are partially compatible. **PTQ1.61 (arXiv 2502.13179) is the only
+broadly-consistent algorithmic match (5/6 dimensions)** — with its
+4-bit salient-channel tier *dropped* (precluded by Q1_0_g128's
+uniform 1-bit storage). Hassibi 2402.10474 is the theoretical
+anchor (no algorithm).
+
+### Sharpened reproduction recipe (post-digestion)
+
+Differs from v2's sketch in being informed by what the prior-art
+analysis specifically rules in or out. Each step is now anchored to
+a paper that predicts that signature, where one exists.
+
+1. **Pre-quant restorative LoRA fine-tune of the teacher** on a
+   small calibration corpus. *Source: PTQ1.61's preprocessing step.*
+   *Predicts:* the teacher-vs-Bonsai 25% sign drift is explained by
+   the LoRA having shifted teacher weights *before* sign+scale
+   extraction. The deployed signs match `sign(W_LoRA-shifted)` not
+   `sign(W_raw_teacher)`. *Bonsai bytes:* sign agreement 75-80% on
+   matrix-heavy weights — consistent.
+
+2. **Closed-form Q1_0 of the LoRA-shifted teacher embedding.** Apply
+   the deterministic formula `w' = sign(W_LoRA) · mean(|W_LoRA|_g)`
+   to the embedding once and ship it. *Bonsai bytes:* embed=formula
+   byte-equal at 8B (99.94%) and at 1.7B (99.93%). Confirmed.
+
+3. **Per-128-block scale optimisation by SGD against an
+   activation-output-cosine + MSE objective.** *Source: PTQ1.61's
+   α-learning, with calibration data driving the optimisation.*
+   *Predicts:* deployed `s_g` is data-dependent, not a function of
+   `mean(|W|_g)`; magnitude is amplified beyond RMSE-optimal because
+   the NLC term values angular alignment over distance minimisation.
+   *Bonsai bytes:* `s_g ≠ mean(|W_base|_g)` for 0/53 matrix-heavy
+   tensors; median ratio ~2× the RMSE-optimal value. Confirmed.
+
+4. **Layer-by-layer forward processing with OBC-style error
+   compensation.** *Source: BiLLM/GPTQ inheritance.* *Predicts:*
+   per-block scale predictability from base statistics is erratic
+   across depth (because each layer's optimisation target depends on
+   accumulated activation distortion from already-quantised earlier
+   layers). *Bonsai bytes:* attention r² stable 0.45-0.80 across
+   depth; MLP r² bounces 0.02-0.86 non-monotonically. Confirmed.
+
+5. **lm_head receives the full Q1_0 + SGD-α treatment.** *Source:*
+   Hassibi 2510.16250 explicitly says the last layer should NEVER be
+   quantised. Bonsai violates this. *Bonsai bytes:* lm_head at 8B is
+   Q1_0 with 89.9% sign-match to base + recomputed scales (0.16%
+   byte-equal to formula). The unpublished Caltech IP must include
+   machinery letting the last layer survive — plausibly the LoRA
+   pre-fine-tune + the SGD calibration are strong enough to absorb
+   the loss the random-features-model paper warned about. **This is
+   the recipe-extraction's largest open question.**
+
+6. **input_layernorm trainable, peak update at L0.** *Predicts:*
+   layer 0's input_ln gets the most disturbance because that's where
+   the first round of accumulated activation drift is registered;
+   later layers absorb less because the SGD-α has already compensated
+   upstream. *Bonsai bytes:* input_ln peak excess 53× BF16 ULP at L0,
+   gradual decay through depth, identical to base by L35. Consistent
+   with this story; no published paper specifically predicts it.
+
+7. **Identity-shaping via the LoRA fine-tune corpus content.** The
+   LoRA in step 1 likely uses a corpus that includes
+   "Bonsai/PrismML/Caltech" identity instructions (or this is layered
+   on as a post-quant fine-tune; the bytes can't disambiguate).
+
+### What this rules in vs. v2
+
+- **The LoRA-preprocess interpretation is now the leading candidate
+  for the "Caltech IP".** v2 left this open; v3 has PTQ1.61's
+  preprocessing step as the strongest published precedent matching
+  the 25%-sign-drift signature.
+- **The OBC-style sequential error compensation is ruled in.** It is
+  the only piece of BiLLM consistent with Q1_0 format constraints,
+  and is ALSO the only thing that explains the depth-erratic
+  predictability.
+- **A NLC-flavoured SGD objective is ruled in.** Pure MSE would not
+  produce 2× RMSE-optimal scales; PTQ1.61's `MSE + (-log cos)` joint
+  objective naturally pushes magnitudes larger than MSE-only.
+
+### What this rules out vs. v2
+
+- v2 had said "QAT with STE against logits" was the simplest sketch.
+  The prior-art digestion shows STE-style QAT (BinaryLLM) is only
+  partially consistent — the per-row scale parameterisation is wrong
+  for Q1_0_g128.
+- v2 left the Hassibi ℓ∞ result as a recipe ingredient. v3 demotes it
+  to "theoretical motivation only" — the algorithm to actually
+  produce ℓ∞-consistent weights is unspecified by the paper.
+- v2 left the "row-uniformity" reading of ℓ∞ as plausible. The
+  per-row clustering test (`reports/local-8B/18_*`) ruled it out.
+
+### Reproduction priorities for someone trying this on a different base
+
+If you actually want to recreate Bonsai-style compression:
+
+1. Implement PTQ1.61's pipeline first (LoRA preprocess + SGD-α).
+2. Drop their salient-channel tier (force one bit everywhere).
+3. Use Q1_0_g128 as the storage format and ggml's reference encoder
+   as the deployment kernel.
+4. Skip embed and norms in the SGD pass; quantise embed by closed-
+   form formula on the LoRA-shifted teacher; copy q_norm / k_norm
+   from teacher; allow input_layernorm to drift during SGD.
+5. Treat lm_head with the same machinery as the rest of the matrix-
+   heavy weights (resist the published "don't quantise last layer"
+   advice; the fine-tune is doing the heavy lifting that lets it
+   survive).
+6. Layer training data with identity-shaping examples if you want a
+   specific persona; otherwise omit.
+
+### Open questions remaining for a future session
+
+- Direct test of the LoRA-restorative interpretation: small fine-
+  tune on Qwen3-0.5B → naive Q1_0 → see if signs deviate ~25% from
+  raw teacher with similar per-projection ordering.
+- 4B byte-level confirmation that the per-projection ordering and
+  layer-1-3-MLP-pushed-hardest pattern from 8B holds cross-size.
+- What activation-distortion accumulation actually looks like through
+  a partially-quantised model — would require running inference,
+  which we haven't done.
+- Whether PrismML's specific Caltech IP is one of the
+  Hassibi-Akhtiamov-Ghane group's more-recent unpublished extensions
+  rather than 2402.10474 directly. Worth tracking new arXiv drops
+  from this group.
+
+## v4 update (May 2026, post 8B-detailed analyses)
+
+What changed since v3. The recipe sketch is unchanged at the
+*step* level — the seven-step pipeline still describes the bytes.
+v4 adds per-step *quantitative* constraints derived from 8B-specific
+deeper tests (`reports/local-8B/20_*` through `26_*` and the cross-
+size synthesis `CROSS_SIZE_AUDIT_SYNTHESIS.md`).
+
+### Cross-size confirmed (1.7B / 4B / 8B)
+
+- The per-projection-type sign-match ordering is identical at every
+  size: `v_proj > down_proj > o_proj > k > q > gate > up_proj`
+  (range +/- 1pp per pair).
+- Bigger Bonsai = closer to teacher signs. delta(8B - 1.7B) is +2 to
+  +4pp per matrix-heavy projection type.
+- L1-3 MLP "disturbance" (sharp dip in sign-match) reproduces at
+  every size.
+
+### 4B is preprocess-different from 1.7B and 8B
+
+- At 1.7B and 8B, `embed_tokens` is byte-equal to `formula(raw
+  teacher)`.
+- At 4B, `embed_tokens` is consistent with `formula(LoRA-shifted
+  teacher)` (sign-match 0.93, byte-match 0.89). Real value drift,
+  not row permutation.
+
+A reproduction at the 4B-equivalent scale should use a heavier or
+different LoRA preprocess on the embedding than at 1.7B / 8B. The
+preprocess strength is NOT uniform across Bonsai sizes.
+
+### 8B: per-block scales are 2x RMSE-optimal AND row-amplification follows teacher (mostly)
+
+- Per-block scales are NEVER byte-equal `mean(|w_teacher|_g)` (0/253
+  matrix-heavy tensors at 8B). Median ratio
+  `s_bonsai / mean(|w_teacher|_g)` is 1.3-1.8x.
+- Per-block scales are roughly 2x the RMSE-optimal scalar
+  `mean(sigma_bonsai · w_teacher)` for the chosen signs.
+- Per-row mean Bonsai s_g vs per-row mean(|w_teacher|): Pearson
+  +0.7 to +0.86 for attention + `down_proj`; +0.42 for MLP `gate`
+  and `up`. So:
+
+  - For q/k/v/o/down: a reproduction can initialise per-block scales
+    near `mean(|w_teacher|_g)` and only modify them slightly. The
+    structural amplification is teacher-inherited.
+  - For MLP gate/up: per-block scales need an independent calibration-
+    driven optimisation. The technique picks different rows to
+    amplify than the teacher had loud, especially at late layers.
+
+### 8B: top-1% scale blocks cluster by output row, not by input column
+
+- 1.5-22% of rows contain ALL the top-1% blocks (chi-squared
+  highly non-uniform).
+- 81-100% of columns contain at least one (chi-squared near-uniform).
+
+A reproduction's per-block scale optimisation should target per-
+output-channel amplification, not per-input-position. **Rules out
+PTQ1.61's 1D per-input-column salience-mask trick** (though the rest
+of PTQ1.61's pipeline still matches).
+
+### 8B: per-block scale CV depth pattern
+
+- Attention (q/k/v/o): per-block scale CV INCREASES with depth (e.g.
+  q early CV 0.20, late CV 0.25). Consistent with OBC-style accumulated-
+  error propagation.
+- MLP gate/up: per-block CV DECREASES with depth (e.g. gate early CV
+  0.44, late CV 0.24). The teacher itself shows the opposite-direction
+  pattern at MLP (early CV 0.77, late CV 0.13), so most of the
+  decrease is teacher-inherited. The technique-induced signature: at
+  every MLP depth, Bonsai's CV is roughly half the teacher's CV (the
+  technique COMPRESSES MLP per-block scale spread by ~2x).
+
+A reproduction should NOT impose depth-uniform per-block CV targets;
+the natural distribution varies per layer and per projection.
+
+### 8B: head identity is NOT preserved across layers
+
+Per-head mean scale at L vs L+1: Spearman near 0 for q/k/v. The
+"loudest" attention head at one layer is not the loudest at the next.
+A reproduction does not need head-aware scale-fitting; per-block
+optimisation can be uniform across heads within a tensor.
+
+### 8B: scale-CV and sign-match collapse onto a single disturbance axis
+
+For 6 of 7 projection types, Pearson(per-layer scale-CV, per-layer
+sign-match-vs-teacher) is in [-0.69, -0.23]; up_proj is the strongest
+(-0.90). For `o_proj` only, the correlation is +0.17 (essentially
+zero) — `o_proj` lives in a different space (rows index hidden-dim,
+not head-dim).
+
+A reproduction can use either metric as a per-layer disturbance
+indicator for q/k/v/gate/up/down; for o_proj specifically, neither
+indicator alone suffices.
+
+### Recipe v4 sharpened, step by step
+
+The seven steps from v3 are unchanged. Per-step quantitative
+constraints (8B-specific where measured):
+
+1. LoRA pre-quant restore on calibration corpus. Strength tuned per
+   size. At 8B and 1.7B the strength is light enough to leave
+   embeddings unchanged after formula-projection. At 4B the strength
+   is heavier (~7% sign drift on embed). Target modules are at least
+   matrix-heavy linears; whether the LoRA touches embeddings is
+   size-dependent.
+
+2. Closed-form Q1_0 of LoRA-shifted teacher embed. At 1.7B and 8B
+   this lands byte-equal to formula(raw teacher); at 4B it lands at
+   formula(shifted teacher). A reproduction should compute embed
+   offline with one numpy pass after step 1 and never re-train it.
+
+3. Per-128-block SGD-alpha on calibration activations with output-
+   cosine + MSE objective. Init alpha at `mean(|w_LoRA|_g)`. Run
+   roughly 50-100 SGD steps per block. Expect convergence to alpha
+   around 1.3-1.8x the init value (median; range varies by tensor).
+   Allow signs to flip during the SGD via STE.
+
+4. Layer-by-layer forward processing with OBC-style error
+   compensation. Each layer's optimisation conditions on activations
+   distorted by upstream already-quantised layers.
+
+5. lm_head receives the same Q1_0 + SGD treatment. Expect ~90% sign
+   agreement with teacher at 8B (separate untied head); at 1.7B and
+   4B with tied embedding, lm_head is by construction the embedding's
+   transpose under tying, with the same byte-level character as the
+   embed.
+
+6. q_norm, k_norm copied verbatim from teacher (force-by-data
+   round-trip-tight at all 36 layers). post_attention_layernorm
+   barely moves (<= 4x BF16 ULP). input_layernorm is allowed to
+   drift, weighted toward early layers (L0 peak 53x ULP excess at
+   8B, decaying to 0x by L35).
+
+7. Identity-shaping via the LoRA fine-tune corpus content (or a
+   separate post-quant fine-tune step the bytes can't disambiguate).
+
+### Falsifying tests for v4
+
+In `REPRODUCTION_SKELETON.md` Section 5 already lists 4 falsifying
+tests. v4 adds three more:
+
+5. After step 3 on a representative MLP gate/up tensor, is the
+   per-row mean(deployed alpha) NOT strongly correlated (Pearson <
+   0.5) with per-row mean(|w_teacher|)? If correlation is high,
+   the SGD step isn't doing what Bonsai does at MLP.
+
+6. After step 4 on the full network, are top-1% blocks clustered by
+   row (1.5-22% of rows) and approximately uniform across columns?
+   If columns are also concentrated, the optimisation isn't matching
+   Bonsai's per-output-channel amplification signature.
+
+7. **Magnitude-graded sign flips (the tightest reproduction target).**
+   Bin teacher weights by |w| decile; measure flip-rate per bin. The
+   pattern in Bonsai is monotone: ~46% flip rate at d1 (smallest
+   |w_teacher|), 0.3-2.5% at d10 (largest), smooth gradient between.
+   Size-invariant (1.7B and 8B both show this). A reproduction's flip
+   pattern must be magnitude-graded; if d1 is far from 0.5 OR d10 is
+   far from 0.0, the recipe is not matching Bonsai's information-
+   theoretic compression behaviour.
+
+### What the magnitude-graded sign-flip pattern implies (and DOESN'T)
+
+The d1-near-0.5 / d10-near-0.0 sign-flip pattern is consistent with
+a small-magnitude additive perturbation of the teacher (e.g. a LoRA
+delta) — where `|w_teacher|` is comparable to `|delta|`, sign of
+`w_LoRA-shifted` is essentially randomised; where
+`|w_teacher| >> |delta|`, sign is preserved. A simple Gaussian
+additive noise model with `σ ≈ 1.25× teacher mean(|w|)` at 8B
+reproduces the magnitude-distribution near-exactly.
+
+**Important caveat (added after independent fresh-context
+verification):** the d1/d10 pattern does **NOT** uniquely imply a
+LoRA preprocess. ANY sign-quantisation-with-training procedure
+where sign choices for small-|w| weights are decoupled from
+teacher signs will produce the same magnitude-graded curve, because
+small-|w| weights have low downstream impact and are freed first
+under any objective that values output behaviour. The pattern is
+*consistent with* LoRA preprocess, *consistent with* OBC-style
+activation-aligned sign assignment, *consistent with* QAT with
+STE-and-output-loss, and *consistent with* sign sampling
+proportional to calibration gradients.
+
+The bytes do not discriminate among these mechanisms. The Gaussian-
+noise model is the simplest fit, not the unique fit. A reproduction
+that uses any sign-quantisation-with-training-against-output-loss
+procedure should reproduce the d1/d10 fingerprint; that does not
+mean LoRA was used.
+
+**Direct byte-level evidence against pure-LoRA-only step 1
+(`reports/local-8B/34_*`):** the SVD of `(W_bonsai - W_teacher)` is
+NOT low-rank. At 8B q_proj L0, rank-128 explains only 14% of
+squared-Frobenius-norm of the delta; rank-256 explains 24%; you need
+rank ~1000 to capture 66%. A typical LoRA rank-128 fine-tune would
+explain ~95% at rank-128. Bonsai's delta is approximately full-rank
+(only slightly more concentrated than a random Gaussian of the same
+norm). This **rules out** a pure-LoRA-only preprocess at typical
+LoRA ranks (16-128). Mechanisms consistent with the SVD result:
+LoRA + an additional full-rank SGD step, pure QAT with STE
+(unconstrained per-element updates), OBC-style activation-aligned
+sign assignment. A reproduction should not use LoRA alone — combine
+with a full-rank optimisation pass, or omit LoRA entirely.
+
+### Per-projection sign-match ordering (corrected)
+
+The 36-layer mean sign-match by projection type at 8B is:
+
+```
+v       0.7921    (highest)
+down    0.7773
+o       0.7643
+up      0.7347
+k       0.7331
+q       0.7298
+gate    0.7292    (lowest)
+```
+
+The top three (v / down / o) are clearly separated. The bottom four
+(up / k / q / gate) are within 0.6pp of each other and the relative
+ordering depends on which layers you sample. **A reproduction
+target should aim for v ≈ 0.79, down ≈ 0.78, o ≈ 0.76 as the high
+group; q/k/up/gate all ≈ 0.73 as a tight low group.**
+
+### Per-row Pearson is depth-varying for MLP (corrected)
+
+The earlier "MLP gate/up Pearson +0.42" number was a depth-mean
+across L0/6/12/18/24/30/35. At specific depths:
+
+```
+                     L0       L18     L35
+gate Pearson        +0.61    +0.42   +0.21
+up Pearson          +0.74    +0.61   -0.22
+```
+
+So MLP gate/up *decreases* from ~0.6 (early) to ~0.2 or lower
+(late). At early layers, gate behaves more like attention. The
+deviation from teacher amplification is concentrated at late MLP.
+
+A reproduction targeting Bonsai-style behaviour at MLP should
+expect:
+- Early MLP gate/up: per-row Pearson ~0.5-0.7 (similar to attention)
+- Late MLP gate/up: per-row Pearson 0.2 or lower (independent
+  per-row choices)
+
+### Within-block flip correlation (added after second verifier round)
+
+Per-block flip counts at 8B q_proj L0 are **OVER-DISPERSED** vs
+the Binomial expectation `128 * p * (1-p)` (the variance under
+per-element independent flipping at marginal rate p). Over-
+dispersion ratio is 1.2-3.4× across magnitude deciles, with
+extremes (d1, d10) most over-dispersed.
+
+The Gaussian-noise simulation that reproduces the d1/d10 marginal
+fingerprint (`reports/local-1.7B/30_*`) has over-dispersion 0.9-
+1.17 — Binomial as expected. **The Gaussian model captures first-
+order statistics but FAILS the second-order test.**
+
+Implication: a reproduction's sign-flip mechanism must produce
+**block-correlated flips**. Pure i.i.d. element-wise noise on
+teacher does NOT reproduce Bonsai's pattern. Mechanism families
+that DO produce block-correlated flips:
+
+- Low-rank LoRA delta with `r << 128` (rank-r structure correlates
+  multiple block positions coherently).
+- OBC-style block-wise activation-aware optimisation.
+- Group-aware regularisation in an SGD-style sign-update step.
+
+The bytes don't discriminate among these, but they DO rule out the
+pure-i.i.d. baseline. Combined with the SVD finding (delta is NOT
+low-rank either): the technique requires SOMETHING that produces
+block-coherent perturbations of teacher signs without producing a
+purely-low-rank delta. That's compatible with: low-rank LoRA + full-
+rank SGD, OR pure QAT with block-aware loss, OR OBC-style sequential
+quantisation. Open.
+
+### Where block coupling actually fires (refinement, see `reports/local-8B/38_*`)
+
+Over-dispersion is NOT uniform across (depth, projection-type).
+Cross-grid measurement at 8B (3 depths × 7 types):
+
+```
+tensor              L0      L18     L35
+attn_q              2.20    1.95    2.67
+attn_k              1.54    1.85    1.65
+attn_v              1.12    1.17    1.84
+attn_output         1.61    2.27    2.21
+ffn_gate            1.12    1.29    2.16
+ffn_up              1.07    1.23    2.25
+ffn_down            1.23    1.41    1.04
+```
+
+(Values = observed-variance / Binomial-expected-variance for per-
+block flip counts. 1.0 = i.i.d. element-wise. >1.0 = block-coupled.)
+
+Two patterns:
+- **At L0**, attn_q is the only strongly over-dispersed tensor (2.20).
+  attn_v / ffn_gate / ffn_up at L0 are essentially Binomial — i.i.d.
+  noise IS consistent with these tensors.
+- **By depth**: MLP gate/up grow from ~1.1 at L0 to >2.0 at L35.
+  Attention q/k/o grow more modestly. ffn_down stays near 1.0.
+
+So a reproduction must reproduce this structure: deep-MLP block
+coupling is required, but at early MLP and at v_proj the i.i.d.
+fingerprint is consistent with the bytes. A uniform low-rank LoRA
+applied to all tensors equally is RULED OUT (would give roughly
+uniform over-dispersion). Mechanism candidates compatible with the
+depth/type pattern:
+
+- **OBC-style sequential quantisation**, where late layers see
+  compounded reconstruction error from earlier layers and produce
+  more block-coherent fits.
+- **Rank-grows-with-depth LoRA** structure on (gate, up) but not
+  uniformly applied.
+- **A loss with depth-conditioned block-coherence** regularisation.
+
+The 38_* finding is direct byte evidence that the block-coupling
+component of the technique is depth- and type-dependent, not a
+single global step.
+
+### Full depth shape: L1-3 MLP "disturbance spike" (see `reports/local-8B/40_*`)
+
+The 3-depth probe in `38_*` missed the dominant feature of the depth
+profile. Full 36-layer sweep at 8B reveals the true shape:
+
+- **L1-L3 MLP gate/up**: over-dispersion **10-13** — far beyond
+  anywhere else. Combined with elevated flip rate (0.32-0.38 vs
+  typical 0.24-0.28), this is the same depth band where sign-match-
+  vs-teacher drops to 0.62-0.65 (the "disturbance dip").
+- **L4 transition**: gate/up over-dispersion drops sharply (2.5,
+  4.5) but is still elevated relative to the middle plateau.
+- **L5-L30 middle plateau**: gate ~1.27, up ~1.16 (essentially
+  Binomial in this band), q stays elevated at ~2.0, v rises
+  gradually 1.1→1.6.
+- **L33-L35 deep-MLP rise**: gate 1.38→2.16, up 1.18→2.25.
+
+The depth shape is **U-shaped at MLP**, **gradually-rising at v**,
+**uniformly elevated at q across all depths**. A SINGLE mechanism
+with a single depth-conditioned strength parameter cannot land all
+three patterns. The recipe needs:
+
+1. An L1-3 MLP "rewrite" component with very high block-coherence
+   (over-dispersion 10+ requires either rank-r LoRA with r much
+   smaller than 128, OR an iterative reconstruction with very
+   strong block-as-unit decisions).
+2. A depth-graded coupling for late MLP and v.
+3. Mid-layer block-coupling that's modest but non-zero (especially q).
+
+The teacher-sign-blockstruct confound check confirmed that teacher
+signs within blocks are essentially i.i.d. (over-dispersion ~1.0
+with shuffle controls matching to ±0.014). The L1-3 spike is real
+and not a confound.
+
+### L1-3 SVD result + cross-size validation (`local-8B/41_*`, `local-1.7B/42_*`)
+
+**L1-3 SVD at 8B**: rank-128 captures 10-12% at L1, L2 (vs baseline
+7.5-8%) — a relative +40-50% but FAR from rank-128 LoRA dominance
+(~95%). The delta MAGNITUDE at L1-3 is SMALLER than at L0
+(||delta||F gate L1=152 vs L0=191; up L1=116 vs L0=187). At L1-3
+the technique makes fewer total changes that are highly block-
+coherent. **Heavy-rank-128 LoRA at L1-3 is RULED OUT.**
+
+**Cross-size at 1.7B**: the L1-3 spike of 10-13 at 8B does NOT
+appear at 1.7B (28 layers). 1.7B's L1 MLP over-dispersion is only
+1.57-2.47 — modestly elevated above L0 baseline 1.09-1.26. **A
+separate L1-3 rewrite step (uniformly applied across Bonsai sizes)
+is RULED OUT** — would produce the same spike at every size.
+
+So the L1-3 spike is **8B-specific**, not a recipe-step signature.
+Most consistent with: a single algorithm (e.g., OBC-style
+sequential) running identically across sizes whose accumulated
+activation error compounds more strongly when more layers follow
+the early ones. At 8B's 36-layer depth, by the time L1's per-block
+decisions are made, L0's quantisation error has already accumulated
+into L1's input distribution, and L1 has to fit those perturbed
+activations with very block-coherent decisions. At 1.7B's 28-layer
+depth the same effect is present but milder.
+
+A reproduction at 8B must produce the L1-3 spike as a *side effect*
+of the algorithm meeting Qwen3-8B's teacher, not as the result of
+an explicit L1-3-targeted step. A recipe that produces the L1-3
+spike at all sizes uniformly has the wrong mechanism even if its
+8B numbers match.
+
+### Cross-size patterns that DO replicate at 1.7B
+
+- `attn_q` uniformly elevated 1.7-3.8 at every depth.
+- `attn_v` rises monotonically with depth.
+- Deep-MLP rise at the last layer (`gate` ~2.2-2.3, `up` ~1.7-2.2).
+- Mid-layer modest plateau.
+
+These are size-invariant signatures of the recipe.
+
+### Teacher-structure confound on L1-3 spike (4th catch, see `local-8B/45_*`)
+
+Late in the session, a teacher-side confound was discovered. At
+8B, Qwen3-8B's `mlp.gate_proj` teacher weights at L1-3 have ~10×
+higher cross-block CV of `mean(|w|)` and ~30× higher within-block
+CV variability than at other depths. q_proj and ffn_down teacher
+weights are uniform across all depths.
+
+Random Gaussian noise applied to L1 teacher (calibrated to L1's
+flip rate) gives over-dispersion ~13, even at high rank. So
+**most of Bonsai's L1-3 over-dispersion of 10-13 is intrinsic to
+the teacher**, not a recipe choice.
+
+But Bonsai's L1 actual over-dispersion is 10.27, which is LESS
+than 13. So Bonsai's recipe at L1-3 is partially **compensating**
+for the teacher heterogeneity — likely via per-block scale (s_g)
+tuning that reduces effective flip-difficulty differences across
+blocks.
+
+The recipe-attributable signals at L1-3 MLP are:
+1. **Elevated flip rate** (0.32-0.38 vs 0.24-0.28 baseline). Real
+   recipe-driven elevation.
+2. **Slightly elevated rank-128 %** (10-12% vs 7.5-8% baseline).
+   Real recipe-driven structure.
+3. **Partial smoothing** of teacher-natural over-dispersion (Bonsai
+   10.27 vs random Gaussian 13). Real recipe-driven scaling.
+
+The earlier "L1-3 has block-coherent recipe decisions" framing is
+wrong. The recipe at L1-3 is doing the OPPOSITE: producing flips
+that are *less* block-coherent than the teacher would naturally
+produce, by compensating per-block scaling. A reproduction recipe
+should reproduce all three signals above.

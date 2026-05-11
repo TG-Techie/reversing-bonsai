@@ -138,3 +138,136 @@ prove which specific recipe was used.
   the residual stream across embedding output, every Wq/Wk/Wv/Wo input
   column, every layer-norm, every MLP input column, and the LM head
   input.
+
+## Terms added during the recipe-extraction work (May 2026)
+
+- **formula** / **naive Q1\_0** — the deterministic Q1\_0 quantisation of
+  a weight matrix: `w' = sign(w_base) · mean(|w_base|_per_128_block)`.
+  When we say "Bonsai vs formula" or "Bonsai vs naive-quant" we mean the
+  same thing.
+- **RMSE-optimal scale** — for a fixed block sign pattern σ ∈ {±1}^128,
+  the scalar `s* = mean(σ · w_base)` that minimises `‖s · σ - w_base‖²`.
+  For matrix-heavy Bonsai blocks, `s_bonsai ≈ 2 · s*` — i.e. ~2× larger
+  than what would minimise distance to base. Force-by-data; rules out
+  any recipe that fits scales by L2 distance to teacher.
+- **NLC** — *Negative Log Cosine*. The angular-alignment loss term
+  `-log(cos(ŷ, y))` PTQ1.61 adds alongside MSE. Predicts inflated scales
+  past the RMSE-optimum; consistent with our 2× ratio.
+- **digester** — a worktree-isolated, fresh-context sub-agent given one
+  prior-art PDF and the §1 byte facts, returning a verdict on whether
+  the paper's algorithm matches those facts. See
+  `reports/PRIOR_ART_VERDICT_MATRIX.md`.
+- **streaming audit** — the OOM-safe pattern for full-network
+  per-tensor analysis at 8B+: walk each base safetensors shard once;
+  for each tensor in the shard, dequantise the corresponding Bonsai
+  Q1\_0 from the GGUF on demand; compute metrics; free immediately.
+  Peak memory is one tensor pair (~2GB at 8B) instead of all-tensors-
+  at-once (which OOM'd this VM at 17GB).
+- **autonomous-grant mode** — a multi-hour time window the user grants
+  for self-directed work. The discipline is: pick a direction and
+  execute, only stop when the budget runs out, periodic concrete-
+  finding check-ins, and never ask "which direction next?" at batch
+  boundaries. See CLAUDE.md.
+
+### Algorithms / techniques referenced from prior art (NOT empirically attested in Bonsai's pipeline)
+
+- **LoRA** — *Low-Rank Adaptation*. Add-and-train two low-rank matrices
+  alongside frozen teacher weights. Used in PTQ1.61 as a pre-quant
+  restorative step on a small calibration corpus.
+- **STE** — *Straight-Through Estimator*. Replace a discontinuous
+  (e.g. sign) function with its identity in the backward pass so
+  gradients can flow through during training. Standard QAT machinery.
+- **ℓ∞ / ℓ\_∞** — the max-norm regulariser. Hassibi-Akhtiamov-Ghane
+  (arXiv:2402.10474) prove that under ℓ∞-min-norm regression with large
+  λ, weights concentrate at two opposite-sign extreme values `±δ/λ`,
+  giving a 1-bit-friendly fixed point with magnitude inflation past
+  RMSE-optimal. The paper's setting is single-layer linear classifiers
+  on Gaussian-mixture data; extending to deep transformers is the
+  unpublished step that's likely the "Caltech IP".
+- **OBC / GPTQ / BiLLM / OneBit / PTQ1.61 / BinaryLLM / STBLLM /
+  Output-alignment / Radio** — published 1-bit / sub-2-bit quantisation
+  techniques. Each has been digested by a sub-agent and scored against
+  Bonsai's bytes. See `reports/PRIOR_ART_VERDICT_MATRIX.md` for verdicts;
+  `reports/related_papers/` for PDFs.
+- **calibration corpus** — a small sample of input text used by PTQ
+  techniques to compute layer-wise activation statistics. Choice of
+  corpus matters less than its diversity.
+
+### Over-dispersion / block-coupling terms (introduced in 37_*-45_*)
+
+- **Per-block flip-count** — for a given 128-block, the count of
+  positions where `sign(W_bonsai) != sign(W_teacher)`. Ranges 0..128.
+- **Binomial null / Binomial baseline** — the variance of per-block
+  flip-counts under per-element-independent flipping at marginal
+  rate `p`. Equals `128 · p · (1-p)`.
+- **Over-dispersion ratio** — observed variance of per-block
+  flip-counts divided by the Binomial baseline. = 1.0 means
+  per-element-iid flips; > 1.0 means flips are correlated within
+  blocks; < 1.0 means anti-correlated.
+- **Block-coupled flips / block-coherent decisions** — a pattern
+  where many positions within the same 128-block flip together
+  (high over-dispersion). Can arise from low-rank LoRA structure
+  or from per-block joint optimisation (OBC-style).
+- **Teacher block-magnitude heterogeneity** — the cross-block CV
+  of `mean(|w_teacher|_per_block)`. Qwen3-8B's `mlp.gate_proj` at
+  L1-3 has 10× higher heterogeneity than at other depths — a
+  property of the BASE model, not of Bonsai's recipe. Under any
+  perturbation calibrated to the right flip rate, this heterogeneity
+  alone produces high over-dispersion. Identified as the 4th
+  confound in `local-8B/45_*`.
+- **L1-3 disturbance dip / L1-3 spike** — at 8B, L1-L3 MLP gate/up
+  show sign-match drop (to 0.62-0.65) and over-dispersion spike
+  (10-13). NOT replicated at 1.7B (over-dispersion only 1.5-2.5).
+  Partially explained by Qwen3-8B's teacher block-heterogeneity at
+  those layers; Bonsai's recipe actually REDUCES the over-dispersion
+  the teacher alone would produce.
+
+### Process / discipline terms
+
+- **verifier sub-agent** — a worktree-isolated, fresh-context
+  general-purpose sub-agent given a recipe claim + data and asked
+  to independently challenge it with explicit bias-naming. Caught
+  4 confirmation-biased over-reaches in this session. See CLAUDE.md
+  for the protocol and the four catches.
+- **force-by-format / force-by-data / suggestion** — the three
+  buckets for any empirical finding in `RECIPE_HINTS.md`. Format-
+  level constraints (couldn't be otherwise) vs measurement-anchored
+  constraints (reproducible from artifacts) vs patterns consistent
+  with one specific reading.
+- **confound check** — a control measurement establishing what
+  "doing nothing" or "random noise" would produce, so the recipe-
+  attributable signal can be separated from artifacts. The teacher-
+  sign-blockstruct check (`40_*`) and teacher-block-magnitude
+  heterogeneity check (`45_*`) are examples.
+
+## Operational reference (moved from CLAUDE.md)
+
+### Repo scripts
+
+- `src/q1_0.py` — pure-Python Q1\_0 codec; round-trip byte-equal to `ggml-quants.c`.
+- `src/gguf_inspect.py` — GGUF metadata + tensor inventory.
+- `src/analyze_q1_0.py` — H3 per-block sign/scale stats.
+- `src/compare_q1_dequant_vs_unpacked.py` — H1 bridge.
+- `src/compare_unpacked_vs_qwen3.py` — H2 identity + best-row-perm.
+- `src/compare_magnitudes.py` — per-block / row / col magnitudes.
+- `src/test_column_permutation.py` — H4 per-input-column stats.
+- `src/sign_disagreement.py` — per-tensor flip rate vs base.
+- `src/ptq_baseline_v2.py` — direct PTQ-quant of Qwen3.
+- `src/joint_permutation_search.py` — joint cross-tensor perm.
+- `scripts/fetch_models_from_release.sh` — fetch + reassemble.
+- `scripts/independent_verify.py` — verifier sample.
+
+### Environment empirical sizes
+
+- `df -h /` reports 252 GB total; only ~30 GB is allocatable. When the cap is hit, **bash exits 1 with no output** (can't fork) — looks like the agent broke, is just disk pressure.
+- 1.7B trio ~7 GB, 4B trio ~16 GB, 8B trio ~33 GB. **8B does NOT fit alongside another size**; free first.
+- Release-asset download ~50 MB/s. 4B trio ~5-6 min, 8B trio ~10-12 min.
+- uv first-run pulls a CUDA torch (~5 GB) we don't use; cached after first sync.
+- Reassembly trap: `cat *.part-* > file.tmp && mv file.tmp file` doubles peak usage. Use `cat *.part-* > file && rm *.part-*` or stream-and-delete.
+
+### Artifact-layout quirks
+
+- Release `models-bonsai-{size}-r{N}` packs unpacked + base shards flat; both write `model.safetensors.index.json` and clobber each other. Move into `unpacked/` and `base/` before comparators.
+- HuggingFace egress is blocked (`x-deny-reason: host_not_allowed`); `release-assets.githubusercontent.com` is allowed. Prefer release fetches via `.github/workflows/`.
+- Bonsai-unpacked carries no info beyond the GGUF: `dequantize_row_q1_0(GGUF) ≡ Bonsai-unpacked` to FP16 precision (H1). For new sizes, fetch just GGUF + base.
+- `main` is branch-protected; runners push to `claude/**`.

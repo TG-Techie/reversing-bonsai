@@ -1,0 +1,71 @@
+## Per-row amplitude inheritance from teacher: Bonsai vs Qwen3-8B-base
+
+For each (layer, projection_type) at 8B, compute:
+- `teacher_row_means`: per-row mean(|w_teacher|) — the teacher's per-output-channel amplitude
+- `bonsai_row_means`: per-row mean(deployed s_g) — Bonsai's per-output-channel deployed scale
+
+Correlate them across rows. High correlation means the technique
+amplifies the same rows the teacher had loud. Low correlation means
+the technique picks different rows to amplify.
+
+```
+sampled at layers 0, 6, 12, 18, 24, 30, 35:
+
+kind    pearson_mean    spearman_mean    reading
+----    ------------    -------------    -----------
+o          +0.859           +0.767       follow teacher (strongest)
+down       +0.817           +0.730       follow teacher
+q          +0.798           +0.723       follow teacher
+v          +0.700           +0.692       moderate follow
+k          +0.704           +0.634       moderate follow
+gate       +0.424           +0.378       deviates from teacher
+up         +0.416           +0.387       deviates from teacher
+```
+
+Per-layer detail for the deviating projections:
+
+```
+L     gate Pearson    up Pearson
+0     +0.605          +0.737
+6     -0.114          +0.438
+12    +0.524          +0.726
+18    +0.424          +0.611
+24    +0.669          +0.260
+30    +0.652          +0.359
+35    +0.206          -0.221  ← strongest deviation, late layer
+```
+
+## Reading
+
+For attention projections (q/k/v/o) and `down_proj`, Bonsai's per-row
+amplitude is strongly aligned with the teacher's per-row amplitude.
+The technique inherits which output channels are loud. So the
+"top-1% block" row-clustering finding from `24_*` is, for these
+projections, **just a reflection of the teacher's natural row
+amplitudes**, not an independent recipe choice.
+
+For MLP `gate_proj` and `up_proj`, Bonsai's per-row amplitude is
+roughly half-correlated with teacher's. The technique is making
+independent decisions about which gate/up output channels to
+amplify, especially at late layers (L35 gate Pearson +0.21, L35 up
+Pearson -0.22). This is consistent with the disturbance-axis
+finding from `23_*`: MLP gate/up is where Bonsai deviates most from
+teacher in both signs and scales.
+
+## Recipe constraint
+
+A reproduction targeting Bonsai-style behaviour:
+
+1. For attention + `down_proj`: per-block scales should track the
+   teacher's per-row magnitude profile (Pearson 0.7-0.86). A
+   reasonable initialisation for these projections is
+   `s_g_init = mean(|w_teacher|_per_block)` — close to the formula.
+2. For MLP `gate_proj` and `up_proj`: per-block scale assignment is
+   NOT teacher-row-following. Use a calibration-data-driven
+   optimisation that's allowed to pick different rows to amplify
+   than the teacher had loud. PTQ1.61's SGD-α with output-cosine
+   objective is a published candidate.
+
+The asymmetry (attention follows teacher; MLP gate/up doesn't) is a
+hard recipe-relevant signature. None of the 9 prior-art papers
+digested in `PRIOR_ART_VERDICT_MATRIX.md` predict this asymmetry.

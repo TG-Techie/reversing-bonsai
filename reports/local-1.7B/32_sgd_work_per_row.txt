@@ -1,0 +1,67 @@
+## Where the SGD-alpha step does its work (1.7B q_proj L0)
+
+For each block in 1.7B q_proj L0:
+- s_lora_simulated = naive-Q1_0(teacher + Gaussian(0, 0.035))'s scale
+- s_bonsai = Bonsai's actual deployed scale
+- matched = |s_lora_sim - s_bonsai| / s_bonsai < 0.1  (within 10%)
+
+If a block is matched, LoRA+formula already produces ~Bonsai's scale.
+If unmatched, the SGD-alpha step did corrective work to land at the
+deployed scale.
+
+```
+overall match rate:     0.435  (43.5% of all blocks)
+
+per-row match rate:     mean 0.435, std 0.302
+                        774 / 2048 rows have >60% of blocks matched
+                        621 / 2048 rows have <20% of blocks matched
+                        (other 32% are intermediate)
+
+per-column match rate:  mean 0.435, std 0.008
+                        range 0.418 to 0.448
+```
+
+## Reading
+
+The "blocks that need SGD correction" (LoRA-unmatched blocks) are
+clustered by ROW, NOT by column. Some output rows are well-matched
+by LoRA + naive Q1_0 alone; others are poorly-matched and need
+substantial corrective scale adjustments via the SGD step.
+
+Column position does not matter: every column position has ~43%
+match rate (column std is 100x smaller than row std).
+
+For unmatched blocks: bonsai mean s_g 0.036, std 0.013 — wider scale
+distribution than matched blocks (mean 0.040, std 0.005). The SGD
+step appears to amplify specific rows above what the LoRA-shifted
+teacher's natural per-block magnitude would produce.
+
+## Recipe-implication update
+
+The SGD-alpha step is per-row heterogeneous. ~30% of rows per
+tensor need substantial corrective scale fitting; ~38% are well-
+handled by LoRA + formula and the remaining ~32% are intermediate.
+
+A reproduction's SGD step's compute budget should reflect this:
+most rows converge quickly; a minority of rows need many more
+SGD steps to land at Bonsai-style scales. Adaptive per-row step
+counts could be efficient.
+
+This is consistent with the recipe v4 picture:
+- LoRA preprocess + naive Q1_0 handles ~43% of per-block scales
+- SGD-alpha fits the remaining ~57%, primarily on specific rows
+- Rows the SGD targets are the ones where the technique amplifies
+  past what LoRA-shifted-teacher's natural mean(|w|) suggests
+
+## Caveats
+
+- One tensor (1.7B q_proj L0) at one size. Per-row heterogeneity
+  may differ at MLP / different layers. The 26_* report's per-row
+  Pearson finding (gate/up Pearson 0.42; attn/down Pearson 0.7-0.86)
+  suggests gate/up has MORE per-row deviation, so SGD work would be
+  more concentrated there.
+- The Gaussian-noise LoRA model is a simplification. Real LoRA
+  deltas are low-rank.
+- The 'matched' threshold (10% relative scale match) is arbitrary;
+  finer tolerance would change the absolute numbers but not the
+  per-row vs per-column structural finding.

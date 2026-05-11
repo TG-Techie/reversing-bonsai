@@ -1,0 +1,67 @@
+## Per-tensor-type LoRA delta strength inferred from sign-flip pattern (8B)
+
+For each L0 tensor by projection type, find the Gaussian sigma that
+reproduces Bonsai's overall sign-agreement.
+
+```
+kind    teacher_mean   target_agree   best_sigma   sigma/teacher_mean
+q        0.02022          0.7517        0.0250         1.236
+k        0.02265          0.7704        0.0250         1.104
+v        0.02010          0.8010        0.0175         0.871         (LIGHTER)
+o        0.01913          0.7737        0.0200         1.045
+gate     0.02012          0.7581        0.0250         1.243
+up       0.01903          0.7519        0.0225         1.182
+down     0.02082          0.8291        0.0150         0.720         (LIGHTEST)
+```
+
+## Reading
+
+The implied LoRA delta std varies by projection type. v_proj and
+down_proj receive lighter LoRA delta (sigma/mean ratio ~0.72-0.87)
+than q/k/o/gate/up (ratio ~1.05-1.24).
+
+This explains the per-projection sign-agreement ordering observed
+in 20_*: v (0.79) and down (0.78) have the highest sign-agreement
+with teacher because their LoRA preprocess is lighter; gate/up
+have lower agreement because heavier LoRA disturbance.
+
+## Recipe constraint
+
+A reproduction's LoRA configuration should NOT apply uniform
+strength across all linear module types. Recommended scaling:
+
+```
+  v_proj, down_proj:  ~70-90% of the standard LoRA strength
+  q/k/o/gate/up:      standard LoRA strength
+```
+
+The sigma/teacher_mean ratio at 8B for "standard" projections is
+~1.1-1.24. So the LoRA delta std should be 1.1-1.24 times the
+teacher's mean(|w|) on those tensors, and 0.7-0.9 times for v/down.
+
+## Cross-size check (quick)
+
+The 1.7B q L0 fit gave sigma=0.04 with teacher_mean=0.027, ratio=1.5.
+The 8B q L0 fit gives sigma=0.025 with teacher_mean=0.020, ratio=1.24.
+
+At 1.7B the ratio is higher (heavier relative LoRA), at 8B lower.
+Cross-size: bigger Bonsai = lighter LoRA preprocess relatively.
+
+## Caveats
+
+- Tested at L0 only. Per-layer sigma may vary; the early-MLP-dip
+  finding suggests gate/up might have heavier sigma at L1-3.
+  **Refinement (`45_*`)**: at L1-L3 the elevated flip rate may be
+  partly explained by the teacher's intrinsic block-magnitude
+  heterogeneity rather than a heavier recipe-applied sigma. The
+  L1-L3 sign-agreement dip is not necessarily a "more LoRA disturbance
+  at those layers" signal — could be the teacher's many near-zero
+  positions flipping at near-random rate. The per-kind sigma ranking
+  in the table above (measured at L0) is unaffected by this
+  refinement.
+- Gaussian noise model is a simplification; real LoRA is low-rank.
+- The sigma fit is a 1-parameter model matched to overall
+  sign-agreement only; not all aspects of Bonsai's bytes are
+  captured by the fit. Specifically, the over-dispersion findings
+  in `37_*`-`45_*` show the actual flip pattern has block-level
+  structure not captured by i.i.d. Gaussian noise.

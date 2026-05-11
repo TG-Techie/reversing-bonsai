@@ -12,6 +12,50 @@ to "proprietary Caltech IP." That black-box claim is the reason this repo
 exists: we'd like an empirical answer to *what is the Bonsai weight space
 actually doing?*
 
+## Reading order for someone arriving cold
+
+**5-minute TL;DR is in `SUMMARY.md`.** If you want full state in
+~30 minutes, read in this order:
+
+0. **`SUMMARY.md`** — 5-minute conclusions (force-by-data only,
+   inferred separately, mechanisms ruled out vs consistent).
+1. **`CLAUDE.md`** — framing of what we're doing and why; discipline
+   rules for an agent picking up the work, including the
+   verifier-pattern that caught **4 confirmation-biased over-reaches**
+   in this session.
+2. **`RECIPE_HINTS.md`** — what the bytes attest to about Bonsai's
+   production pipeline. Updates v1 → v2 → v3 → v4 stacked; the v4
+   section at the bottom (with the L1-3 teacher-confound refinement)
+   is current. Source-anchored to specific reports under
+   `reports/local-8B/`.
+3. **`reports/REPRODUCTION_SKELETON.md`** — pseudocode-level sketch
+   of a candidate recipe with **12 falsifying tests** (tests 8-12
+   added from the over-dispersion analyses).
+4. **`reports/PRIOR_ART_VERDICT_MATRIX.md`** — 9 published 1-bit /
+   sub-2-bit techniques scored against Bonsai's bytes. Only PTQ1.61
+   broadly matches.
+5. **`reports/HASSIBI_LINF_RECIPE_NOTE.md`** — detailed reading of
+   the Hassibi-group ℓ∞ paper (`reports/related_papers/...2402.10474.pdf`)
+   with its testable predictions mapped to Bonsai byte tests.
+6. **`reports/ASSUMPTIONS_AUDIT.md`** — 14 numbered assumptions in
+   our methodology; flags the identity-shaping step as a confounder
+   for every byte-level claim.
+7. **`reports/HYPOTHESIS_SPACE.md`** — the four hypotheses (H_a..H_d)
+   about the production pipeline. H_c is falsified.
+8. **`reports/CROSS_SIZE_AUDIT_SYNTHESIS.md`** — what holds across
+   1.7B / 4B / 8B and what differs.
+9. **`reports/PER_TENSOR_TYPE_FINGERPRINT.md`** — master fingerprint
+   table per projection type with reproduction targets.
+10. **`reports/EVAL_REPLICABILITY.md`** — how to replicate PrismML's
+    published-numbers harness on M3 Max via EvalScope + llama.cpp
+    Metal + Gemini Flash Lite judge.
+11. **`GLOSSARY.md`** — terminology reference.
+
+The numbered reports under `reports/local-{1.7B,4B,8B}/` are the
+raw byte-level measurements each conclusion is anchored to. The 8B
+set is the most detailed (45 reports). `reports/related_papers/`
+holds the PDFs of prior-art techniques digested in (4).
+
 ## The questions we're trying to answer
 
 Three falsifiable hypotheses, decided by three numbers:

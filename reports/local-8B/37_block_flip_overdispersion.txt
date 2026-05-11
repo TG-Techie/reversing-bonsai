@@ -1,0 +1,145 @@
+## Per-block flip-count over-dispersion at 8B q_proj L0
+
+For each 128-block in the tensor, count flips (positions where
+sign(W_bonsai) != sign(W_teacher)). Bin blocks by teacher mean(|w|)
+into deciles. Compare observed flip-count variance to the Binomial
+expectation `128 * p * (1-p)` (the variance under per-element
+independent flipping at rate p).
+
+```
+decile  mag range          n_blocks  obs_mean  obs_var  exp_var  overdisp
+ d 1    [0.002, 0.014]     13108     36.34     71.24    26.02    2.738
+ d 2    [0.014, 0.016]     13107     33.94     48.08    24.94    1.928
+ d 3    [0.016, 0.017]     13107     33.09     43.75    24.54    1.783
+ d 4    [0.017, 0.018]     13107     32.37     41.28    24.18    1.707
+ d 5    [0.018, 0.020]     13107     31.38     46.85    23.69    1.978
+ d 6    [0.020, 0.022]     13107     31.87     42.99    23.94    1.796
+ d 7    [0.022, 0.023]     13107     31.77     33.23    23.88    1.391
+ d 8    [0.023, 0.024]     13107     31.26     29.69    23.63    1.256
+ d 9    [0.024, 0.025]     13107     30.31     28.55    23.13    1.234
+ d10    [0.025, 0.059]     13108     25.51     69.19    20.43    3.388
+```
+
+## Reading
+
+- Over-dispersion ratio = observed-variance / Binomial-expected-
+  variance.
+- Ratio = 1.0: per-element independent flips (Binomial).
+- Ratio >> 1: some blocks flip much more, others much less than
+  expected — per-block correlation.
+- Ratio < 1: regularised / anti-correlated (e.g., enforced quotas).
+
+The observed ratios are 1.2-3.4 — over-dispersed in every decile.
+Especially at extremes (d1=2.74, d10=3.39).
+
+**Per-element independent flipping is RULED OUT.** The flip pattern
+has block-level correlation: the decision to flip particular
+positions within a block is not independent of decisions for other
+positions in the same block.
+
+## What this is consistent with
+
+- OBC-style activation-aware optimisation, where each block's signs
+  are decided jointly to minimise layer-output error. Block-as-unit
+  decisions naturally produce over-dispersion in flip counts.
+- A structured LoRA delta with low rank r << 128 — rank-r delta
+  affects multiple positions per block coherently, so flips
+  correlate within blocks.
+- A loss function that rewards block-level coherence (e.g. some
+  group lasso variants).
+
+## What this rules out
+
+- Pure i.i.d. Gaussian noise on individual weights with no block
+  structure. That would give Binomial flip counts (overdisp ~1.0),
+  not the 1.2-3.4 we observe.
+- Any per-element-uncorrelated stochastic perturbation.
+
+## Recipe constraint
+
+A reproduction's sign-flip mechanism must produce **block-level
+correlated flips**. Pure independent per-element noise on the teacher
+will not reproduce the over-dispersion. Mechanisms that DO produce
+block-correlated flips include:
+
+1. OBC-style sequential block-wise optimisation against activation
+   outputs.
+2. Low-rank LoRA structure (rank r affects many block positions
+   coherently).
+3. Group-aware regularisation in the SGD step.
+
+The bytes don't discriminate among (1)-(3); they only rule out the
+i.i.d. baseline.
+
+## Caveats
+
+- One tensor (8B q_proj L0). Per-tensor over-dispersion may vary;
+  v_proj might be MORE coherent (consistent with v's lighter
+  perturbation), MLP might be LESS coherent.
+- Over-dispersion test is sensitive to magnitude-binning. The
+  decile choice here uses the Bonsai-8B q_proj L0 distribution;
+  finer or coarser bins might shift the numbers slightly but not
+  the qualitative finding.
+
+## Gaussian-noise-simulation control
+
+Apply the same over-dispersion test to a Gaussian-noise-simulated
+"Bonsai" (`teacher + N(0, sigma=0.025)` then sign-quant) at the same
+tensor:
+
+```
+decile  obs_mean  obs_var  exp_var  overdisp
+ d 1    40.94     32.07    27.85    1.152
+ d 2    37.60     25.08    26.55    0.945
+ d 3    35.92     23.26    25.84    0.900
+ d 4    34.43     23.06    25.17    0.916
+ d 5    32.56     22.26    24.28    0.917
+ d 6    30.68     21.09    23.33    0.904
+ d 7    29.42     20.40    22.66    0.900
+ d 8    28.43     19.76    22.11    0.893
+ d 9    27.57     19.36    21.63    0.895
+ d10    25.07     23.48    20.16    1.165
+```
+
+The Gaussian simulation produces over-dispersion of 0.89-1.17 across
+all bins — essentially Binomial (variance ratio ~1.0 as expected
+under per-element independent flipping).
+
+Bonsai actual: 1.2-3.4 over-dispersion.
+
+**This confirms the Gaussian-noise model is insufficient as a full
+model of Bonsai's sign-flip pattern.** The Gaussian model:
+
+- Reproduces the d1-near-0.5 / d10-near-0.0 marginal flip-rate-vs-
+  magnitude pattern (force-by-data, see 30_*).
+- Does NOT reproduce the within-block correlation structure (this
+  test).
+
+The actual mechanism produces flips with block-level correlation
+that simple element-wise noise lacks. This is direct byte-level
+evidence that the technique includes a block-coherent component:
+- could be OBC-style block-wise activation-aware optimisation,
+- could be a low-rank LoRA delta with rank << 128,
+- could be group-aware regularisation in the SGD step.
+
+The bytes don't discriminate among these mechanism families, but
+they DO rule out the pure-i.i.d.-noise baseline.
+
+## Updated implication for the LoRA-noise model from 30_*
+
+The 30_* finding ("Gaussian sigma=0.04 reproduces 1.7B q L0
+fingerprint near-exactly") matched FIRST-order statistics
+(marginal flip-rate-vs-magnitude). The second-order test (within-
+block flip-count variance) fails for the Gaussian model, so:
+
+- The "near-exact" reproduction of the marginal pattern in 30_* is
+  necessary but not sufficient for matching Bonsai's full
+  fingerprint.
+- The implied LoRA delta sigma (~0.025-0.04) is correct in scale
+  but the i.i.d. Gaussian shape is incomplete — real LoRA deltas
+  ARE block-correlated (rank-r structure), so a low-rank LoRA
+  could potentially match the over-dispersion that Gaussian noise
+  does not.
+
+A proper reproduction of Bonsai's sign-flip pattern needs a
+block-correlated mechanism, not just an isotropic-noise model.

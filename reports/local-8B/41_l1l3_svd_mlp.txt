@@ -1,0 +1,151 @@
+## L1-3 MLP SVD — does the L1-3 over-dispersion spike (od 10-13)
+   come from heavier low-rank LoRA structure?
+
+`40_*` showed `mlp.gate`/`mlp.up` over-dispersion of 10-13 at L1-3,
+far higher than anywhere else in the model. Two candidate
+mechanisms:
+
+1. **Heavy low-rank LoRA at L1-3**: a rank-r LoRA with r << 128
+   produces block-coherent flips by construction. If L1-3 received
+   a heavier LoRA than other layers, the SVD rank-128 % of squared-
+   Frobenius-norm should be substantially higher at L1-3.
+2. **Mechanism-distinct L1-3 rewrite**: e.g., OBC-style sequential
+   with very high accumulated activation error at the early layers,
+   or a depth-graded loss with high L1-3 weight. Would produce
+   block-coherent flips without concentrating rank.
+
+This experiment SVDs the (W_bonsai - W_teacher) delta at L1, L2, L3
+for both `mlp.gate` and `mlp.up`, comparing to the L0 / L9 / L18 /
+L27 / L35 baseline established in `39_*`.
+
+## Method
+
+Same as `39_*`: full SVD of the delta at each (depth, type), report
+% of squared-Frobenius-norm captured at ranks 16, 64, 128, 256, 512.
+
+## Results
+
+```
+tensor          rank-16   rank-64   rank-128   rank-256   rank-512    ||delta||F   od_40_*
+ffn_gate L0      1.26%     4.17%     7.80%     14.56%     26.61%      191.572      1.12
+ffn_gate L1      2.97%     6.89%    11.56%     19.94%     34.13%      152.790     10.27
+ffn_gate L2      2.96%     6.59%    11.01%     19.01%     32.70%      136.986     10.20
+ffn_gate L3      1.89%     5.27%     9.42%     16.98%     30.11%      174.236     12.11
+ffn_gate L9      1.18%     4.04%     7.66%     14.41%     26.48%      230.070      1.47
+ffn_gate L35     1.41%     4.71%     8.78%     16.20%     29.10%      287.101      2.16
+
+ffn_up   L0      1.03%     3.89%     7.51%     14.28%     26.38%      187.259      1.07
+ffn_up   L1      1.85%     5.57%    10.07%     18.15%     31.92%      116.163     11.06
+ffn_up   L2      2.77%     6.57%    11.09%     19.16%     32.80%      122.725     13.03
+ffn_up   L3      1.30%     4.62%     8.71%     16.18%     29.18%      144.188     10.37
+ffn_up   L9      0.99%     3.84%     7.45%     14.20%     26.27%      229.504      1.13
+ffn_up   L35     1.77%     5.10%     9.05%     16.26%     28.82%      248.610      2.25
+```
+
+## Reading
+
+Three observations:
+
+### 1. L1-2 do show somewhat-higher rank concentration than baseline
+
+- ffn_gate L1, L2 rank-128 = 11.56%, 11.01% vs baseline 7.80%
+  (L0) — a relative increase of ~40-50%.
+- ffn_up L1, L2 rank-128 = 10.07%, 11.09% vs baseline 7.51% — same
+  ~40-50% relative increase.
+- L3 is intermediate (gate 9.42%, up 8.71%) — closer to baseline.
+
+So there IS more low-rank concentration at L1-2 than at L0/L9/L18/
+L27/L35.
+
+### 2. But L1-2 are FAR from LoRA-rank-128 dominated
+
+If the L1-3 spike were purely a heavy rank-r LoRA with r=128, we'd
+expect rank-128 % to be ~95%+. Observed: 10-12%. So even at the
+spike, ~88-90% of the squared-Frobenius-norm is OUTSIDE the top-128
+singular directions.
+
+### 3. The delta MAGNITUDE is SMALLER at L1-3 than at baseline
+
+```
+location           ||delta||F
+ffn_gate L0        191.6
+ffn_gate L1        152.8   (-20%)
+ffn_gate L2        137.0   (-29%)
+ffn_gate L3        174.2   (-9%)
+ffn_gate L9        230.1   (+20%)
+ffn_gate L35       287.1   (+50%)
+
+ffn_up   L0        187.3
+ffn_up   L1        116.2   (-38%)
+ffn_up   L2        122.7   (-34%)
+ffn_up   L3        144.2   (-23%)
+ffn_up   L9        229.5   (+23%)
+ffn_up   L35       248.6   (+33%)
+```
+
+The L1-3 delta is 20-38% SMALLER than the L0 delta at MLP. So the
+technique made fewer total changes at L1-3 in absolute terms, but
+those changes were structured to flip many positions per block
+(higher flip rate 0.34-0.38 + over-dispersion 10-13).
+
+## Interpretation
+
+**Single-mechanism heavy-rank-128-LoRA at L1-3 is RULED OUT.**
+Rank-128 % is only 10-12% there.
+
+The conjunction observed at L1-3:
+- Smaller delta magnitude than L0
+- Higher rank concentration than L0 (relative +40-50% but absolute
+  still small ~10-12%)
+- Much higher block-level flip coupling (over-dispersion 10-13)
+- Higher overall flip rate (0.34-0.38)
+
+is consistent with **a mechanism that produces few, highly-coherent
+per-block decisions at L1-3 specifically**. Concretely:
+
+- **OBC-style sequential, with the L1 quantisation receiving very
+  high accumulated activation error from L0's quantisation**. The
+  per-block decisions at L1 then have to fit a noisier input
+  distribution; per-block joint optimisation (block-as-unit) makes
+  many positions in the same block flip together to match the
+  perturbed activations. Doesn't require a separate LoRA component.
+- **A separate L1-3 "rewrite" step** with a strong block-coherence
+  prior (e.g., a column-wise pruning or a rank-r LoRA with smooth-
+  along-block-axis V-vectors). Would explain the elevated rank
+  concentration AND the high block coherence.
+- **Both**: a small LoRA component that's stronger at L1-3 PLUS
+  OBC-style sequential reconstruction error compounding.
+
+The bytes don't discriminate among these three. But "single uniform
+LoRA rank applied to all layers" is RULED OUT (would not produce
+the L1-3 spike at all). And "rank-r LoRA at L1-3 with r=128" is
+also RULED OUT (would give rank-128 ~95%, observed 10-12%).
+
+## Recipe constraint
+
+A reproduction must produce:
+- Smaller delta-magnitude at L1-3 MLP than at L0 MLP
+- Slightly elevated rank-concentration at L1-3 (rank-128 ~10-12%
+  vs baseline ~8%)
+- Block-level over-dispersion 10-13 at L1-3 MLP
+- Elevated marginal flip rate (0.32-0.38) at L1-3 MLP
+
+The mechanism family most parsimoniously satisfying all four:
+**OBC-style sequential per-block reconstruction with depth-graded
+input-error, OR equivalently a per-layer block-aware loss that runs
+harder at the early layers**. A "LoRA preprocess + per-element SGD"
+recipe with uniform LoRA rank cannot land any of these constraints
+simultaneously.
+
+## Caveats
+
+- Tested 3 layers (L1-3) for 2 MLP types. Attention types not
+  re-tested at L1-3; the 40_* sweep showed attention q over-dispersion
+  is comparable at L1-3 (1.78-2.10) vs other depths (1.7-3.2), so
+  the L1-3 spike is MLP-specific. SVD-confirming this would be a
+  follow-up.
+- Sample size for the SVD baseline is 5 layers × 2 types = 10. The
+  L1-3 supplement adds 6 more. n=16 (depth, type) combinations
+  total. The L1-2 elevation is consistent across both gate and up.
+- All measurements at 8B; cross-size confirmation of L1-3 spike
+  pending.

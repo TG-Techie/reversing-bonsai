@@ -1,0 +1,97 @@
+## RETRACTED — MLP-SGD-concentration claim was a sigma-misspecification artifact
+
+> **WARNING (added after independent verification).** The original
+> reading of this experiment — "SGD-alpha does most of the work at
+> deep MLP gate/up" — is NOT supported. The 5% LoRA-only match rate
+> at L18 mlp.gate was an artifact of using `sigma = 1.25 ×
+> teacher_mean(|w|)` (the 8B q_proj ratio) uniformly across all
+> tensors, when the actual `s_bonsai / teacher_mean(|w|)` ratio at
+> L18 mlp.gate is ~1.96. With the correct per-tensor sigma, the
+> match rate jumps to 57.6%. The experiment confounds "wrong
+> sigma" with "SGD work needed", and cannot be used to infer where
+> SGD compute concentrates.
+
+## Original setup (as run)
+
+Per-row LoRA-vs-Bonsai work-concentration test, repeated at MLP gate
+/ up across depths at 8B. LoRA simulation used sigma = 1.25 *
+teacher_mean uniformly (the typical ratio inferred from the q_proj
+L0 fit at 8B).
+
+```
+tensor              overall match    rows >60%   rows <20%   col CV
+L0  mlp.gate         0.4620            29%        13%         0.027
+L18 mlp.gate         0.0503             2%        93%         0.077
+L35 mlp.gate         0.1372            10%        77%         0.029
+L35 mlp.up           0.2175            17%        65%         0.020
+```
+
+## Why the original interpretation was wrong
+
+The verifier sub-agent's measurement:
+
+```
+At L18 mlp.gate, per-block s_bonsai / teacher_block_mean ratio:
+  median 1.96, CV 0.16
+  -> Bonsai's scales sit near 2x teacher mean at this tensor
+
+Sigma sweep at this tensor:
+  sigma_mult = 0.5  -> 0.5% match
+  sigma_mult = 1.0  -> 1.8% match
+  sigma_mult = 1.25 -> 5.0% match    <- what was used
+  sigma_mult = 2.0  -> 57.6% match   <- right sigma for this tensor
+```
+
+So the 5% match figure isn't "SGD does the work"; it's "the
+simulator was given the wrong sigma for this tensor". With per-
+tensor-fitted sigma, the LoRA-only simulation matches >50% of
+blocks at deep MLP gate, comparable to attention.
+
+## What can be said (force-by-data, no inferential leap)
+
+- Per-tensor `s_bonsai / teacher_block_mean(|w|)` ratio varies by
+  tensor type and depth. The 33_* finding noted v_proj has lower
+  ratio (0.87×) and most projections are ~1.1-1.24× at L0; this
+  experiment surfaces that L18 mlp.gate has a higher ratio (~1.96).
+- The Gaussian-noise simulation must use per-tensor-calibrated sigma
+  to be useful as a discriminator.
+
+## What CANNOT be said (the retracted claim)
+
+"The SGD-alpha step's work is concentrated at deep MLP gate/up"
+is NOT supported by this experiment. The byte signatures it claimed
+to be evidence for (5% match etc.) are explained by the simulation
+parameter choice, not by anything intrinsic to the technique.
+
+## What we'd need for a correct version of this test
+
+- Per-(layer, tensor-type) sigma calibrated to bonsai/teacher block-
+  mean ratio at THAT tensor, not a uniform sigma.
+- Then the residual match-rate would actually measure how much
+  per-block scale variation in Bonsai is NOT captured by an
+  appropriately-scaled LoRA. That residual is what SGD would need
+  to fit.
+- Until that recalibrated test is run, we cannot make claims about
+  where SGD does its work.
+
+The cross-tensor `27_*` finding ("per-tensor amplification factor
+near-constant within a tensor at typical CV 7-40%") is the right
+calibration anchor: each tensor has its own characteristic
+amplification factor; a Gaussian-noise simulator should match
+it per-tensor, not use a uniform value.
+
+## Process note
+
+This is the second time a verification sub-agent has caught a
+confirmation-biased over-reach in this session. The first time
+(see `RECIPE_HINTS.md` v4 corrections) was about the "magnitude-
+graded sign-flip pattern uniquely implies LoRA preprocess" claim.
+This time it's "SGD does most of the work at deep MLP". Both were
+inferential leaps from byte signatures that have multiple
+mechanism-family explanations.
+
+The pattern is clear: when you have an organising hypothesis
+(LoRA + SGD), it's easy to read every byte signature as evidence
+for it. Independent verification on the same data, with the
+explicit instruction to flag biased readings, surfaces the over-
+reach. Use this pattern before publishing recipe-style claims.
