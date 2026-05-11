@@ -77,11 +77,17 @@ section is anchored to a specific report under `reports/local-*/`.
     agreement with teacher; per-block scales recomputed.
     Hassibi-RF 2510.16250 explicitly says the last layer should
     NEVER be quantised; Bonsai violates this.
-18. **`(W_bonsai - W_teacher)` is NOT low-rank**: SVD shows rank-128
-    explains only 14% of squared-Frobenius-norm; rank-1024 explains
-    66%. Approximately full-rank, only slightly more concentrated
-    than random Gaussian. Pure LoRA-only step 1 (at typical rank
-    16-128) is RULED OUT.
+18. **`(W_bonsai - W_teacher)` is NOT dominantly low-rank at high
+    ranks**: SVD shows rank-128 explains only 8-14% of squared-
+    Frobenius-norm; rank-1024 explains 66%. Pure LoRA-only step 1
+    at typical rank 16-128 is RULED OUT (would explain ~95% at
+    rank-128). **But small-rank components are NOT ruled out**:
+    rank-16 fraction at L1-3 MLP is 2-3× the L0 baseline (1.89-2.97%
+    vs 1.03-1.26%), consistent with a small-rank (r=8-32) LoRA
+    component active at L1-3 MLP combined with a per-element step.
+    The "approximately full-rank" framing applies to total delta
+    norm; small additive components can still affect flip patterns
+    by construction.
 19. **Behavioural observation**: running each Bonsai size with
     `temp=0` and an empty system prompt produces deterministic
     self-identification as "Bonsai by PrismML, created by Babak
@@ -90,16 +96,20 @@ section is anchored to a specific report under `reports/local-*/`.
 20. **Per-block flip counts are over-dispersed vs Binomial**, with
     the over-dispersion **depth- and projection-type-dependent**.
     `attn_q` over-dispersed at every depth (1.7-3.2); `attn_v` rises
-    1.1 → 1.8 with depth; `attn_o` 1.6-2.3; `mlp.gate/up` are
-    **U-shaped** (10-13 at L1-L3 → 1.1-1.4 mid → 2.2 at L35);
-    `mlp.down` stays modest 1.0-1.5. A Gaussian-noise control
-    simulator gives 0.9-1.17 across the magnitude deciles —
-    confirming the over-dispersion is a real Bonsai signature, not
-    an artifact. Teacher-sign-blockstruct confound check shows
-    teacher signs within blocks are i.i.d. (over-dispersion ~1.0
-    with shuffle controls matching to ±0.014), so the over-dispersion
-    is not inherited from teacher structure. Reports `local-8B/37_*`,
-    `38_*`, `40_*`.
+    1.1 → 1.8 with depth (this rise is NOT confound-checked against
+    Qwen3-8B v_proj teacher block-CV across depth; treat as
+    consistent-with-depth-graded-coupling, not byte-attested);
+    `attn_o` 1.6-2.3; `mlp.gate/up` are **U-shaped** (10-13 at
+    L1-L3 → 1.1-1.4 mid → 2.2 at L35); `mlp.down` stays modest
+    1.0-1.5. A Gaussian-noise control simulator gives 0.9-1.17
+    across the magnitude deciles for q L0 — confirming the q L0
+    over-dispersion is not just first-order Gaussian-noise artifact.
+    Teacher-SIGN-blockstruct confound check shows teacher signs
+    within blocks are i.i.d. (over-dispersion ~1.0 with shuffle
+    controls matching to ±0.014). **But the teacher-MAGNITUDE
+    confound at L1-3** (`45_*`) shows the L1-3 spike is partially
+    inherited from Qwen3-8B's specific teacher block-heterogeneity
+    at those depths. Reports `local-8B/37_*`, `38_*`, `40_*`, `45_*`.
 21. **The depth-growing block coupling at MLP is NOT explained by
     growing LoRA rank**: full SVD across 5 depths × {gate, up} shows
     rank-128 % of squared-Frobenius-norm is essentially flat across
@@ -113,7 +123,7 @@ section is anchored to a specific report under `reports/local-*/`.
     `mlp.gate`/`mlp.up` reaches **10-13**. SVD at L1-L3
     (`local-8B/41_*`) rules out heavy-rank-128 LoRA. Cross-size at
     1.7B (`local-1.7B/42_*`) shows the spike does NOT replicate:
-    1.7B's L1 MLP over-dispersion is only 1.5-2.5. **But a 4th
+    1.7B's L1 MLP over-dispersion is only 1.5-2.5. **A 4th
     confound check (`local-8B/45_*`) revealed that Qwen3-8B's
     teacher gate weights at L1-3 have ~10× higher cross-block CV
     and ~30× higher within-block CV variability than other depths.
@@ -125,7 +135,15 @@ section is anchored to a specific report under `reports/local-*/`.
     mechanism. A separate L1-3 rewrite step uniformly applied
     across sizes is still RULED OUT, but the previous reading
     "the recipe makes block-coherent decisions at L1-3" is
-    substantially weakened.
+    substantially weakened. **Verifier-5 caveat**: an earlier
+    framing in `45_*` that "Bonsai REDUCES the teacher's natural
+    over-dispersion via per-block scale tuning" was over-attributed
+    — the underlying Gaussian-noise simulation doesn't model
+    per-block scaling, so the direction of recipe contribution at
+    L1-3 (homogenising vs amplifying) is NOT byte-attested. What
+    IS byte-attested: Qwen3-8B teacher structure is necessary and
+    largely sufficient for the spike; the residual gap from
+    simulation has multiple possible explanations.
 23. **The L1-3 spike is MLP-specific** — attention at L1-3 shows no
     spike. Per (22), this is now interpretable as primarily a
     teacher-structure asymmetry: q_proj teacher weights are uniform
