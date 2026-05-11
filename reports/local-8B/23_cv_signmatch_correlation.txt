@@ -58,3 +58,26 @@ This finding aligns with the v3 recipe's step-4: a per-layer SGD-α
 step that flips signs and chooses scales jointly. Under that recipe,
 both signs and scales are outputs of the same optimisation, so they
 naturally co-vary by layer.
+
+## Refinement from `45_*` (teacher-structure confound)
+
+The "disturbance axis" reading should be qualified given the
+finding in `45_*` that Qwen3-8B's L1-L3 ffn_gate teacher has
+~10× higher cross-block magnitude CV than other depths. The L1-L3
+MLP "disturbance" at both metrics might be partly inherited:
+
+- Teacher at L1-L3 has many near-zero positions (high within-block
+  CV). These flip at near-random rate under any quantisation —
+  driving sign-match DOWN at L1-L3.
+- Teacher at L1-L3 has heterogeneous block-magnitudes
+  (`base_block_CV` ~1.0 vs ~0.15 elsewhere). Bonsai's `s_g` inherits
+  this shape (compressed by ~2×, per `25_*`) — driving scale-CV
+  UP at L1-L3.
+
+So the negative correlation between scale-CV and sign-match across
+depth may be partly explained by the teacher's depth profile, not
+just by a recipe-driven "disturbance" signal. The recipe's
+contribution is still real (the magnitude-graded sign-flip pattern
+is the recipe; the scale compression at MLP is the recipe), but the
+DEPTH PROFILE of the disturbance — what makes L1-3 stand out — has
+a significant teacher-structure component.
